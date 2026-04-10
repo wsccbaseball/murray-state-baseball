@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Murray State Baseball — TrackMan Uploader</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    color: #f0f0f0;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #CFB53B;
+    letter-spacing: 0.5px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .card h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #CFB53B;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  label.file-label {
+    display: block;
+    background: #002147;
+    border: 2px dashed #CFB53B;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    color: #CFB53B;
+    font-size: 14px;
+    -webkit-transition: background 0.2s;
+    transition: background 0.2s;
+  }
+  label.file-label:active { background: #002f5f; }
+  input[type="file"] { display: none; }
+  .file-list {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #aaa;
+  }
+  .file-list div {
+    padding: 4px 0;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 16px auto;
+    padding: 14px;
+    background: #CFB53B;
+    color: #002147;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  .btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+  }
+  .btn:active:not(:disabled) { background: #b89e2a; }
+  .log {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #aaa;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 60px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+  }
+  .log .success { color: #4ade80; }
+  .log .error { color: #f87171; }
+  .log .info { color: #60a5fa; }
+  .progress-bar-wrap {
+    max-width: 600px;
+    margin: 0 auto 16px auto;
+    background: #2a2a2a;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    display: none;
+  }
+  .progress-bar {
+    height: 100%;
+    background: #CFB53B;
+    width: 0%;
+    -webkit-transition: width 0.3s;
+    transition: width 0.3s;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚾ Murray State Baseball</h1>
+  <p>TrackMan CSV Uploader</p>
+</div>
+
+<div class="card">
+  <h2>Select TrackMan CSV Files</h2>
+  <label class="file-label" for="csvInput">
+    Tap to select CSV file(s)
+  </label>
+  <input type="file" id="csvInput" accept=".csv" multiple>
+  <div class="file-list" id="fileList"></div>
+</div>
+
+<button class="btn" id="uploadBtn" disabled>Upload to Database</button>
+
+<div class="progress-bar-wrap" id="progressWrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="log" id="log"><span class="info">Ready. Select one or more CSV files to begin.</span></div>
+
+<script>
+  const SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
+
+  const csvInput = document.getElementById('csvInput');
+  const fileList = document.getElementById('fileList');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const log = document.getElementById('log');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+
+  let parsedFiles = [];
+
+  function addLog(msg, type) {
+    var line = document.createElement('div');
+    line.className = type || '';
+    line.textContent = msg;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function parseCSV(text) {
+    var lines = text.split('\n');
+    var headers = lines[0].split(',').map(function(h) { return h.trim().replace(/\r/g, ''); });
+    var rows = [];
+    for (var i = 1; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      var values = splitCSVLine(line);
+      var row = {};
+      for (var j = 0; j < headers.length; j++) {
+        var val = (values[j] || '').trim().replace(/^"|"$/g, '');
+        row[headers[j]] = val === '' ? null : val;
+      }
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function splitCSVLine(line) {
+    var result = [];
+    var cur = '';
+    var inQuotes = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (c === '"') { inQuotes = !inQuotes; }
+      else if (c === ',' && !inQuotes) { result.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function coerceRow(row) {
+    var intFields = ['PAofInning','PitchofPA','PitcherId','BatterId','Inning','Outs','Balls','Strikes','OutsOnPlay','RunsScored','RBI','PitchNo','CatcherId'];
+    var floatFields = ['RelSpeed','VertRelAngle','HorzRelAngle','SpinRate','SpinAxis','RelHeight','RelSide','Extension','VertBreak','InducedVertBreak','HorzBreak','PlateLocHeight','PlateLocSide','ZoneSpeed','VertApprAngle','HorzApprAngle','ZoneTime','ExitSpeed','Angle','Direction','HitSpinRate','PositionAt110X','PositionAt110Y','PositionAt110Z','Distance','LastTrackedDistance','Bearing','HangTime','pfxX','pfxZ','x0','y0','z0','vx0','vy0','vz0','ax0','ay0','az0','ZoneTop','ZoneBottom'];
+    var out = {};
+    for (var k in row) {
+      if (intFields.indexOf(k) !== -1) {
+        out[k] = row[k] !== null && row[k] !== '' ? parseInt(row[k], 10) : null;
+      } else if (floatFields.indexOf(k) !== -1) {
+        out[k] = row[k] !== null && row[k] !== '' ? parseFloat(row[k]) : null;
+      } else {
+        out[k] = row[k];
+      }
+    }
+    return out;
+  }
+
+  csvInput.addEventListener('change', function() {
+    parsedFiles = [];
+    fileList.innerHTML = '';
+    log.innerHTML = '';
+    var files = Array.from(this.files);
+    if (!files.length) { uploadBtn.disabled = true; return; }
+
+    var pending = files.length;
+    files.forEach(function(file) {
+      var div = document.createElement('div');
+      div.textContent = '📄 ' + file.name;
+      fileList.appendChild(div);
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var rows = parseCSV(e.target.result);
+        parsedFiles.push({ name: file.name, rows: rows });
+        addLog('Parsed ' + file.name + ': ' + rows.length + ' pitches', 'info');
+        pending--;
+        if (pending === 0) uploadBtn.disabled = false;
+      };
+      reader.readAsText(file);
+    });
+  });
+
+  uploadBtn.addEventListener('click', function() {
+    if (!parsedFiles.length) return;
+    uploadBtn.disabled = true;
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0%';
+    log.innerHTML = '';
+
+    var allRows = [];
+    parsedFiles.forEach(function(f) {
+      f.rows.forEach(function(r) { allRows.push(coerceRow(r)); });
+    });
+
+    addLog('Starting upload of ' + allRows.length + ' total pitches...', 'info');
+
+    var BATCH = 500;
+    var total = allRows.length;
+    var uploaded = 0;
+
+    function uploadBatch(start) {
+      if (start >= total) {
+        progressBar.style.width = '100%';
+        addLog('✅ Upload complete! ' + uploaded + ' pitches inserted.', 'success');
+        uploadBtn.disabled = false;
+        return;
+      }
+      var batch = allRows.slice(start, start + BATCH);
+      fetch(SUPABASE_URL + '/rest/v1/pitches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(batch)
+      }).then(function(res) {
+        if (!res.ok) {
+          return res.text().then(function(t) { throw new Error(t); });
+        }
+        uploaded += batch.length;
+        var pct = Math.round((uploaded / total) * 100);
+        progressBar.style.width = pct + '%';
+        addLog('Uploaded ' + uploaded + ' / ' + total, 'info');
+        uploadBatch(start + BATCH);
+      }).catch(function(err) {
+        addLog('❌ Error: ' + err.message, 'error');
+        uploadBtn.disabled = false;
+      });
+    }
+
+    uploadBatch(0);
+  });
+</script>
+
+</body>
+</html>
