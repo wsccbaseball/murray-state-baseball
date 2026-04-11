@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umpire Scorecard Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{max-width:100vw;overflow-x:hidden;}
+:root{
+  --bg:#f0f2f5;--card:#ffffff;--border:#dde4ef;
+  --text:#1a1a2e;--muted:#5a6a7a;
+  --gold:#CFB53B;--red:#d93025;--blue:#1a6fb5;--green:#1a7a35;
+  --orange:#e07020;
+  --red-dim:rgba(217,48,37,0.10);--blue-dim:rgba(26,111,181,0.10);--orange-dim:rgba(224,112,32,0.10);
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+#upload-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;gap:1.5rem}
+.up-title{text-align:center}
+.up-title h1{font-family:‘Bebas Neue’,sans-serif;font-size:2.8rem;letter-spacing:.1em;color:var(–gold)}
+.up-title p{color:var(–muted);margin-top:.3rem;font-size:.9rem}
+.form-card{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:1.5rem;width:100%;max-width:560px}
+.form-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.form-row:last-child{margin-bottom:0}
+.fg{display:flex;flex-direction:column;gap:.4rem;flex:1;min-width:100px}
+label{font-size:.75rem;font-weight:600;color:var(–muted);text-transform:uppercase;letter-spacing:.05em}
+input[type=text],input[type=number],input[type=date]{
+background:#ffffff;border:1px solid var(–border);border-radius:6px;
+color:var(–text);padding:.5rem .75rem;font-size:.9rem;font-family:‘DM Sans’,sans-serif;width:100%;
+transition:border-color .2s}
+input:focus{outline:none;border-color:var(–gold)}
+.gen-btn{
+background:var(–gold);color:#002147;border:none;border-radius:8px;
+padding:.85rem 2rem;font-size:1rem;font-weight:700;font-family:‘DM Sans’,sans-serif;
+cursor:pointer;width:100%;max-width:560px;transition:opacity .2s;letter-spacing:.05em;
+}
+.gen-btn:hover{opacity:.85}
+.error-msg{color:var(–red);font-size:.85rem;display:none}
+
+#scorecard-screen{display:none;padding:.25rem;max-width:960px;margin:0 auto;overflow:hidden;width:100%;}
+.sc-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;gap:.4rem;flex-wrap:nowrap;}
+.back-btn{background:transparent;border:1px solid var(–border);color:var(–muted);
+border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.75rem;white-space:nowrap}
+.back-btn:hover{border-color:var(–text);color:var(–text)}
+.img-btn{background:var(–green);color:#fff;border:none;
+border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.75rem;font-weight:600;white-space:nowrap}
+.img-btn:hover{opacity:.85}
+.img-btn:disabled{opacity:.5;cursor:wait}
+
+#img-overlay{
+display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);
+z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:1rem;gap:1rem;
+}
+#img-overlay.show{display:flex}
+#img-overlay img{max-width:100%;max-height:75vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#img-overlay p{color:#aaa;font-size:.85rem;text-align:center;line-height:1.5}
+#overlay-close{background:var(–border);color:var(–text);border:none;border-radius:6px;
+padding:.5rem 1.5rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.85rem}
+
+.scorecard{
+background:var(–card);border:1px solid var(–border);border-radius:12px;overflow:hidden;
+display:grid;grid-template-rows:auto auto auto auto;grid-template-columns:1fr;
+width:100%;max-width:100vw;
+}
+
+.sc-header-band{
+background:#002147;border-bottom:1px solid var(–border);
+padding:.35rem .6rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem;
+grid-column:1/-1;overflow:hidden;max-width:100%;
+}
+.sc-ump-name{font-family:‘Bebas Neue’,sans-serif;font-size:clamp(.9rem,4vw,1.4rem);letter-spacing:.08em;color:#CFB53B;line-height:1;white-space:nowrap}
+.sc-game-meta{text-align:right;line-height:1.2;min-width:0;overflow:hidden}
+.sc-teams{font-family:‘Bebas Neue’,sans-serif;font-size:clamp(.7rem,3vw,1rem);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-away{color:#ffffff}
+.sc-home{color:#ffffff}
+.sc-vs{color:rgba(255,255,255,0.6);margin:0 .25rem;font-size:1rem}
+.sc-final{color:#ffffff;font-size:.9rem;margin-left:.4rem}
+.sc-game-label{font-size:clamp(.55rem,2.5vw,.75rem);color:var(–gold);font-weight:600;letter-spacing:.04em}
+.sc-date{font-size:clamp(.5rem,2.2vw,.72rem);color:rgba(255,255,255,0.5)}
+
+.stats-strip{
+display:grid;grid-template-columns:repeat(3,1fr);
+border-bottom:1px solid var(–border);overflow:hidden;width:100%;
+}
+.sstat{
+padding:.6rem .5rem;border-right:1px solid var(–border);text-align:center;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
+}
+.sstat:last-child{border-right:none}
+.sstat-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(–muted)}
+.sstat-val{font-family:‘Bebas Neue’,sans-serif;font-size:1.9rem;line-height:1;letter-spacing:.04em}
+.sstat-sub{font-size:.62rem;color:var(–muted);line-height:1.3;text-align:center}
+.val-gold{color:var(–gold)}
+.val-red{color:var(–red)}
+.val-blue{color:var(–blue)}
+.val-green{color:var(–green)}
+.val-muted{color:var(–muted)}
+
+.sc-body{
+display:grid;grid-template-columns:1fr auto;
+border-bottom:1px solid var(–border);min-height:0;
+}
+@media(max-width:600px){
+.sc-body{grid-template-columns:1fr auto;}
+.zone-panel{border-right:1px solid var(–border);padding:.3rem .4rem;}
+.zone-svg-wrap svg{max-height:300px !important;}
+}
+
+.zone-panel{
+padding:.15rem .2rem;border-right:1px solid var(–border);
+display:flex;flex-direction:column;align-items:center;gap:.05rem;align-self:start;
+}
+.zone-title{font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(–muted);align-self:flex-start;margin-bottom:0}
+.zone-svg-wrap{width:100%;display:flex;align-items:center;justify-content:center;}
+.zone-svg-wrap svg{width:100%;height:100%;max-height:260px}
+.zone-legend{display:flex;gap:1rem;font-size:.65rem;color:var(–muted);flex-wrap:wrap;justify-content:center}
+.leg{display:flex;align-items:center;gap:.35rem}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.right-panel{display:flex;flex-direction:column}
+.calls-panel{padding:.3rem .5rem;flex:1}
+.calls-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(–muted);margin-bottom:.1rem}
+.calls-sub{font-size:.55rem;color:var(–muted);margin-bottom:.3rem;font-style:italic}
+.missed-item{padding:.2rem 0;border-bottom:1px solid var(–border)}
+.missed-item:last-child{border-bottom:none}
+.missed-rank{font-family:‘Bebas Neue’,sans-serif;font-size:.9rem;color:var(–gold);margin-right:.2rem}
+.missed-sit{font-size:.65rem;font-weight:600;margin-bottom:.05rem}
+.missed-detail{font-size:.58rem;color:var(–muted);line-height:1.2}
+.missed-badge{display:inline-block;padding:.1rem .4rem;border-radius:3px;font-size:.62rem;font-weight:700;margin-left:.3rem}
+.badge-red{background:var(–red-dim);color:var(–red)}
+.badge-blue{background:var(–blue-dim);color:var(–blue)}
+.badge-orange{background:var(–orange-dim);color:var(–orange)}
+.no-calls{color:var(–green);font-size:.8rem;padding:.4rem 0}
+
+.acc-row{display:grid;grid-template-columns:1fr 1fr}
+.acc-block{padding:.7rem .75rem;text-align:center;border-right:1px solid var(–border)}
+.acc-block:last-child{border-right:none}
+.acc-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(–muted);margin-bottom:.3rem}
+.acc-pct{font-family:‘Bebas Neue’,sans-serif;font-size:2rem;line-height:1;letter-spacing:.04em}
+.acc-sub{font-size:.62rem;color:var(–muted);margin-top:.2rem;line-height:1.3}
+
+.sc-footer{padding:.4rem 1rem;font-size:.6rem;color:var(–muted);text-align:center;background:#e8eef6;border-top:1px solid var(–border)}
+
+@media print{
+@page{size:landscape;margin:.4in}
+body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#scorecard-screen{display:block!important;padding:0;max-width:100%}
+#upload-screen{display:none!important}
+.sc-toolbar{display:none}
+.scorecard{border:1px solid #ccc;border-radius:6px}
+:root{–bg:#fff;–card:#f9fafb;–border:#dde1e7;–text:#111;–muted:#5a6472;
+–gold:#CFB53B;–red:#d93025;–blue:#1a6fb5;–green:#1a7a35;
+–red-dim:rgba(217,48,37,.1);–blue-dim:rgba(26,111,181,.1)}
+.sc-header-band{background:#002147}
+.sc-footer{background:#e8eef6}
+}
+</style>
+
+</head>
+<body>
+
+<div id="upload-screen">
+  <div class="up-title">
+    <h1>Umpire Scorecard</h1>
+    <p>Select a game to generate a called pitch analysis</p>
+  </div>
+  <div class="form-card">
+    <div class="form-row">
+      <div class="fg" style="flex:2">
+        <label>Step 1 — Select Game</label>
+        <select id="game-select" style="background:#ffffff;border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.5rem .75rem;font-size:.9rem;font-family:'DM Sans',sans-serif;width:100%;">
+          <option value="">Loading games...</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:0">
+      <div class="fg" style="flex:2">
+        <label>Umpire Name</label>
+        <input type="text" id="ump-name" placeholder="Enter umpire name">
+      </div>
+      <div class="fg" style="max-width:80px">
+        <label>Away Score</label>
+        <input type="number" id="away-score" placeholder="0" min="0">
+      </div>
+      <div class="fg" style="max-width:80px">
+        <label>Home Score</label>
+        <input type="number" id="home-score" placeholder="0" min="0">
+      </div>
+    </div>
+  </div>
+  <div class="error-msg" id="error-msg"></div>
+  <button class="gen-btn" id="gen-btn" style="display:none">Generate Scorecard →</button>
+</div>
+
+<div id="scorecard-screen">
+  <div class="sc-toolbar">
+    <button class="back-btn" id="back-btn">← New Scorecard</button>
+  </div>
+  <div class="scorecard" id="scorecard"></div>
+  <button class="img-btn" id="img-btn" style="width:100%;margin-top:.4rem;padding:.6rem;font-size:.85rem;border-radius:8px;">📷 Save Image</button>
+</div>
+
+<div id="img-overlay">
+  <p>Long press the image below → <strong>Save to Photos</strong></p>
+  <img id="overlay-img" src="" alt="Scorecard">
+  <button id="overlay-close">Close</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
+
+async function supaFetch(path) {
+  let rows=[],from=0;
+  while(true){
+    const sep=path.includes('?')?'&':'?';
+    const r=await fetch(SUPABASE_URL+'/rest/v1/'+path+sep+'limit=1000&offset='+from,
+      {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    const d=await r.json();
+    if(!Array.isArray(d)||!d.length)break;
+    rows=rows.concat(d);
+    if(d.length<1000)break;
+    from+=1000;
+  }
+  return rows;
+}
+
+let csvData=null, gamesMeta={};
+
+function norm(s){return s.toLowerCase().replace(/[\s_\-\/]/g,'')}
+function findCol(headers,candidates){
+  const nh=headers.map(h=>({orig:h,n:norm(h)}));
+  for(const c of candidates){const nc=norm(c);const f=nh.find(h=>h.n===nc);if(f)return f.orig;}
+  return null;
+}
+function fmtDate(d){if(!d)return '';const[y,m,day]=d.split('-');return`${m}/${day}/${y}`;}
+
+const SVG_W=300,SVG_H=310,X_MIN=-1.4,X_MAX=1.4,Y_MIN=0.8,Y_MAX=4.3;
+function toSVG(x,y){return[((x-X_MIN)/(X_MAX-X_MIN))*SVG_W,SVG_H-((y-Y_MIN)/(Y_MAX-Y_MIN))*SVG_H];}
+
+function buildZoneSVG(missedCalls,zoneTop,zoneBottom,halfW,SHADOW=0.0833){
+  const[zl,zt]=toSVG(-halfW,zoneTop),[zr,zb]=toSVG(halfW,zoneBottom);
+  const zw=zr-zl,zh=zb-zt,thirdH=(zb-zt)/3,thirdW=(zr-zl)/3;
+  const shadowPx=(SHADOW/(X_MAX-X_MIN))*SVG_W,shadowPy=(SHADOW/(Y_MAX-Y_MIN))*SVG_H;
+  const shadowBox=`<rect x="${zl-shadowPx}" y="${zt-shadowPy}" width="${zw+shadowPx*2}" height="${zh+shadowPy*2}" fill="none" stroke="#333333" stroke-width="1" stroke-dasharray="4,3" opacity="0.8"/>`;
+  let dots='';
+  for(const p of missedCalls){
+    if(p.side==null||p.height==null)continue;
+    const[dx,dy]=toSVG(p.side,p.height);
+    const isFP=(p.type==='FP'),isBorderline=(p.cat==='borderline');
+    let color=isBorderline?'#e07020':isFP?'#d93025':'#1a6fb5';
+    dots+=`<circle cx="${dx}" cy="${dy}" r="4.5" fill="${color}" stroke="rgba(0,0,0,0.4)" stroke-width="0.8"/>`;
+  }
+  return `<svg id="zone-svg" viewBox="0 0 ${SVG_W} ${SVG_H}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${SVG_W}" height="${SVG_H}" fill="none"/>
+    <line x1="${zl+thirdW}" y1="${zt}" x2="${zl+thirdW}" y2="${zb}" stroke="#c5d0dc" stroke-width="1"/>
+    <line x1="${zl+thirdW*2}" y1="${zt}" x2="${zl+thirdW*2}" y2="${zb}" stroke="#c5d0dc" stroke-width="1"/>
+    <line x1="${zl}" y1="${zt+thirdH}" x2="${zr}" y2="${zt+thirdH}" stroke="#c5d0dc" stroke-width="1"/>
+    <line x1="${zl}" y1="${zt+thirdH*2}" x2="${zr}" y2="${zt+thirdH*2}" stroke="#c5d0dc" stroke-width="1"/>
+    <rect x="${zl}" y="${zt}" width="${zw}" height="${zh}" fill="rgba(0,33,71,0.04)" stroke="#002147" stroke-width="1.5"/>
+    <text x="${zr+6}" y="${zt+4}" font-family="'DM Mono',monospace" font-size="9" fill="#8a9ab0">${zoneTop}ft</text>
+    <text x="${zr+6}" y="${zb+4}" font-family="'DM Mono',monospace" font-size="9" fill="#8a9ab0">${zoneBottom}ft</text>
+    <line x1="${SVG_W/2}" y1="${zt-15}" x2="${SVG_W/2}" y2="${zb+10}" stroke="#c5d0dc" stroke-width="1" stroke-dasharray="3,4"/>
+    ${shadowBox}
+    ${dots}
+    <text x="${SVG_W/2}" y="${SVG_H-2}" font-family="'DM Mono',monospace" font-size="8" fill="#8a9ab0" text-anchor="middle">CATCHER'S VIEW</text>
+  </svg>`;
+}
+
+const RE24=[
+  [0.544,0.941,1.170,1.556,1.321,1.743,1.978,2.395],
+  [0.291,0.587,0.700,1.068,0.890,1.088,1.399,1.756],
+  [0.112,0.242,0.325,0.552,0.375,0.529,0.661,0.978],
+];
+const COUNT_RE={'0-0':0.444,'1-0':0.562,'2-0':0.628,'3-0':0.765,'0-1':0.306,'1-1':0.380,'2-1':0.437,'3-1':0.622,'0-2':0.191,'1-2':0.250,'2-2':0.305,'3-2':0.456};
+
+function walkResult(baseState){
+  const on1=!!(baseState&1),on2=!!(baseState&2),on3=!!(baseState&4);
+  let runs=0,n1=true,n2=on2,n3=on3;
+  if(on1){n2=true;if(on2){n3=true;if(on3)runs=1;}}
+  return{newState:(n1?1:0)|(n2?2:0)|(n3?4:0),runs};
+}
+
+function reDelta(type,balls,strikes,outs,baseState){
+  const safeOuts=Math.min(Math.max(isNaN(outs)?0:outs,0),2);
+  const bs=isNaN(baseState)||baseState<0||baseState>7?0:baseState;
+  function re(b,s){
+    if(b>=4){const{newState,runs}=walkResult(bs);return runs+RE24[safeOuts][newState];}
+    if(s>=3){return safeOuts===2?0:RE24[safeOuts+1][bs];}
+    return COUNT_RE[`${b}-${s}`]??COUNT_RE['0-0'];
+  }
+  if(type==='FP')return re(balls+1,strikes)-re(balls,strikes+1);
+  else return re(balls,strikes+1)-re(balls+1,strikes);
+}
+
+function processCSV(rows){
+  const headers=Object.keys(rows[0]);
+  const C={
+    call:findCol(headers,['PitchCall','pitchcall','pitch_call','Call']),
+    side:findCol(headers,['PlateLocSide','platelocside','plate_loc_side','px']),
+    height:findCol(headers,['PlateLocHeight','platelocheight','plate_loc_height','pz']),
+    zTop:findCol(headers,['ZoneTop','zonetop','zone_top','sz_top']),
+    zBot:findCol(headers,['ZoneBottom','zonebottom','zone_bottom','sz_bot']),
+    inning:findCol(headers,['Inning','inning']),
+    topBot:findCol(headers,['Top/Bottom','TopBottom','topbottom','top_bottom','Half']),
+    balls:findCol(headers,['Balls','balls','BallCount','ball_count']),
+    strikes:findCol(headers,['Strikes','strikes','StrikeCount','strike_count']),
+    outs:findCol(headers,['Outs','outs','OutsBeforePitch']),
+    pitcher:findCol(headers,['Pitcher','pitcher']),
+    batter:findCol(headers,['Batter','batter']),
+    pitchTeam:findCol(headers,['PitcherTeam','pitcherteam']),
+    batTeam:findCol(headers,['BatterTeam','batterteam']),
+    home:findCol(headers,['HomeTeam','hometeam','home_team']),
+    away:findCol(headers,['AwayTeam','awayteam','away_team']),
+    r1b:findCol(headers,['Runner1B','runner1b']),
+    r2b:findCol(headers,['Runner2B','runner2b']),
+    r3b:findCol(headers,['Runner3B','runner3b']),
+  };
+  if(!C.call)throw new Error('Could not find PitchCall column.');
+  if(!C.side||!C.height)throw new Error('Could not find PlateLocSide / PlateLocHeight columns.');
+  const HALF_W=17/2/12,SHADOW=1.455/12,DEFAULT_TOP=3.5,DEFAULT_BOT=1.5;
+  const usingPerPitch=!!(C.zTop&&C.zBot);
+  function inZone(side,height,row){
+    const top=usingPerPitch?(parseFloat(row[C.zTop])||DEFAULT_TOP):DEFAULT_TOP;
+    const bot=usingPerPitch?(parseFloat(row[C.zBot])||DEFAULT_BOT):DEFAULT_BOT;
+    return Math.abs(side)<=HALF_W&&height>=bot&&height<=top;
+  }
+  function inShadow(side,height,row){
+    const top=usingPerPitch?(parseFloat(row[C.zTop])||DEFAULT_TOP):DEFAULT_TOP;
+    const bot=usingPerPitch?(parseFloat(row[C.zBot])||DEFAULT_BOT):DEFAULT_BOT;
+    if(inZone(side,height,row))return false;
+    return Math.abs(side)<=HALF_W+SHADOW&&height>=bot-SHADOW&&height<=top+SHADOW;
+  }
+  const zoneSamples=rows.map(r=>({top:usingPerPitch?parseFloat(r[C.zTop]):DEFAULT_TOP,bot:usingPerPitch?parseFloat(r[C.zBot]):DEFAULT_BOT})).filter(s=>!isNaN(s.top)&&!isNaN(s.bot));
+  const medianTop=zoneSamples.length?zoneSamples.map(s=>s.top).sort((a,b)=>a-b)[Math.floor(zoneSamples.length/2)]:DEFAULT_TOP;
+  const medianBot=zoneSamples.length?zoneSamples.map(s=>s.bot).sort((a,b)=>a-b)[Math.floor(zoneSamples.length/2)]:DEFAULT_BOT;
+  const calledPitches=[],missed=[];
+  let TP=0,TN=0,FP=0,FN=0;
+  const teamFavor={};
+  for(const row of rows){
+    const callRaw=(row[C.call]||'').trim();
+    const isCS=callRaw==='StrikeCalled',isCB=callRaw==='BallCalled';
+    if(!isCS&&!isCB)continue;
+    const side=parseFloat(row[C.side]),height=parseFloat(row[C.height]);
+    if(isNaN(side)||isNaN(height))continue;
+    const inZ=inZone(side,height,row);
+    const balls=parseInt(row[C.balls])||0,strikes=parseInt(row[C.strikes])||0,outs=parseInt(row[C.outs]);
+    const inning=row[C.inning]||'',topBot=row[C.topBot]||'';
+    const pitcher=row[C.pitcher]||'',batter=row[C.batter]||'';
+    const pitchTeam=row[C.pitchTeam]||'',batTeam=row[C.batTeam]||'';
+    const on1b=C.r1b?!!(row[C.r1b]||'').trim():false;
+    const on2b=C.r2b?!!(row[C.r2b]||'').trim():false;
+    const on3b=C.r3b?!!(row[C.r3b]||'').trim():false;
+    const baseState=(on1b?1:0)|(on2b?2:0)|(on3b?4:0);
+    const shadow=inShadow(side,height,row);
+    if(isCS&&inZ)TP++;
+    else if(isCB&&!inZ&&!shadow)TN++;
+    else if(isCS&&!inZ&&!shadow){FP++;const delta=reDelta('FP',balls,strikes,outs,baseState);const t=pitchTeam||'Unknown';teamFavor[t]=(teamFavor[t]||0)+delta;missed.push({type:'FP',cat:'clear',side,height,balls,strikes,outs,inning,topBot,pitcher,batter,pitchTeam,batTeam,delta});}
+    else if(isCB&&inZ){FN++;const delta=reDelta('FN',balls,strikes,outs,baseState);const t=batTeam||'Unknown';teamFavor[t]=(teamFavor[t]||0)+Math.abs(delta);missed.push({type:'FN',cat:'clear',side,height,balls,strikes,outs,inning,topBot,pitcher,batter,pitchTeam,batTeam,delta});}
+    else if(isCS&&shadow){FP++;const delta=reDelta('FP',balls,strikes,outs,baseState)*0.5;const t=pitchTeam||'Unknown';teamFavor[t]=(teamFavor[t]||0)+delta;missed.push({type:'FP',cat:'borderline',side,height,balls,strikes,outs,inning,topBot,pitcher,batter,pitchTeam,batTeam,delta});}
+    else if(isCB&&shadow){FN++;const delta=reDelta('FN',balls,strikes,outs,baseState)*0.5;const t=batTeam||'Unknown';teamFavor[t]=(teamFavor[t]||0)+Math.abs(delta);missed.push({type:'FN',cat:'borderline',side,height,balls,strikes,outs,inning,topBot,pitcher,batter,pitchTeam,batTeam,delta});}
+  }
+  if(calledPitches.length===0&&TP+TN+FP+FN===0)throw new Error('No called strikes or balls found in the data.');
+  const clearFP=missed.filter(m=>m.type==='FP'&&m.cat==='clear').length;
+  const clearFN=missed.filter(m=>m.type==='FN'&&m.cat==='clear').length;
+  const total=TP+TN+FP+FN,clearTotal=TP+TN+clearFP+clearFN;
+  const acc=clearTotal>0?(TP+TN)/clearTotal*100:0;
+  const ballAcc=(TN+clearFN)>0?TN/(TN+clearFN)*100:0;
+  const strikeAcc=(TP+clearFP)>0?TP/(TP+clearFP)*100:0;
+  missed.sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta));
+  const autoHome=C.home?(rows.find(r=>r[C.home])||{})[C.home]||'':'';
+  const autoAway=C.away?(rows.find(r=>r[C.away])||{})[C.away]||'':'';
+  return{total,TP,TN,FP,FN,acc,ballAcc,strikeAcc,missed,teamFavor,clearTotal,zoneTop:medianTop,zoneBottom:medianBot,halfW:HALF_W,shadow:SHADOW,usingPerPitch,autoHome,autoAway};
+}
+
+function cleanTeam(t){
+  if(!t)return t;
+  // Generic cleanup — replace underscores/codes with readable names where possible
+  const MAP={'MUR_STA':'Murray State','MUR_STATE':'Murray State','MURRAY':'Murray State'};
+  return MAP[t.toUpperCase()]||MAP[t.toUpperCase().replace(/[^A-Z0-9]/g,'')]||t.replace(/_/g,' ');
+}
+
+function renderScorecard(stats){
+  const ump=document.getElementById('ump-name').value.trim()||'Home Plate Umpire';
+  const away=cleanTeam(stats._awayTeam||stats.autoAway||'AWAY');
+  const home=cleanTeam(stats._homeTeam||stats.autoHome||'HOME');
+  const awayS=document.getElementById('away-score').value;
+  const homeS=document.getElementById('home-score').value;
+  const label=stats._label||'',date=stats._date?fmtDate(stats._date.slice(0,10)):'';
+  const tf=stats.teamFavor,teams=Object.keys(tf);
+  let favorCls='val-muted',favorVal='EVEN',favorSub='No bias detected';
+  if(teams.length>0){
+    teams.sort((a,b)=>tf[b]-tf[a]);
+    const top=teams[0],runs=tf[top];
+    if(runs>0.01){const netDiff=teams.length>1?runs-(tf[teams[1]]||0):runs;favorCls='val-gold';favorVal=`+${netDiff.toFixed(2)}`;favorSub=cleanTeam(top);}
+  }
+  const missedHtml=stats.missed.length===0
+    ?'<p class="no-calls">✓ No missed calls found.</p>'
+    :stats.missed.slice(0,5).map((m,i)=>{
+        const inn=m.inning?`Inn ${m.inning}${m.topBot?' ('+m.topBot+')':''}`:''
+        const sit=`${inn}${m.outs!==undefined&&!isNaN(m.outs)?', '+m.outs+' out(s)':''}`
+        const isBorderline=m.cat==='borderline';
+        const type=m.type==='FP'
+          ?`<span class="missed-badge ${isBorderline?'badge-orange':'badge-red'}">${isBorderline?'Borderline Strike':'Strike → Ball'}</span>`
+          :`<span class="missed-badge ${isBorderline?'badge-orange':'badge-blue'}">${isBorderline?'Borderline Ball':'Ball → Strike'}</span>`;
+        const deltaStr=m.delta!==undefined?` &nbsp;·&nbsp; <span style="color:${m.type==='FP'?'#f85149':'#58a6ff'}">+${Math.abs(m.delta).toFixed(2)} runs</span>`:'';
+        return`<div class="missed-item"><div class="missed-sit"><span class="missed-rank">${i+1}</span>${m.pitcher||'Pitcher'} → ${m.batter||'Batter'} ${type}</div><div class="missed-detail">${sit} &nbsp;·&nbsp; Count: ${m.balls}-${m.strikes}${deltaStr}</div></div>`;
+      }).join('');
+  const zoneSVG=buildZoneSVG(stats.missed,stats.zoneTop,stats.zoneBottom,stats.halfW,stats.shadow);
+  const scoreLabel=(awayS!==''&&homeS!=='')?`<span class="sc-final">${awayS}–${homeS}</span>`:'';
+  document.getElementById('scorecard').innerHTML=`
+    <div class="sc-header-band">
+      <div class="sc-ump-name">${ump}</div>
+      <div class="sc-game-meta">
+        <div class="sc-teams"><span class="sc-away">${away}</span><span class="sc-vs"> vs. </span><span class="sc-home">${home}</span>${scoreLabel}</div>
+        <div>${label?`<span class="sc-game-label">${label}&ensp;</span>`:''}</div>
+      </div>
+    </div>
+    <div class="stats-strip">
+      <div class="sstat"><div class="sstat-label">Overall Acc.</div><div class="sstat-val val-gold">${Math.round(stats.acc)}%</div><div class="sstat-sub">${stats.TP+stats.TN} / ${stats.clearTotal} correct</div></div>
+      <div class="sstat"><div class="sstat-label">Missed</div><div class="sstat-val ${stats.FP+stats.FN===0?'val-green':'val-red'}">${stats.FP+stats.FN}</div><div class="sstat-sub">${stats.FP} bad K · ${stats.FN} bad B</div></div>
+      <div class="sstat"><div class="sstat-label">Favor</div><div class="sstat-val ${favorCls}" style="font-size:clamp(1rem,5vw,1.9rem);">${favorVal}</div><div class="sstat-sub">${favorSub}</div></div>
+    </div>
+    <div class="sc-body">
+      <div class="zone-panel"><div class="zone-svg-wrap">${zoneSVG}</div></div>
+      <div class="right-panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem .5rem;gap:.5rem;width:68px;flex-shrink:0;">
+        <div style="text-align:center;"><div style="font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.1rem;">Ball</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;color:#1a6fb5;">${Math.round(stats.ballAcc)}%</div><div style="font-size:.45rem;color:var(--muted);">acc.</div></div>
+        <div style="width:100%;height:1px;background:var(--border);"></div>
+        <div style="text-align:center;"><div style="font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.1rem;">Strike</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1;color:#d93025;">${Math.round(stats.strikeAcc)}%</div><div style="font-size:.45rem;color:var(--muted);">acc.</div></div>
+      </div>
+    </div>
+    <div style="padding:.4rem .75rem .5rem;border-top:1px solid var(--border);">
+      <div class="calls-title">Impactful Missed Calls</div>
+      <div class="calls-sub">ranked by run expectancy impact</div>
+      ${missedHtml}
+    </div>
+    <div class="sc-footer">TrackMan · Murray State Baseball Analytics</div>
+  `;
+}
+
+const genBtn=document.getElementById('gen-btn'),errMsg=document.getElementById('error-msg');
+
+async function saveUmpireRecord(umpName,gameId,stats){
+  const g=gamesMeta[gameId]||{};
+  const record={umpire_name:umpName,game_id:gameId,game_date:g.date||null,display_name:g.display_name||null,home_team:g.home_team||null,away_team:g.away_team||null,total_called:stats.total,correct:stats.TP+stats.TN,missed_clear:stats.missed.filter(m=>m.cat==='clear').length,missed_borderline:stats.missed.filter(m=>m.cat==='borderline').length,overall_acc:parseFloat(stats.acc.toFixed(1)),ball_acc:parseFloat(stats.ballAcc.toFixed(1)),strike_acc:parseFloat(stats.strikeAcc.toFixed(1)),favor_team:Object.keys(stats.teamFavor).sort((a,b)=>stats.teamFavor[b]-stats.teamFavor[a])[0]||null,favor_runs:parseFloat((Math.max(...Object.values(stats.teamFavor).concat([0]))).toFixed(3)),created_at:new Date().toISOString()};
+  await fetch(SUPABASE_URL+'/rest/v1/umpire_games',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal,resolution=merge-duplicates'},body:JSON.stringify([record])});
+}
+
+async function loadGames(){
+  try{
+    const rows=await supaFetch('games?select=game_id,display_name,date,home_team,away_team&order=date.desc,display_name.desc');
+    const sel=document.getElementById('game-select');
+    sel.innerHTML='<option value="">— select game —</option>';
+    rows.forEach(g=>{gamesMeta[g.game_id]=g;const label=g.display_name||g.game_id;sel.innerHTML+=`<option value="${g.game_id}">${label}</option>`;});
+    sel.addEventListener('change',function(){genBtn.style.display=this.value?'block':'none';errMsg.style.display='none';});
+  }catch(e){document.getElementById('game-select').innerHTML='<option>Error loading games</option>';}
+}
+
+genBtn.addEventListener('click',async()=>{
+  const gameId=document.getElementById('game-select').value;
+  if(!gameId){showError('Please select a game.');return;}
+  errMsg.style.display='none';genBtn.textContent='Loading...';genBtn.disabled=true;
+  try{
+    const rows=await supaFetch('pitches?GameID=eq.'+encodeURIComponent(gameId));
+    if(!rows.length)throw new Error('No pitch data found for this game.');
+    csvData=rows;
+    const stats=processCSV(rows);
+    const g=gamesMeta[gameId];
+    if(g){stats._awayTeam=g.away_team;stats._homeTeam=g.home_team;stats._date=g.date;stats._label=g.display_name||'';}
+    renderScorecard(stats);
+    document.getElementById('upload-screen').style.display='none';
+    document.getElementById('scorecard-screen').style.display='block';
+    window.scrollTo(0,0);
+    const umpName=document.getElementById('ump-name').value.trim();
+    if(umpName)saveUmpireRecord(umpName,gameId,stats).catch(()=>{});
+  }catch(e){showError(e.message);}
+  finally{genBtn.textContent='Generate Scorecard →';genBtn.disabled=false;}
+});
+
+document.getElementById('back-btn').addEventListener('click',()=>{
+  document.getElementById('scorecard-screen').style.display='none';
+  document.getElementById('upload-screen').style.display='flex';
+  genBtn.textContent='Generate Scorecard →';genBtn.disabled=false;
+});
+
+document.getElementById('overlay-close').addEventListener('click',()=>{document.getElementById('img-overlay').classList.remove('show');});
+
+document.getElementById('img-btn').addEventListener('click',async()=>{
+  const btn=document.getElementById('img-btn');
+  btn.disabled=true;btn.textContent='⏳ Rendering…';
+  try{
+    const card=document.getElementById('scorecard');
+    const svgs=card.querySelectorAll('svg');
+    svgs.forEach(svg=>{const box=svg.getBoundingClientRect();if(!svg.getAttribute('width'))svg.setAttribute('width',box.width);if(!svg.getAttribute('height'))svg.setAttribute('height',box.height);});
+    const cardWidth=card.getBoundingClientRect().width;
+    const canvas=await html2canvas(card,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',logging:false,width:cardWidth,windowWidth:cardWidth,onclone(doc){const style=doc.createElement('style');style.textContent=`*{font-family:Georgia,'Times New Roman',serif!important;}.sc-ump-name,.sstat-val,.acc-pct,.missed-rank{font-family:Impact,'Arial Narrow',Arial,sans-serif!important;letter-spacing:.06em;}`;doc.head.appendChild(style);}});
+    const dataUrl=canvas.toDataURL('image/png');
+    document.getElementById('overlay-img').src=dataUrl;
+    document.getElementById('img-overlay').classList.add('show');
+  }catch(e){alert('Image generation failed: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='📷 Save as Image';}
+});
+
+function showError(msg){errMsg.textContent='⚠ '+msg;errMsg.style.display='block';}
+
+loadGames();
+</script>
+
+</body>
+</html>
