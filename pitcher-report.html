@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MS Pitcher Game Summary</title>
+<title>MSU Pitcher Game Summary</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -29,14 +29,14 @@ body {
 .home-btn {
   display:inline-flex; align-items:center; gap:6px;
   font-family:'Barlow Condensed',sans-serif;
-  font-size:15px; font-weight:700; color:#002147;
-  text-decoration:none; background:#fff8dc;
-  border:1px solid #CFB53B; border-radius:6px;
+  font-size:15px; font-weight:700; color:#2d5a8e;
+  text-decoration:none; background:#eef4fc;
+  border:1px solid #ccd6e8; border-radius:6px;
   padding:6px 14px; margin-bottom:12px;
 }
 .upload-section h1 {
   font-family:'Barlow Condensed',sans-serif;
-  font-size:24px; font-weight:800; color:#002147; margin-bottom:4px;
+  font-size:24px; font-weight:800; color:#1a3a5c; margin-bottom:4px;
 }
 .upload-section p { font-size:13px; color:#666; margin-bottom:14px; }
 .file-btn-wrap { margin-bottom:14px; }
@@ -45,135 +45,127 @@ body {
   text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;
 }
 input[type="file"] { font-size:14px; padding:8px 0; color:#333; width:100%; }
-.file-status { font-size:12px; color:#002147; font-weight:600; min-height:16px; margin-top:4px; }
+.file-status { font-size:12px; color:#2d5a8e; font-weight:600; min-height:16px; margin-top:4px; }
 .divider { border:none; border-top:1px solid #e8eef6; margin:14px 0; }
 .form-group { margin-bottom:14px; }
 .form-group label { display:block; font-size:11px; font-weight:600; color:#555; margin-bottom:4px; text-transform:uppercase; }
 .form-group select {
-  width:100%; padding:10px; border:1px solid #CFB53B; border-radius:6px;
-  font-family:'Barlow',sans-serif; font-size:16px; color:#1a1a1a; background:#fffdf0;
+  width:100%; padding:10px; border:1px solid #ccd6e8; border-radius:6px;
+  font-family:'Barlow',sans-serif; font-size:16px; color:#1a1a1a; background:#f8fafd;
   -webkit-appearance:none;
 }
 .gen-btn {
   width:100%; padding:14px;
-  background:linear-gradient(135deg,#002147,#003d7a);
-  color:#CFB53B; border:none; border-radius:8px;
+  background:linear-gradient(135deg,#1a3a5c,#2d5a8e);
+  color:#fff; border:none; border-radius:8px;
   font-family:'Barlow Condensed',sans-serif;
   font-size:20px; font-weight:800; cursor:pointer; letter-spacing:1px;
 }
 .gen-btn:disabled { opacity:0.4; cursor:not-allowed; }
-.status-msg { font-size:13px; color:#002147; margin-top:8px; min-height:18px; }
-
-/* Card */
+.status-msg { font-size:13px; color:#2d5a8e; margin-top:8px; min-height:18px; }
 .card {
-background:#fff;
-width:calc(100% - 16px); max-width:960px;
-border-radius:10px;
-box-shadow:0 4px 24px rgba(0,0,0,0.12);
-overflow:hidden;
+  background:#fff;
+  width:calc(100% - 16px); max-width:960px;
+  border-radius:10px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.12);
+  overflow:hidden;
 }
 .header {
-background:linear-gradient(135deg,#002147 0%,#003d7a 100%);
-padding:12px 16px 10px;
-display:flex; align-items:center; justify-content:space-between;
+  background:linear-gradient(135deg,#1a3a5c 0%,#2d5a8e 100%);
+  padding:12px 16px 10px;
+  display:flex; align-items:center; justify-content:space-between;
 }
 .header-center { text-align:center; flex:1; padding:0 8px; }
 .player-name {
-font-family:'Barlow Condensed',sans-serif;
-font-size:clamp(22px,6vw,36px); font-weight:800; color:#fff; letter-spacing:1px; line-height:1;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(22px,6vw,36px); font-weight:800; color:#fff; letter-spacing:1px; line-height:1;
 }
 .player-info {
-font-family:'Barlow Condensed',sans-serif;
-font-size:clamp(11px,3vw,15px); color:#CFB53B; margin-top:2px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(11px,3vw,15px); color:#a8c8f0; margin-top:2px;
 }
 .summary-title {
-font-family:'Barlow Condensed',sans-serif;
-font-size:clamp(13px,3.5vw,18px); font-weight:700; color:#fff; margin-top:4px;
-}
-.season-tag { font-size:clamp(10px,2.5vw,13px); font-style:italic; color:#b89e2a; margin-top:1px; }
-.logo-box { width:clamp(44px,12vw,64px); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.logo-text {
   font-family:'Barlow Condensed',sans-serif;
-  font-weight:800; font-size:clamp(18px,5vw,28px);
-  color:#CFB53B; letter-spacing:1px; text-align:center;
-  background:rgba(255,255,255,0.1); border-radius:6px;
-  padding:6px 8px; border:1px solid #CFB53B;
+  font-size:clamp(13px,3.5vw,18px); font-weight:700; color:#fff; margin-top:4px;
 }
+.season-tag { font-size:clamp(10px,2.5vw,13px); font-style:italic; color:#7bb3e0; margin-top:1px; }
+.logo-box { width:clamp(44px,12vw,64px); flex-shrink:0; }
+.logo-img { width:clamp(40px,11vw,56px); height:clamp(40px,11vw,56px); object-fit:contain; background:#fff; border-radius:6px; padding:3px; }
 .game-line {
-background:#fff3c0; text-align:center; padding:6px 10px;
-font-family:'Barlow Condensed',sans-serif;
-font-size:clamp(12px,3.2vw,17px); font-weight:700; color:#002147;
-border-bottom:2px solid #CFB53B; line-height:1.3;
+  background:#e8f0fb; text-align:center; padding:6px 10px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(12px,3.2vw,17px); font-weight:700; color:#1a3a5c;
+  border-bottom:2px solid #c5d8f0; line-height:1.3;
 }
 .stat-table-wrap { padding:6px 10px 4px; overflow-x:auto; }
 .stat-table { width:100%; border-collapse:collapse; font-family:'Barlow Condensed',sans-serif; }
 .stat-table th {
-background:#002147; color:#CFB53B;
-font-size:clamp(9px,2.6vw,13px); font-weight:700;
-padding:5px 3px; text-align:center; white-space:nowrap;
+  background:#1a3a5c; color:#fff;
+  font-size:clamp(9px,2.6vw,13px); font-weight:700;
+  padding:5px 3px; text-align:center; white-space:nowrap;
 }
 .stat-table td {
-text-align:center; padding:6px 3px;
-font-size:clamp(13px,3.8vw,18px); font-weight:600; color:#1a1a1a;
-border:1px solid #dde4ef; background:#f8fafd;
+  text-align:center; padding:6px 3px;
+  font-size:clamp(13px,3.8vw,18px); font-weight:600; color:#1a1a1a;
+  border:1px solid #dde4ef; background:#f8fafd;
 }
 .charts-row { display:flex; padding:4px 6px; gap:4px; align-items:flex-start; }
 .chart-box {
-flex:1; min-width:0; background:#f8fafd;
-border:1px solid #dde4ef; border-radius:6px; padding:5px 3px 3px;
+  flex:1; min-width:0; background:#f8fafd;
+  border:1px solid #dde4ef; border-radius:6px; padding:5px 3px 3px;
 }
 .chart-title {
-font-family:'Barlow Condensed',sans-serif;
-font-size:clamp(9px,2.4vw,13px); font-weight:700; color:#002147;
-text-align:center; margin-bottom:1px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(9px,2.4vw,13px); font-weight:700; color:#1a3a5c;
+  text-align:center; margin-bottom:1px;
 }
 .chart-subtitle { font-size:clamp(8px,2vw,11px); color:#7a8faa; text-align:center; margin-bottom:2px; }
 canvas { display:block; margin:0 auto; width:100% !important; height:auto !important; }
 .legend { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding:4px 10px; }
 .legend-item {
-display:flex; align-items:center; gap:5px;
-font-size:clamp(10px,2.8vw,13px); font-weight:600; color:#333;
-font-family:'Barlow Condensed',sans-serif;
+  display:flex; align-items:center; gap:5px;
+  font-size:clamp(10px,2.8vw,13px); font-weight:600; color:#333;
+  font-family:'Barlow Condensed',sans-serif;
 }
 .legend-dot { width:10px; height:10px; border-radius:50%; border:1.5px solid rgba(0,0,0,0.2); flex-shrink:0; }
 .pitch-table-wrap { padding:4px 4px; }
 .pitch-table { width:100%; border-collapse:collapse; font-family:'Barlow Condensed',sans-serif; table-layout:fixed; }
 .pitch-table th {
-background:#002147; color:#CFB53B; padding:4px 1px; text-align:center;
-font-size:clamp(6px,2vw,8.5px); font-weight:700; border:1px solid #001530;
-white-space:nowrap; overflow:hidden;
+  background:#2d5a8e; color:#fff; padding:4px 1px; text-align:center;
+  font-size:clamp(6px,2vw,8.5px); font-weight:700; border:1px solid #1a3a5c;
+  white-space:nowrap; overflow:hidden;
 }
 .pitch-table td {
-text-align:center; padding:4px 1px;
-border:1px solid #dde4ef; font-size:clamp(7px,2.2vw,9.5px); font-weight:500;
+  text-align:center; padding:4px 1px;
+  border:1px solid #dde4ef; font-size:clamp(7px,2.2vw,9.5px); font-weight:500;
 }
 .pitch-table tr:nth-child(even) td { background:#f0f5fc; }
 .pitch-table tr:nth-child(odd) td { background:#f8fafd; }
 .pitch-table .total-row td { background:#e0eaf8 !important; font-weight:700; }
 .pname { font-weight:700; font-size:clamp(7px,2.2vw,9.5px); text-align:left !important; padding-left:3px !important; white-space:nowrap; overflow:hidden; }
 .footer {
-padding:5px 10px 6px; display:flex; justify-content:space-between; align-items:center;
-border-top:1px solid #CFB53B; flex-wrap:wrap; gap:2px;
+  padding:5px 10px 6px; display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid #dde4ef; flex-wrap:wrap; gap:2px;
 }
 .footer-left, .footer-right { font-size:clamp(8px,2.2vw,11px); color:#666; }
 .footer-center { font-size:clamp(7px,1.9vw,10px); color:#888; text-align:center; flex:1; }
 .save-btn-wrap { width:calc(100% - 16px); max-width:960px; margin:10px auto 0; }
 .save-btn {
-width:100%; padding:14px;
-background:linear-gradient(135deg,#002147,#003d7a);
-color:#fff; border:none; border-radius:8px;
-font-family:'Barlow Condensed',sans-serif;
-font-size:20px; font-weight:800; cursor:pointer; letter-spacing:1px;
-display:flex; align-items:center; justify-content:center; gap:8px;
-box-shadow:0 3px 12px rgba(0,0,0,0.15);
+  width:100%; padding:14px;
+  background:linear-gradient(135deg,#1a6b3a,#28a05a);
+  color:#fff; border:none; border-radius:8px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px; font-weight:800; cursor:pointer; letter-spacing:1px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.15);
 }
 .save-btn:active { opacity:0.85; transform:scale(0.99); }
 .save-btn:disabled { opacity:0.5; cursor:not-allowed; }
-.save-status { font-size:13px; color:#CFB53B; margin-top:6px; text-align:center; min-height:18px; font-weight:600; }
+.save-status { font-size:13px; color:#1a6b3a; margin-top:6px; text-align:center; min-height:18px; font-weight:600; }
 .img-modal {
-display:none; position:fixed; inset:0;
-background:rgba(0,0,0,0.85); z-index:9999;
-flex-direction:column; align-items:center; justify-content:center; padding:16px;
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.85); z-index:9999;
+  flex-direction:column; align-items:center; justify-content:center; padding:16px;
 }
 .img-modal.active { display:flex; }
 .img-modal img { max-width:100%; max-height:75vh; border-radius:8px; }
@@ -195,7 +187,7 @@ flex-direction:column; align-items:center; justify-content:center; padding:16px;
 
   <div class="file-btn-wrap">
     <label>Step 2 &mdash; Box Score</label>
-    <div class="file-status" id="pdfStatus">Select a game to auto-fetch box score</div>
+    <div class="file-status" id="pdfStatus">Upload PDF box score to add IP/ER stats (optional).</div>
     <div style="margin-top:8px;font-size:11px;color:#999;">Or upload PDF manually:</div>
     <input type="file" id="pdfFile" accept="*/*" style="margin-top:4px;">
   </div>
@@ -205,7 +197,7 @@ flex-direction:column; align-items:center; justify-content:center; padding:16px;
   <div class="form-group">
     <label>Step 3 &mdash; Pitcher</label>
     <select id="pitcherSelect" disabled>
-      <option value="">— select game first —</option>
+      <option value="">&#8212; select game first &#8212;</option>
     </select>
   </div>
 
@@ -215,30 +207,30 @@ flex-direction:column; align-items:center; justify-content:center; padding:16px;
 
 <div class="card" id="card" style="display:none;">
   <div class="header">
-    <div class="logo-box"><div class="logo-text">MSU</div></div>
+    <div class="logo-box"><img class="logo-img" src="MS-logo.png" alt="MSU" onerror="this.style.display='none'"></div>
     <div class="header-center">
-      <div class="player-name" id="cardName">—</div>
-      <div class="player-info" id="cardHand">RHP — Murray State</div>
+      <div class="player-name" id="cardName">&#8212;</div>
+      <div class="player-info" id="cardHand">RHP &#8212; Murray State Baseball</div>
       <div class="summary-title">Pitcher Game Summary</div>
-      <div class="season-tag">2026 OVC Season</div>
+      <div class="season-tag">2026 MVC Season</div>
     </div>
-    <div class="logo-box"><div class="logo-text">MSU</div></div>
+    <div class="logo-box"><img class="logo-img" src="MS-logo.png" alt="MSU" onerror="this.style.display='none'"></div>
   </div>
-  <div class="game-line" id="cardGameLine">—</div>
+  <div class="game-line" id="cardGameLine">&#8212;</div>
   <div class="stat-table-wrap">
     <table class="stat-table">
       <thead><tr><th>IP</th><th>NP</th><th>PA</th><th>ER</th><th>H</th><th>K</th><th>BB</th><th>HBP</th><th>Strike%</th><th>Whiffs</th></tr></thead>
       <tbody><tr>
-        <td id="cIP">—</td><td id="cNP">—</td><td id="cPA">—</td><td id="cER">—</td>
-        <td id="cH">—</td><td id="cK">—</td><td id="cBB">—</td><td id="cHBP">—</td>
-        <td id="cSP">—</td><td id="cWH">—</td>
+        <td id="cIP">&#8212;</td><td id="cNP">&#8212;</td><td id="cPA">&#8212;</td><td id="cER">&#8212;</td>
+        <td id="cH">&#8212;</td><td id="cK">&#8212;</td><td id="cBB">&#8212;</td><td id="cHBP">&#8212;</td>
+        <td id="cSP">&#8212;</td><td id="cWH">&#8212;</td>
       </tr></tbody>
     </table>
   </div>
   <div class="charts-row">
     <div class="chart-box">
       <div class="chart-title">Pitch Locations vs LHH</div>
-      <div class="chart-subtitle" id="cLHHn">— Pitches</div>
+      <div class="chart-subtitle" id="cLHHn">&#8212; Pitches</div>
       <canvas id="cLHH"></canvas>
     </div>
     <div class="chart-box">
@@ -248,7 +240,7 @@ flex-direction:column; align-items:center; justify-content:center; padding:16px;
     </div>
     <div class="chart-box">
       <div class="chart-title">Pitch Locations vs RHH</div>
-      <div class="chart-subtitle" id="cRHHn">— Pitches</div>
+      <div class="chart-subtitle" id="cRHHn">&#8212; Pitches</div>
       <canvas id="cRHH"></canvas>
     </div>
   </div>
@@ -266,7 +258,7 @@ flex-direction:column; align-items:center; justify-content:center; padding:16px;
   </div>
   <div class="footer">
     <div class="footer-left" id="cFootL">&#x26BE;</div>
-    <div class="footer-center" id="cFootC">Data: TrackMan &middot; Murray State University</div>
+    <div class="footer-center" id="cFootC">Data: TrackMan &middot; Murray State Baseball</div>
     <div class="footer-right">Data: TrackMan</div>
   </div>
 </div>
@@ -316,7 +308,7 @@ var pdfOpponent = '';
 
 function flipName(n) {
   if (!n) return n;
-  if (n.indexOf(',') > -1) { var p = n.split(','); return (p[1]||'').trim() + ' ' + (p[0]||'').trim(); }
+  if (n.indexOf(',') > -1) { var p = n.split(','); return (p[1]||''). trim() + ' ' + (p[0]||''). trim(); }
   return n;
 }
 
@@ -347,7 +339,7 @@ async function loadGames() {
       return numB - numA;
     });
     var sel = document.getElementById('gameSelect');
-    sel.innerHTML = '<option value="">— select game —</option>';
+    sel.innerHTML = '<option value="">&#8212; select game &#8212;</option>';
     games.forEach(function(g) {
       var label = g.display_name || g.game_id;
       sel.innerHTML += '<option value="'+g.game_id+'" data-url="'+(g.box_score_url||'')+'">'+label+'</option>';
@@ -377,10 +369,10 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   psel.disabled = true;
   try {
     var rows = await supaFetch('pitches?select=Pitcher,PitcherTeam&GameID=eq.' + encodeURIComponent(gameId));
-    var msP = rows.filter(function(r) { return r.PitcherTeam && r.PitcherTeam.toLowerCase().indexOf('mur') > -1; });
-    var src = msP.length ? msP : rows;
+    var murP = rows.filter(function(r) { return r.PitcherTeam && r.PitcherTeam.toLowerCase().indexOf('mur') > -1; });
+    var src = murP.length ? murP : rows;
     var pitchers = Array.from(new Set(src.map(function(r) { return r.Pitcher; }))).sort();
-    psel.innerHTML = '<option value="">— select pitcher —</option>';
+    psel.innerHTML = '<option value="">&#8212; select pitcher &#8212;</option>';
     pitchers.forEach(function(p) {
       psel.innerHTML += '<option value="'+p+'">'+flipName(p)+'</option>';
     });
@@ -389,7 +381,6 @@ document.getElementById('gameSelect').addEventListener('change', async function(
     psel.innerHTML = '<option>Error loading pitchers</option>';
   }
 
-  var opt = this.options[this.selectedIndex];
   statusEl.textContent = 'Upload PDF box score to add IP/ER stats (optional).';
 });
 
@@ -416,7 +407,7 @@ document.getElementById('pdfFile').addEventListener('change', function() {
       var joined = allItems.join(' ');
       var oppMatch = joined.match(/^([A-Za-z\s]+?)\s+vs\.\s+Murray State/);
       pdfOpponent = oppMatch ? oppMatch[1].trim() : '';
-      document.getElementById('pdfStatus').textContent = '✓ Box score loaded (' + allItems.length + ' items)';
+      document.getElementById('pdfStatus').textContent = '\u2713 Box score loaded (' + allItems.length + ' items)';
     } catch(err) {
       document.getElementById('pdfStatus').textContent = 'Error: ' + err.message;
     }
@@ -425,13 +416,6 @@ document.getElementById('pdfFile').addEventListener('change', function() {
 });
 
 function extractPitcherStats(lastName) {
-  if (window._boxScoreData && window._boxScoreData.pitching && lastName) {
-    var pitching = window._boxScoreData.pitching;
-    var key = Object.keys(pitching).find(function(k) {
-      return k.toLowerCase().indexOf(lastName.toLowerCase()) > -1;
-    });
-    if (key) return pitching[key];
-  }
   if (!window._pdfItems || !lastName) return null;
   var text = window._pdfItems.join(' ');
   var namePat = new RegExp('\\b' + lastName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
@@ -489,13 +473,23 @@ async function generate() {
     var np    = pitchData.length;
     var allS  = pitchData.filter(function(d) { return ['Strike','Whiff','InPlay','Foul'].indexOf(d.call)>-1; }).length;
     var allW  = pitchData.filter(function(d) { return d.call==='Whiff'; }).length;
-    var strPct = np > 0 ? (allS/np*100).toFixed(1)+'%' : '—';
+    var strPct = np > 0 ? (allS/np*100).toFixed(1)+'%' : '\u2014';
     var paVal  = rows.filter(function(r) { return r.PitchofPA==='1'; }).length;
 
     var hand = rows[0].PitcherThrows || 'R';
     var handStr = (hand==='Left'||hand==='L') ? 'LHP' : 'RHP';
-    var date = rows[0].Date || '—';
-    var opp = pdfOpponent || (rows[0].BatterTeam||'').replace(/_\d+$/,'').replace(/_/g,' ').trim();
+    var date = rows[0].Date || '\u2014';
+    var opp = pdfOpponent;
+    if (!opp) {
+      try {
+        var gRows = await supaFetch('games?select=display_name&game_id=eq.' + encodeURIComponent(gameId));
+        if (gRows && gRows[0] && gRows[0].display_name) {
+          opp = gRows[0].display_name.replace(/\s*(Game|Midweek)\s*\d*$/i,'').trim();
+        }
+      } catch(e) {}
+    }
+    if (!opp) opp = (rows[0].BatterTeam||''). replace(/_\d+$/,'').replace(/_/g,' ').trim() || 'Opponent';
+
     var innings = Array.from(new Set(rows.map(function(r){return parseInt(r.Inning);}).filter(function(n){return !isNaN(n);})));
     var role = innings.indexOf(1)>-1 ? 'Start' : 'Relief';
 
@@ -507,18 +501,18 @@ async function generate() {
     var displayName = flipName(pitcherRaw);
 
     document.getElementById('cardName').textContent     = displayName;
-    document.getElementById('cardHand').textContent     = handStr+' \u2014 Murray State';
+    document.getElementById('cardHand').textContent     = handStr+' \u2014 Murray State Baseball';
     document.getElementById('cardGameLine').textContent = date+' vs '+opp;
     document.getElementById('cFootL').textContent       = '\u26be '+opp+' ('+role+')';
-    document.getElementById('cFootC').textContent       = 'Data: TrackMan \u00b7 Murray State University \u00b7 '+date;
-    document.getElementById('cIP').textContent  = bs ? bs.ip  : '—';
+    document.getElementById('cFootC').textContent       = 'Data: TrackMan \u00b7 Murray State Baseball \u00b7 '+date;
+    document.getElementById('cIP').textContent  = bs ? bs.ip  : '\u2014';
     document.getElementById('cNP').textContent  = np;
     document.getElementById('cPA').textContent  = bs ? bs.pa  : paVal;
-    document.getElementById('cER').textContent  = bs ? bs.er  : '—';
-    document.getElementById('cH').textContent   = bs ? bs.h   : '—';
-    document.getElementById('cK').textContent   = bs ? bs.k   : '—';
-    document.getElementById('cBB').textContent  = bs ? bs.bb  : '—';
-    document.getElementById('cHBP').textContent = bs ? bs.hbp : '—';
+    document.getElementById('cER').textContent  = bs ? bs.er  : '\u2014';
+    document.getElementById('cH').textContent   = bs ? bs.h   : '\u2014';
+    document.getElementById('cK').textContent   = bs ? bs.k   : '\u2014';
+    document.getElementById('cBB').textContent  = bs ? bs.bb  : '\u2014';
+    document.getElementById('cHBP').textContent = bs ? bs.hbp : '\u2014';
     document.getElementById('cSP').textContent  = strPct;
     document.getElementById('cWH').textContent  = allW;
 
@@ -543,8 +537,8 @@ async function generate() {
     }, 80);
 
     document.getElementById('statusMsg').textContent = bs
-      ? '✓ Card generated! (IP='+bs.ip+', ER='+bs.er+')'
-      : '✓ Card generated (no PDF stats found — check pitcher name matches box score)';
+      ? '\u2713 Card generated! (IP='+bs.ip+', ER='+bs.er+')'
+      : '\u2713 Card generated (no PDF stats found \u2014 check pitcher name matches box score)';
 
   } catch(e) {
     document.getElementById('statusMsg').textContent = 'Error: '+e.message;
@@ -583,7 +577,7 @@ function buildPitchTable(data, types) {
     var col=TC[t]||'#888';
     var row=document.createElement('tr');
     row.innerHTML=
-      '<td class="pname" style="color:'+col+';border-left:3px solid '+col+'">'+(SHORT[t]||t)+'</td>'+
+      '<td class="pname" style="color:'+col+';border-left:3px solid '+col+'">' +(SHORT[t]||t)+'</td>'+
       '<td>'+pts.length+'</td><td>'+(pts.length/total*100).toFixed(1)+'%</td>'+
       '<td>'+avg('velo').toFixed(1)+'</td>'+
       '<td>'+Math.max.apply(null,veloArr).toFixed(1)+'</td>'+
@@ -601,7 +595,7 @@ function buildPitchTable(data, types) {
   var tr=document.createElement('tr'); tr.className='total-row';
   tr.innerHTML=
     '<td class="pname">All</td><td>'+total+'</td><td>100%</td>'+
-    '<td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>'+
+    '<td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td>'+
     '<td>'+(allZ/total*100).toFixed(1)+'%</td>'+
     '<td>'+(allW/total*100).toFixed(1)+'%</td>'+
     '<td>'+(allSt/total*100).toFixed(1)+'%</td>';
