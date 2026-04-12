@@ -586,10 +586,10 @@ function drawSprayChart(canvasId,pitches){
   ctx.beginPath();ctx.moveTo(homeX-4,homeY-2);ctx.lineTo(homeX+4,homeY-2);ctx.lineTo(homeX+4,homeY+1);ctx.lineTo(homeX,homeY+4);ctx.lineTo(homeX-4,homeY+1);ctx.closePath();ctx.fillStyle='#888';ctx.fill();
   function evColor(ev){if(!ev||isNaN(ev))return'#aaa';if(ev>=100)return'#e63946';if(ev>=90)return'#f4a261';return'#6ab0e0';}
   pitches.forEach(r=>{
-    if(!['Single','Double','Triple','HomeRun','Out','FieldersChoice','Error'].includes(r.PlayResult))return;
+    if(!['Single','Double','Triple','HomeRun','Home Run','Out','FieldersChoice','Error'].includes(r.PlayResult))return;
     const dir=parseFloat(r.Direction),ev=parseFloat(r.ExitSpeed),csvDist=parseFloat(r.Distance);
     if(isNaN(dir))return;
-    const isHR=r.PlayResult==='HomeRun';
+    const isHR=r.PlayResult==='HomeRun'||r.PlayResult==='Home Run';
     let dist;
     if(!isNaN(csvDist)&&csvDist>0){dist=csvDist;}
     else if(isHR){dist=wallDistAtDir(Math.max(-45,Math.min(45,dir)));}
@@ -597,7 +597,10 @@ function drawSprayChart(canvasId,pitches){
     else if(r.PlayResult==='Double'){dist=wallDistAtDir(Math.max(-45,Math.min(45,dir)))*0.80;}
     else if(r.PlayResult==='Triple'){dist=wallDistAtDir(Math.max(-45,Math.min(45,dir)))*0.90;}
     else{const ht=(r.TaggedHitType||'').toLowerCase();dist=ht.includes('ground')||ht==='bunt'?60:wallDistAtDir(Math.max(-45,Math.min(45,dir)))*0.65;}
-    const pos=fieldToCanvas(dist,dir);
+    // Cap dist so HR dot stays within canvas
+    var maxDist = (homeY - 4) / scale;
+    var plotDist = (isHR && dist > maxDist) ? maxDist - 5 : dist;
+    const pos=fieldToCanvas(plotDist,dir);
     if(pos.x<0||pos.x>W||pos.y<0||pos.y>H)return;
     ctx.beginPath();ctx.arc(pos.x,pos.y,isHR?5:4,0,Math.PI*2);ctx.fillStyle=evColor(ev);ctx.fill();
     ctx.strokeStyle='rgba(0,0,0,0.4)';ctx.lineWidth=0.8;ctx.stroke();
