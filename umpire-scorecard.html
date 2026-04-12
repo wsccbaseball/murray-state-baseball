@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,6 +6,7 @@
 <title>Umpire Scorecard Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{max-width:100vw;overflow-x:hidden;}
@@ -21,33 +21,33 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 #upload-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;gap:1.5rem}
 .up-title{text-align:center}
-.up-title h1{font-family:‘Bebas Neue’,sans-serif;font-size:2.8rem;letter-spacing:.1em;color:var(–gold)}
-.up-title p{color:var(–muted);margin-top:.3rem;font-size:.9rem}
-.form-card{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:1.5rem;width:100%;max-width:560px}
+.up-title h1{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:.1em;color:var(--gold)}
+.up-title p{color:var(--muted);margin-top:.3rem;font-size:.9rem}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;width:100%;max-width:560px}
 .form-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 .form-row:last-child{margin-bottom:0}
 .fg{display:flex;flex-direction:column;gap:.4rem;flex:1;min-width:100px}
-label{font-size:.75rem;font-weight:600;color:var(–muted);text-transform:uppercase;letter-spacing:.05em}
+label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 input[type=text],input[type=number],input[type=date]{
-background:#ffffff;border:1px solid var(–border);border-radius:6px;
-color:var(–text);padding:.5rem .75rem;font-size:.9rem;font-family:‘DM Sans’,sans-serif;width:100%;
+background:#ffffff;border:1px solid var(--border);border-radius:6px;
+color:var(--text);padding:.5rem .75rem;font-size:.9rem;font-family:'DM Sans',sans-serif;width:100%;
 transition:border-color .2s}
-input:focus{outline:none;border-color:var(–gold)}
+input:focus{outline:none;border-color:var(--gold)}
 .gen-btn{
-background:var(–gold);color:#002147;border:none;border-radius:8px;
-padding:.85rem 2rem;font-size:1rem;font-weight:700;font-family:‘DM Sans’,sans-serif;
+background:var(--gold);color:#002147;border:none;border-radius:8px;
+padding:.85rem 2rem;font-size:1rem;font-weight:700;font-family:'DM Sans',sans-serif;
 cursor:pointer;width:100%;max-width:560px;transition:opacity .2s;letter-spacing:.05em;
 }
 .gen-btn:hover{opacity:.85}
-.error-msg{color:var(–red);font-size:.85rem;display:none}
+.error-msg{color:var(--red);font-size:.85rem;display:none}
 
 #scorecard-screen{display:none;padding:.25rem;max-width:960px;margin:0 auto;overflow:hidden;width:100%;}
 .sc-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;gap:.4rem;flex-wrap:nowrap;}
-.back-btn{background:transparent;border:1px solid var(–border);color:var(–muted);
-border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.75rem;white-space:nowrap}
-.back-btn:hover{border-color:var(–text);color:var(–text)}
-.img-btn{background:var(–green);color:#fff;border:none;
-border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.75rem;font-weight:600;white-space:nowrap}
+.back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);
+border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;white-space:nowrap}
+.back-btn:hover{border-color:var(--text);color:var(--text)}
+.img-btn{background:var(--green);color:#fff;border:none;
+border-radius:6px;padding:.4rem .6rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;white-space:nowrap}
 .img-btn:hover{opacity:.85}
 .img-btn:disabled{opacity:.5;cursor:wait}
 
@@ -58,92 +58,92 @@ z-index:1000;flex-direction:column;align-items:center;justify-content:center;pad
 #img-overlay.show{display:flex}
 #img-overlay img{max-width:100%;max-height:75vh;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6)}
 #img-overlay p{color:#aaa;font-size:.85rem;text-align:center;line-height:1.5}
-#overlay-close{background:var(–border);color:var(–text);border:none;border-radius:6px;
-padding:.5rem 1.5rem;cursor:pointer;font-family:‘DM Sans’,sans-serif;font-size:.85rem}
+#overlay-close{background:var(--border);color:var(--text);border:none;border-radius:6px;
+padding:.5rem 1.5rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem}
 
 .scorecard{
-background:var(–card);border:1px solid var(–border);border-radius:12px;overflow:hidden;
+background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;
 display:grid;grid-template-rows:auto auto auto auto;grid-template-columns:1fr;
 width:100%;max-width:100vw;
 }
 
 .sc-header-band{
-background:#002147;border-bottom:1px solid var(–border);
+background:#002147;border-bottom:1px solid var(--border);
 padding:.35rem .6rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem;
 grid-column:1/-1;overflow:hidden;max-width:100%;
 }
-.sc-ump-name{font-family:‘Bebas Neue’,sans-serif;font-size:clamp(.9rem,4vw,1.4rem);letter-spacing:.08em;color:#CFB53B;line-height:1;white-space:nowrap}
+.sc-ump-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,4vw,1.4rem);letter-spacing:.08em;color:#CFB53B;line-height:1;white-space:nowrap}
 .sc-game-meta{text-align:right;line-height:1.2;min-width:0;overflow:hidden}
-.sc-teams{font-family:‘Bebas Neue’,sans-serif;font-size:clamp(.7rem,3vw,1rem);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-teams{font-family:'Bebas Neue',sans-serif;font-size:clamp(.7rem,3vw,1rem);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc-away{color:#ffffff}
 .sc-home{color:#ffffff}
 .sc-vs{color:rgba(255,255,255,0.6);margin:0 .25rem;font-size:1rem}
 .sc-final{color:#ffffff;font-size:.9rem;margin-left:.4rem}
-.sc-game-label{font-size:clamp(.55rem,2.5vw,.75rem);color:var(–gold);font-weight:600;letter-spacing:.04em}
+.sc-game-label{font-size:clamp(.55rem,2.5vw,.75rem);color:var(--gold);font-weight:600;letter-spacing:.04em}
 .sc-date{font-size:clamp(.5rem,2.2vw,.72rem);color:rgba(255,255,255,0.5)}
 
 .stats-strip{
 display:grid;grid-template-columns:repeat(3,1fr);
-border-bottom:1px solid var(–border);overflow:hidden;width:100%;
+border-bottom:1px solid var(--border);overflow:hidden;width:100%;
 }
 .sstat{
-padding:.6rem .5rem;border-right:1px solid var(–border);text-align:center;
+padding:.6rem .5rem;border-right:1px solid var(--border);text-align:center;
 display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
 }
 .sstat:last-child{border-right:none}
-.sstat-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(–muted)}
-.sstat-val{font-family:‘Bebas Neue’,sans-serif;font-size:1.9rem;line-height:1;letter-spacing:.04em}
-.sstat-sub{font-size:.62rem;color:var(–muted);line-height:1.3;text-align:center}
-.val-gold{color:var(–gold)}
-.val-red{color:var(–red)}
-.val-blue{color:var(–blue)}
-.val-green{color:var(–green)}
-.val-muted{color:var(–muted)}
+.sstat-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.sstat-val{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;letter-spacing:.04em}
+.sstat-sub{font-size:.62rem;color:var(--muted);line-height:1.3;text-align:center}
+.val-gold{color:var(--gold)}
+.val-red{color:var(--red)}
+.val-blue{color:var(--blue)}
+.val-green{color:var(--green)}
+.val-muted{color:var(--muted)}
 
 .sc-body{
 display:grid;grid-template-columns:1fr auto;
-border-bottom:1px solid var(–border);min-height:0;
+border-bottom:1px solid var(--border);min-height:0;
 }
 @media(max-width:600px){
 .sc-body{grid-template-columns:1fr auto;}
-.zone-panel{border-right:1px solid var(–border);padding:.3rem .4rem;}
+.zone-panel{border-right:1px solid var(--border);padding:.3rem .4rem;}
 .zone-svg-wrap svg{max-height:300px !important;}
 }
 
 .zone-panel{
-padding:.15rem .2rem;border-right:1px solid var(–border);
+padding:.15rem .2rem;border-right:1px solid var(--border);
 display:flex;flex-direction:column;align-items:center;gap:.05rem;align-self:start;
 }
-.zone-title{font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(–muted);align-self:flex-start;margin-bottom:0}
+.zone-title{font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);align-self:flex-start;margin-bottom:0}
 .zone-svg-wrap{width:100%;display:flex;align-items:center;justify-content:center;}
 .zone-svg-wrap svg{width:100%;height:100%;max-height:260px}
-.zone-legend{display:flex;gap:1rem;font-size:.65rem;color:var(–muted);flex-wrap:wrap;justify-content:center}
+.zone-legend{display:flex;gap:1rem;font-size:.65rem;color:var(--muted);flex-wrap:wrap;justify-content:center}
 .leg{display:flex;align-items:center;gap:.35rem}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 .right-panel{display:flex;flex-direction:column}
 .calls-panel{padding:.3rem .5rem;flex:1}
-.calls-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(–muted);margin-bottom:.1rem}
-.calls-sub{font-size:.55rem;color:var(–muted);margin-bottom:.3rem;font-style:italic}
-.missed-item{padding:.2rem 0;border-bottom:1px solid var(–border)}
+.calls-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.1rem}
+.calls-sub{font-size:.55rem;color:var(--muted);margin-bottom:.3rem;font-style:italic}
+.missed-item{padding:.2rem 0;border-bottom:1px solid var(--border)}
 .missed-item:last-child{border-bottom:none}
-.missed-rank{font-family:‘Bebas Neue’,sans-serif;font-size:.9rem;color:var(–gold);margin-right:.2rem}
+.missed-rank{font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--gold);margin-right:.2rem}
 .missed-sit{font-size:.65rem;font-weight:600;margin-bottom:.05rem}
-.missed-detail{font-size:.58rem;color:var(–muted);line-height:1.2}
+.missed-detail{font-size:.58rem;color:var(--muted);line-height:1.2}
 .missed-badge{display:inline-block;padding:.1rem .4rem;border-radius:3px;font-size:.62rem;font-weight:700;margin-left:.3rem}
-.badge-red{background:var(–red-dim);color:var(–red)}
-.badge-blue{background:var(–blue-dim);color:var(–blue)}
-.badge-orange{background:var(–orange-dim);color:var(–orange)}
-.no-calls{color:var(–green);font-size:.8rem;padding:.4rem 0}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-orange{background:var(--orange-dim);color:var(--orange)}
+.no-calls{color:var(--green);font-size:.8rem;padding:.4rem 0}
 
 .acc-row{display:grid;grid-template-columns:1fr 1fr}
-.acc-block{padding:.7rem .75rem;text-align:center;border-right:1px solid var(–border)}
+.acc-block{padding:.7rem .75rem;text-align:center;border-right:1px solid var(--border)}
 .acc-block:last-child{border-right:none}
-.acc-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(–muted);margin-bottom:.3rem}
-.acc-pct{font-family:‘Bebas Neue’,sans-serif;font-size:2rem;line-height:1;letter-spacing:.04em}
-.acc-sub{font-size:.62rem;color:var(–muted);margin-top:.2rem;line-height:1.3}
+.acc-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.3rem}
+.acc-pct{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:.04em}
+.acc-sub{font-size:.62rem;color:var(--muted);margin-top:.2rem;line-height:1.3}
 
-.sc-footer{padding:.4rem 1rem;font-size:.6rem;color:var(–muted);text-align:center;background:#e8eef6;border-top:1px solid var(–border)}
+.sc-footer{padding:.4rem 1rem;font-size:.6rem;color:var(--muted);text-align:center;background:#e8eef6;border-top:1px solid var(--border)}
 
 @media print{
 @page{size:landscape;margin:.4in}
@@ -152,14 +152,13 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 #upload-screen{display:none!important}
 .sc-toolbar{display:none}
 .scorecard{border:1px solid #ccc;border-radius:6px}
-:root{–bg:#fff;–card:#f9fafb;–border:#dde1e7;–text:#111;–muted:#5a6472;
-–gold:#CFB53B;–red:#d93025;–blue:#1a6fb5;–green:#1a7a35;
-–red-dim:rgba(217,48,37,.1);–blue-dim:rgba(26,111,181,.1)}
+:root{--bg:#fff;--card:#f9fafb;--border:#dde1e7;--text:#111;--muted:#5a6472;
+--gold:#CFB53B;--red:#d93025;--blue:#1a6fb5;--green:#1a7a35;
+--red-dim:rgba(217,48,37,.1);--blue-dim:rgba(26,111,181,.1)}
 .sc-header-band{background:#002147}
 .sc-footer{background:#e8eef6}
 }
 </style>
-
 </head>
 <body>
 
@@ -175,6 +174,15 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
         <select id="game-select" style="background:#ffffff;border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.5rem .75rem;font-size:.9rem;font-family:'DM Sans',sans-serif;width:100%;">
           <option value="">Loading games...</option>
         </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom:8px">
+      <div class="fg" style="flex:2">
+        <label>Step 2 — Box Score PDF <span style="font-weight:400;opacity:0.6">(optional — auto-fills umpire &amp; score)</span></label>
+        <div style="border:1.5px dashed var(--border);border-radius:6px;padding:10px 12px;background:#f8fafd;cursor:pointer;" onclick="document.getElementById('pdfInputUmp').click()">
+          <input type="file" id="pdfInputUmp" accept=".pdf" style="display:none">
+          <div id="pdfUmpStatus" style="font-size:12px;color:#7a8faa;">Tap to upload PDF box score</div>
+        </div>
       </div>
     </div>
     <div class="form-row" style="margin-bottom:0">
@@ -508,7 +516,84 @@ document.getElementById('img-btn').addEventListener('click',async()=>{
 function showError(msg){errMsg.textContent='⚠ '+msg;errMsg.style.display='block';}
 
 loadGames();
-</script>
 
+// ── PDF Box Score Parser for Umpire Scorecard ─────────────────────────
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+document.getElementById('pdfInputUmp').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('pdfUmpStatus');
+  statusEl.textContent = 'Reading PDF...';
+  statusEl.style.color = '#7a8faa';
+  try {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(item => item.str).join(' ') + ' ';
+        }
+
+        let found = [];
+
+        // Extract HP umpire name — "HP: Wayne Kraus" or "HP : Wayne Kraus"
+        const hpMatch = text.match(/\bHP\s*[:\-]\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+        if (hpMatch) {
+          const umpName = hpMatch[1].trim();
+          document.getElementById('ump-name').value = umpName;
+          found.push('Umpire: ' + umpName);
+        }
+
+        // Extract score — look for final score pattern
+        // PrestoSports format: "Team Name R H E" table or score line
+        // Try to find score by looking for the game teams and runs
+        const gameId = document.getElementById('game-select').value;
+        const gameMeta = gamesMeta[gameId];
+        if (gameMeta) {
+          const home = (gameMeta.home_team || '').replace(/_/g,' ').toLowerCase();
+          const away = (gameMeta.away_team || '').replace(/_/g,' ').toLowerCase();
+          const textLower = text.toLowerCase();
+
+          // Look for runs scored — pattern like "Walters State 7 Jackson State 4"
+          // or score in format near team names
+          const scorePattern = /\b(\d{1,2})\s+(?:runs?|r\b)/gi;
+          const scores = [];
+          let sm;
+          while ((sm = scorePattern.exec(text)) !== null) {
+            scores.push(parseInt(sm[1]));
+          }
+
+          // Alternative: look for "Final" followed by numbers
+          const finalMatch = text.match(/Final[^\d]*(\d{1,2})[^\d]+(\d{1,2})/i);
+          if (finalMatch) {
+            // Away score first, home score second in most box scores
+            document.getElementById('away-score').value = finalMatch[1];
+            document.getElementById('home-score').value = finalMatch[2];
+            found.push('Score: ' + finalMatch[1] + '-' + finalMatch[2]);
+          }
+        }
+
+        if (found.length) {
+          statusEl.textContent = '✓ ' + found.join(' · ');
+          statusEl.style.color = '#2a8a4a';
+        } else {
+          statusEl.textContent = 'PDF loaded — umpire name not found, enter manually';
+          statusEl.style.color = '#c0630a';
+        }
+      } catch(err) {
+        statusEl.textContent = 'Error reading PDF: ' + err.message;
+        statusEl.style.color = '#c0360a';
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } catch(err) {
+    statusEl.textContent = 'Error: ' + err.message;
+  }
+});
+</script>
 </body>
 </html>
