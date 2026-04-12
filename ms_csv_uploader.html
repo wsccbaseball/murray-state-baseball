@@ -233,7 +233,7 @@
       var s = allRows[0];
       detectedGame = {
         game_id:    s.GameID    || '',
-        date:       s.Date      || '',
+        date:       (function(d){if(!d||d.indexOf('/')<0)return d;var p=d.split('/');return p.length===3?p[2]+'-'+(p[0].length<2?'0'+p[0]:p[0])+'-'+(p[1].length<2?'0'+p[1]:p[1]):d;})(s.Date||''),
         home_team:  s.HomeTeam  || '',
         away_team:  s.AwayTeam  || ''
       };
