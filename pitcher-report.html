@@ -288,14 +288,30 @@ var SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
 
 var TYPE_MAP = {
-  'Four-Seam':'Fastball','Fastball':'Fastball','Four-Seam Fastball':'Fastball',
-  'Sinker':'Sinker','Two-Seam Fastball':'Sinker',
-  'Curveball':'Curveball','Slider':'Slider','Cutter':'Cutter',
-  'Changeup':'ChangeUp','ChangeUp':'ChangeUp','Splitter':'Splitter'
+  // Fastball variants
+  'Fastball':'Fastball','Four-Seam':'Fastball','Four-Seam Fastball':'Fastball',
+  'FourSeamFastBall':'Fastball','Four Seam':'Fastball','FA':'Fastball',
+  // Sinker variants
+  'Sinker':'Sinker','Two-Seam Fastball':'Sinker','TwoSeamFastBall':'Sinker',
+  'Two-Seam':'Sinker','Two Seam':'Sinker','SI':'Sinker',
+  // Curveball variants
+  'Curveball':'Curveball','CurveBall':'Curveball','Curve':'Curveball','CB':'Curveball','CU':'Curveball',
+  // Slider variants
+  'Slider':'Slider','SL':'Slider',
+  // Cutter variants
+  'Cutter':'Cutter','Cut Fastball':'Cutter','FC':'Cutter','CT':'Cutter',
+  // ChangeUp variants
+  'Changeup':'ChangeUp','ChangeUp':'ChangeUp','Change-up':'ChangeUp',
+  'Change Up':'ChangeUp','CH':'ChangeUp',
+  // Splitter variants
+  'Splitter':'Splitter','Split-Finger':'Splitter','FS':'Splitter',
+  // Knuckleball
+  'Knuckleball':'Knuckleball','KN':'Knuckleball'
 };
 var TC = {
   Fastball:'#e63946', Sinker:'#e07020', Curveball:'#9b59b6',
-  Slider:'#2a9d8f', Cutter:'#1abc9c', ChangeUp:'#f4a261', Splitter:'#e8c141'
+  Slider:'#2a9d8f', Cutter:'#1abc9c', ChangeUp:'#f4a261', Splitter:'#e8c141',
+  Knuckleball:'#888888'
 };
 var SHORT = {Fastball:'FB',Sinker:'SI',Curveball:'CB',Slider:'SL',Cutter:'CT',ChangeUp:'CH',Splitter:'SP'};
 var CALL_MAP = {
