@@ -82,7 +82,7 @@
     </div>
 
     <div class="already-exists" id="alreadyExistsMsg" style="display:none">
-      ✓ Game already in database — you can update the box score URL below.
+      ✓ Game already in database.
     </div>
 
     <div class="form-group">
@@ -95,11 +95,6 @@
       <input type="text" id="modalDate" placeholder="YYYY-MM-DD">
     </div>
 
-    <div class="form-group">
-      <label>Box Score URL <span style="color:#555;font-weight:400;text-transform:none">(optional — paste from desktop)</span></label>
-      <input type="text" id="modalBoxScoreUrl" placeholder="https://goracers.com/...">
-      <div class="hint">From goracers.com box score page — enables auto-fetch in report tools</div>
-    </div>
 
     <div class="modal-btns">
       <button class="btn" id="modalSaveBtn" onclick="saveGameInfo()">Save Game</button>
@@ -323,7 +318,6 @@
         if (Array.isArray(existing) && existing.length) {
           document.getElementById('alreadyExistsMsg').style.display = 'block';
           if (existing[0].display_name) document.getElementById('modalDisplayName').value = existing[0].display_name;
-          if (existing[0].box_score_url) document.getElementById('modalBoxScoreUrl').value = existing[0].box_score_url;
         }
       } catch(e) {}
     }
@@ -335,7 +329,6 @@
     var gameId      = detectedGame.game_id || '';
     var displayName = document.getElementById('modalDisplayName').value.trim();
     var date        = document.getElementById('modalDate').value.trim();
-    var boxUrl      = document.getElementById('modalBoxScoreUrl').value.trim();
     var saveBtn     = document.getElementById('modalSaveBtn');
 
     if (!gameId)      { showModalLog('No game ID detected from CSV.', 'error'); return; }
@@ -350,7 +343,7 @@
       date:          date || null,
       home_team:     detectedGame.home_team || null,
       away_team:     detectedGame.away_team || null,
-      box_score_url: boxUrl || null
+      box_score_url: null
     };
 
     try {
