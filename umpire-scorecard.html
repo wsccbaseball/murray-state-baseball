@@ -598,9 +598,31 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
           }
 
           if (awayScore !== null && homeScore !== null) {
-            document.getElementById('away-score').value = awayScore;
-            document.getElementById('home-score').value = homeScore;
-            found.push('Score: ' + awayScore + '-' + homeScore);
+            // In Sidearm PDFs the AWAY team is listed first in the page header
+            // "Belmont vs Murray St." — away team appears first in the text
+            // The score record pattern picks up scores in text order
+            // Check which team appears first in the PDF text to determine order
+            const gMeta = gamesMeta[document.getElementById('game-select').value];
+            const awayTeam = (gMeta && gMeta.away_team || '').replace(/_/g,' ').toLowerCase();
+            const homeTeam = (gMeta && gMeta.home_team || '').replace(/_/g,' ').toLowerCase();
+            // Extract keyword from team code (first meaningful word)
+            const awayKw = awayTeam.split(' ')[0].slice(0,4);
+            const homeKw = homeTeam.split(' ')[0].slice(0,4);
+            const textLower = text.toLowerCase();
+            const awayPos = awayKw ? textLower.indexOf(awayKw) : -1;
+            const homePos = homeKw ? textLower.indexOf(homeKw) : -1;
+            // whichever team appears first in PDF text, their score is scoreMatches[0]
+            let finalAway, finalHome;
+            if (awayPos > -1 && homePos > -1 && awayPos < homePos) {
+              // Away team appears first — standard visiting game format
+              finalAway = scoreMatches[0]; finalHome = scoreMatches[1];
+            } else {
+              // Home team appears first — home game format (Murray hosting)
+              finalAway = scoreMatches[1]; finalHome = scoreMatches[0];
+            }
+            document.getElementById('away-score').value = finalAway;
+            document.getElementById('home-score').value = finalHome;
+            found.push('Score: ' + finalAway + '-' + finalHome);
           }
           console.log('Score debug — matches:', scoreMatches, 'away:', awayScore, 'home:', homeScore);
           console.log('Score debug — finalIdx:', finalIdx,
