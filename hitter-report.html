@@ -3,192 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MS Hitter Game Summary</title>
+<title>MSU Hitter Game Summary</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { overflow-x: hidden; }
-body {
-  font-family: 'Barlow', sans-serif;
-  background: #e8ecf0;
-  min-height: 100vh;
-  padding: 14px 8px 40px;
-}
-.ui-panel {
-background: #fff; border-radius: 10px;
-box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-padding: 16px; max-width: 500px; margin: 0 auto 18px;
-}
-.ui-panel h2 {
-font-family: 'Barlow Condensed', sans-serif;
-font-size: 20px; font-weight: 800; color: #002147; margin-bottom: 12px;
-}
-.upload-box {
-border: 2px dashed #CFB53B; border-radius: 8px; padding: 10px 12px;
-background: #fffdf0; cursor: pointer; margin-bottom: 12px;
-}
-.upload-box:hover { border-color: #002147; }
+body { font-family: 'Barlow', sans-serif; background: #e8ecf0; min-height: 100vh; padding: 14px 8px 40px; }
+.ui-panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.12); padding: 16px; max-width: 500px; margin: 0 auto 18px; }
+.ui-panel h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; color: #002147; margin-bottom: 12px; }
+.upload-box { border: 2px dashed #CFB53B; border-radius: 8px; padding: 10px 12px; background: #f8f6ed; cursor: pointer; margin-bottom: 12px; }
+.upload-box:hover { border-color: #a8900f; }
 .upload-box label { font-size: 12px; font-weight: 600; color: #002147; display: block; margin-bottom: 3px; }
 .upload-box input[type=file] { display: none; }
-.upload-box .fname { font-size: 11px; color: #7a6820; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.upload-box .fname { font-size: 11px; color: #6a5a0a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fields-row { margin-bottom: 12px; }
 .field-group label { font-size: 11px; font-weight: 600; color: #002147; display: block; margin-bottom: 3px; }
-.field-group select {
-width: 100%; padding: 8px 10px; border: 1.5px solid #CFB53B; border-radius: 6px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: #1a1a1a; background: #fff;
-}
-.generate-btn {
-display: block; width: 100%; padding: 13px;
-background: #002147; border: none; border-radius: 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 17px;
-font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px;
-}
+.field-group select { width: 100%; padding: 8px 10px; border: 1.5px solid #CFB53B; border-radius: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: #1a1a1a; background: #fff; }
+.generate-btn { display: block; width: 100%; padding: 13px; background: #002147; border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px; }
 .generate-btn:disabled { background: #b0c4de; cursor: not-allowed; color: #fff; }
 .status-msg { font-size: 12px; color: #2a8a4a; font-weight: 600; margin-top: 7px; text-align: center; min-height: 16px; }
 .status-msg.warn { color: #c0630a; }
-.card {
-background: #fff; width: 100%; max-width: 500px;
-border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-overflow: hidden; margin: 0 auto 20px; display: none;
-}
-.header {
-background: linear-gradient(135deg, #002147 0%, #003d7a 100%);
-padding: 8px 12px 7px;
-display: flex; align-items: center; justify-content: space-between;
-}
+.card { background: #fff; width: 100%; max-width: 500px; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); overflow: hidden; margin: 0 auto 20px; display: none; }
+.header { background: linear-gradient(135deg, #002147 0%, #003d7a 100%); padding: 8px 12px 7px; display: flex; align-items: center; justify-content: space-between; }
 .header-center { text-align: center; flex: 1; }
-.player-name {
-font-family: 'Barlow Condensed', sans-serif;
-font-size: 26px; font-weight: 800; color: #fff; letter-spacing: 1px; line-height: 1;
-}
+.player-name { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: 1px; line-height: 1; }
 .player-info { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: #CFB53B; margin-top: 1px; }
 .summary-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
-.season-tag { font-size: 10px; font-style: italic; color: #b89e2a; }
-.logo-box { width: 42px; text-align: center; display: flex; align-items: center; justify-content: center; }
-.logo-text {
-font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 16px;
-color: #CFB53B; background: rgba(255,255,255,0.1); border-radius: 6px;
-padding: 4px 6px; border: 1px solid #CFB53B; letter-spacing: 1px;
-}
-.game-line {
-background: #fff3c0; text-align: center; padding: 5px 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #002147;
-border-bottom: 2px solid #CFB53B;
-}
+.season-tag { font-size: 10px; font-style: italic; color: #a8b8d0; }
+.logo-box { width: 42px; text-align: center; }
+.game-line { background: #eef3fb; text-align: center; padding: 5px 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #002147; border-bottom: 2px solid #CFB53B; }
 .stat-table-wrap { padding: 4px 6px 3px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .stat-table { width: 100%; border-collapse: collapse; font-family: 'Barlow Condensed', sans-serif; }
-.stat-table th {
-background: #002147; color: #CFB53B; font-size: 10px; font-weight: 700;
-padding: 4px 3px; text-align: center; white-space: nowrap;
-}
-.stat-table td {
-text-align: center; padding: 5px 3px; font-size: 14px; font-weight: 700; color: #1a1a1a;
-border: 1px solid #dde4ef; background: #f8fafd;
-}
+.stat-table th { background: #002147; color: #CFB53B; font-size: 10px; font-weight: 700; padding: 4px 3px; text-align: center; white-space: nowrap; }
+.stat-table td { text-align: center; padding: 5px 3px; font-size: 14px; font-weight: 700; color: #1a1a1a; border: 1px solid #dde4ef; background: #f8fafd; }
 .mid-section { display: flex; border-top: 1px solid #e4eaf4; align-items: stretch; }
-.left-panel {
-width: 154px; flex-shrink: 0; border-right: 1px solid #e4eaf4;
-padding: 6px 5px; display: flex; flex-direction: column; gap: 5px;
-}
-.panel-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147;
-text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px;
-}
+.left-panel { width: 154px; flex-shrink: 0; border-right: 1px solid #e4eaf4; padding: 6px 5px; display: flex; flex-direction: column; gap: 5px; }
+.panel-title { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; }
 canvas.pie { display: block; margin: 0 auto; }
 .pie-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px 5px; margin-top: 2px; }
-.pie-legend-item {
-display: flex; align-items: center; gap: 2px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #333;
-}
+.pie-legend-item { display: flex; align-items: center; gap: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #333; }
 .pie-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-.rate-box {
-background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 4px; padding: 4px 2px; text-align: center;
-}
-.rate-box .rb-val {
-font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #002147; line-height: 1;
-}
-.rate-box .rb-lbl {
-font-family: 'Barlow Condensed', sans-serif; font-size: 7px; font-weight: 600; color: #7a8faa; margin-top: 1px;
-}
+.rate-box { background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 4px; padding: 4px 2px; text-align: center; }
+.rate-box .rb-val { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #002147; line-height: 1; }
+.rate-box .rb-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 7px; font-weight: 600; color: #7a8faa; margin-top: 1px; }
 .right-panel { flex: 1; padding: 5px 4px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; }
 .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; }
-.chart-box {
-background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px; padding: 3px 2px;
-min-width: 0; overflow: hidden;
-}
-.chart-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147;
-text-align: center; margin-bottom: 1px;
-}
+.chart-box { background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px; padding: 3px 2px; min-width: 0; overflow: hidden; }
+.chart-title { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147; text-align: center; margin-bottom: 1px; }
 .chart-sub { font-size: 7.5px; color: #7a8faa; text-align: center; margin-bottom: 1px; }
 canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; }
-.ev-legend {
-display: flex; justify-content: center; align-items: center; gap: 8px;
-padding: 2px 4px; flex-wrap: wrap;
-}
-.ev-legend-item {
-display: flex; align-items: center; gap: 2px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #555;
-}
+.ev-legend { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 2px 4px; flex-wrap: wrap; }
+.ev-legend-item { display: flex; align-items: center; gap: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #555; }
 .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .pa-section { border-top: 2px solid #e4eaf4; padding: 5px 6px 6px; }
-.pa-section-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 800; color: #002147;
-margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-}
+.pa-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 800; color: #002147; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pa-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 5px; }
-.pa-legend-item {
-display: flex; align-items: center; gap: 3px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #444;
-}
+.pa-legend-item { display: flex; align-items: center; gap: 3px; font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #444; }
 .pa-grid { display: flex; flex-wrap: wrap; gap: 4px; }
-.pa-card {
-background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px;
-padding: 3px; flex: 0 0 calc(20% - 4px); min-width: 68px;
-}
-.pa-header {
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; font-weight: 700; color: #002147;
-text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.pa-result {
-font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-align: center; margin-top: 1px;
-}
-.pa-seq {
-font-family: 'Barlow Condensed', sans-serif; font-size: 7px; color: #7a8faa;
-text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.footer {
-background: #f0f4fa; border-top: 1px solid #dde4ef; padding: 5px 10px;
-display: flex; justify-content: space-between;
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; color: #6a7f9a;
-}
-.save-btn {
-display: block; width: calc(100% - 16px); margin: 8px auto;
-padding: 11px; background: #002147; border: none; border-radius: 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
-font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px;
-}
-.save-btn:active { background: #e63946; }
-.img-overlay {
-display: none; position: fixed; inset: 0; z-index: 9999;
-background: rgba(0,0,0,0.88);
-align-items: center; justify-content: center; flex-direction: column; padding: 16px;
-}
+.pa-card { background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px; padding: 3px; flex: 0 0 calc(20% - 4px); min-width: 68px; }
+.pa-header { font-family: 'Barlow Condensed', sans-serif; font-size: 8px; font-weight: 700; color: #002147; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pa-result { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-align: center; margin-top: 1px; }
+.pa-seq { font-family: 'Barlow Condensed', sans-serif; font-size: 7px; color: #7a8faa; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.footer { background: #eef3fb; border-top: 1px solid #dde4ef; padding: 5px 10px; display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 9px; color: #6a7f9a; }
+.save-btn { display: block; width: calc(100% - 16px); margin: 8px auto; padding: 11px; background: #002147; border: none; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px; }
+.save-btn:active { background: #CFB53B; color: #002147; }
+.img-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; flex-direction: column; padding: 16px; }
 .img-overlay.active { display: flex; }
 .img-overlay img { max-width: 100%; max-height: 80vh; border-radius: 6px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
-.overlay-hint {
-margin-top: 14px; font-family: 'Barlow Condensed', sans-serif;
-font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); text-align: center;
-}
-.overlay-close {
-margin-top: 16px; padding: 10px 32px;
-background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
-border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif;
-font-size: 15px; font-weight: 700; cursor: pointer;
-}
+.overlay-hint { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); text-align: center; }
+.overlay-close { margin-top: 16px; padding: 10px 32px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -204,7 +90,7 @@ font-size: 15px; font-weight: 700; cursor: pointer;
   <div class="upload-box" onclick="document.getElementById('pdfInput').click()">
     <label>Step 2 &mdash; Box Score PDF (optional)</label>
     <input type="file" id="pdfInput" accept=".pdf">
-    <div class="fname" id="pdfStatus">No file selected</div>
+    <div class="fname" id="pdfStatus">Upload PDF box score to add R/RBI stats (optional).</div>
   </div>
   <div class="fields-row" style="margin-bottom:12px;">
     <div class="field-group">
@@ -218,23 +104,19 @@ font-size: 15px; font-weight: 700; cursor: pointer;
 
 <div class="card" id="card">
   <div class="header">
-    <div class="logo-box"><div class="logo-text">MSU</div></div>
+    <div class="logo-box"><img src="MS-logo.png" alt="MSU" style="width:38px;height:38px;object-fit:contain;background:#fff;border-radius:6px;padding:2px;" onerror="this.style.display='none'"></div>
     <div class="header-center">
       <div class="player-name" id="cardName">—</div>
-      <div class="player-info" id="cardHand">Murray State</div>
+      <div class="player-info" id="cardHand">Murray State Baseball</div>
       <div class="summary-title">Hitter Game Summary</div>
-      <div class="season-tag">2026 OVC Season</div>
+      <div class="season-tag">2026 MVC Season</div>
     </div>
-    <div class="logo-box"><div class="logo-text">MSU</div></div>
+    <div class="logo-box"><img src="MS-logo.png" alt="MSU" style="width:38px;height:38px;object-fit:contain;background:#fff;border-radius:6px;padding:2px;" onerror="this.style.display='none'"></div>
   </div>
-
   <div class="game-line" id="cardGameLine">—</div>
-
   <div class="stat-table-wrap">
     <table class="stat-table">
-      <thead>
-        <tr><th>PA</th><th>R</th><th>H</th><th>XBH</th><th>HR</th><th>RBI</th><th>BB</th><th>K</th><th>Pitches</th><th>BIP</th><th>Max EV</th></tr>
-      </thead>
+      <thead><tr><th>PA</th><th>R</th><th>H</th><th>XBH</th><th>HR</th><th>RBI</th><th>BB</th><th>K</th><th>Pitches</th><th>BIP</th><th>Max EV</th></tr></thead>
       <tbody><tr>
         <td id="cAB">—</td><td id="cR">—</td><td id="cH">—</td><td id="cXBH">—</td>
         <td id="cHR">—</td><td id="cRBI">—</td><td id="cBB">—</td><td id="cK">—</td>
@@ -242,7 +124,6 @@ font-size: 15px; font-weight: 700; cursor: pointer;
       </tr></tbody>
     </table>
   </div>
-
   <div class="mid-section">
     <div class="left-panel">
       <div>
@@ -269,33 +150,15 @@ font-size: 15px; font-weight: 700; cursor: pointer;
         </div>
       </div>
     </div>
-
     <div class="right-panel">
       <div class="zone-grid">
-        <div class="chart-box">
-          <div class="chart-title">Swings vs RHP</div>
-          <div class="chart-sub" id="subSwRHP">—</div>
-          <canvas id="zSwRHP" width="120" height="120"></canvas>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">Swings vs LHP</div>
-          <div class="chart-sub" id="subSwLHP">—</div>
-          <canvas id="zSwLHP" width="120" height="120"></canvas>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">Whiffs vs RHP</div>
-          <div class="chart-sub" id="subWhRHP">—</div>
-          <canvas id="zWhRHP" width="120" height="120"></canvas>
-        </div>
-        <div class="chart-box">
-          <div class="chart-title">Whiffs vs LHP</div>
-          <div class="chart-sub" id="subWhLHP">—</div>
-          <canvas id="zWhLHP" width="120" height="120"></canvas>
-        </div>
+        <div class="chart-box"><div class="chart-title">Swings vs RHP</div><div class="chart-sub" id="subSwRHP">—</div><canvas id="zSwRHP" width="120" height="120"></canvas></div>
+        <div class="chart-box"><div class="chart-title">Swings vs LHP</div><div class="chart-sub" id="subSwLHP">—</div><canvas id="zSwLHP" width="120" height="120"></canvas></div>
+        <div class="chart-box"><div class="chart-title">Whiffs vs RHP</div><div class="chart-sub" id="subWhRHP">—</div><canvas id="zWhRHP" width="120" height="120"></canvas></div>
+        <div class="chart-box"><div class="chart-title">Whiffs vs LHP</div><div class="chart-sub" id="subWhLHP">—</div><canvas id="zWhLHP" width="120" height="120"></canvas></div>
       </div>
     </div>
   </div>
-
   <div class="pa-section">
     <div class="pa-section-title">Plate Appearance Breakdown</div>
     <div class="pa-legend">
@@ -307,10 +170,9 @@ font-size: 15px; font-weight: 700; cursor: pointer;
     </div>
     <div class="pa-grid" id="paGrid"></div>
   </div>
-
   <div class="footer">
     <div id="footL">⚾ —</div>
-    <div id="footC">Data: TrackMan · Murray State University</div>
+    <div id="footC">Data: TrackMan · Murray State Baseball</div>
     <div id="footR">—</div>
   </div>
   <button class="save-btn" onclick="saveImage()">📥 SAVE IMAGE</button>
@@ -365,7 +227,7 @@ const PITCH_NORM = {
 
 async function loadGames() {
   try {
-    var rows = await supaFetch('games?select=game_id,display_name,date,box_score_url&order=date.desc,display_name.desc');
+    var rows = await supaFetch('games?select=game_id,display_name,date&order=date.desc,display_name.desc');
     var sel = document.getElementById('gameSelect');
     sel.innerHTML = '<option value="">— select game —</option>';
     rows.forEach(function(g) {
@@ -389,20 +251,20 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   try {
     var rows = await supaFetch('pitches?GameID=eq.' + encodeURIComponent(gameId));
     allRows = rows;
-    var msBatters = [...new Set(rows.filter(r => r.BatterTeam && r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
+    var murBatters = [...new Set(rows.filter(r => r.BatterTeam && r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
     var oppBatters = [...new Set(rows.filter(r => !r.BatterTeam || !r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
     bsel.innerHTML = '<option value="">— select batter —</option>';
-    if (msBatters.length) {
-      var msGrp = document.createElement('optgroup');
-      msGrp.label = 'Murray State';
-      msBatters.forEach(function(b) {
+    if (murBatters.length) {
+      var murGrp = document.createElement('optgroup');
+      murGrp.label = 'Murray State';
+      murBatters.forEach(function(b) {
         var opt = document.createElement('option');
         opt.value = b;
         var parts = b.split(',');
         opt.textContent = parts.length > 1 ? parts[1].trim() + ' ' + parts[0].trim() : b;
-        msGrp.appendChild(opt);
+        murGrp.appendChild(opt);
       });
-      bsel.appendChild(msGrp);
+      bsel.appendChild(murGrp);
     }
     if (oppBatters.length) {
       var gd = window._gameData[gameId];
@@ -424,8 +286,6 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   } catch(e) {
     bsel.innerHTML = '<option>Error loading batters</option>';
   }
-
-
   document.getElementById('pdfStatus').textContent = 'Upload PDF box score to add R/RBI stats (optional).';
 });
 
@@ -518,7 +378,6 @@ function extractXBHFromNotes(text, csvName) {
     nameVariants.unshift((firstName[0] + '. ' + lastName).toLowerCase());
   }
   const result = { dbl: 0, tpl: 0, hr: 0 };
-  const notesText = text;
   function parseCategory(label, src) {
     const pat = new RegExp(label + '\\s*[-–:]\\s*([^.\n]+?)(?=\\s*(?:2B|3B|HR|E|RBI|SB|CS|HBP|SAC|GIDP)\\s*[-–:]|\\.|$)', 'i');
     const m = src.match(pat);
@@ -540,9 +399,9 @@ function extractXBHFromNotes(text, csvName) {
     }
     return 0;
   }
-  result.dbl = parseCategory('2B', notesText);
-  result.tpl = parseCategory('3B', notesText);
-  result.hr  = parseCategory('HR', notesText);
+  result.dbl = parseCategory('2B', text);
+  result.tpl = parseCategory('3B', text);
+  result.hr  = parseCategory('HR', text);
   return result;
 }
 
@@ -563,7 +422,7 @@ function drawZoneChart(canvasId, pitches, showWhiffs) {
   ctx.clearRect(0,0,W,H); ctx.fillStyle='#f8fafd'; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='#333'; ctx.lineWidth=1.8;
   ctx.strokeRect(mx(-0.83),my(3.5),mx(0.83)-mx(-0.83),my(1.5)-my(3.5));
-  const zW=(mx(0.83)-mx(-0.83))/3, zH=(my(1.5)-my(3.5))/3;
+  const zW=(mx(0.83)-mx(-0.83))/3,zH=(my(1.5)-my(3.5))/3;
   ctx.strokeStyle='#ccc'; ctx.lineWidth=0.6;
   for (let i=1;i<3;i++) {
     ctx.beginPath();ctx.moveTo(mx(-0.83)+zW*i,my(3.5));ctx.lineTo(mx(-0.83)+zW*i,my(1.5));ctx.stroke();
@@ -679,7 +538,7 @@ function getResult(paPitches){
   if(last.PitchCall==='HitByPitch')return{text:'HBP',color:'#f4a261'};
   const pr=last.PlayResult;
   if(pr==='HomeRun')return{text:'HR',color:'#e63946'};if(pr==='Triple')return{text:'3B',color:'#9b59b6'};
-  if(pr==='Double')return{text:'2B',color:'#002147'};if(pr==='Single')return{text:'1B',color:'#2a9d8f'};
+  if(pr==='Double')return{text:'2B',color:'#2d5a8e'};if(pr==='Single')return{text:'1B',color:'#2a9d8f'};
   if(['Out','FieldersChoice','Error','Sacrifice'].some(s=>pr&&pr.includes(s)))return{text:'OUT',color:'#7a8faa'};
   return{text:pr||'?',color:'#888'};
 }
@@ -707,20 +566,15 @@ function generate(){
   const maxEV=evRows.length?Math.max(...evRows.map(r=>parseFloat(r.ExitSpeed))).toFixed(1):'—';
   const swings=rows.filter(isSwing),whiffs=rows.filter(isWhiff),zRows=rows.filter(inZone),ozRows=rows.filter(r=>!inZone(r));
   const zSwings=zRows.filter(isSwing),ozSwings=ozRows.filter(isSwing),strikes=rows.filter(isStrike);
-
   const parts=batterName.split(',');
   const displayName=parts.length>1?parts[1].trim()+' '+parts[0].trim():batterName;
   document.getElementById('cardName').textContent=displayName;
-  document.getElementById('cardHand').textContent='Murray State';
+  document.getElementById('cardHand').textContent='Murray State Baseball';
   const date=rows[0].Date||'—';
-  const home=rows[0].HomeTeam||'',away=rows[0].AwayTeam||'';
-  const isMS=t=>t.toLowerCase().replace(/[^a-z]/g,'').includes('murray')||t.toLowerCase().replace(/[^a-z]/g,'').includes('mur');
-  const rawOpp=isMS(home)?away:isMS(away)?home:(away||home||'—');
   const gameId=document.getElementById('gameSelect').value;
   const gameInfo=window._gameData&&window._gameData[gameId];
-  const opp=(gameInfo&&gameInfo.display_name)?gameInfo.display_name.replace(/\s*(Game|Midweek)\s*\d*$/i,'').trim():rawOpp.replace(/_/g,' ').replace(/\w/g,c=>c.toUpperCase());
+  const opp=(gameInfo&&gameInfo.display_name)?gameInfo.display_name.replace(/\s*(Game|Midweek)\s*\d*$/i,'').trim():'Opponent';
   document.getElementById('cardGameLine').textContent=date+' vs '+opp;
-
   window._bsDebugSnippet=null;
   const bs=boxScoreText?extractBatterStats(boxScoreText,batterName):null;
   const tmDbl=rows.filter(r=>r.PlayResult==='Double').length,tmTpl=rows.filter(r=>r.PlayResult==='Triple').length;
@@ -746,14 +600,12 @@ function generate(){
   else if(bs){sm.textContent='✓ Card generated — box score applied (matched as "'+bs._matchedAs+'").';sm.className='status-msg';}
   else if(boxScoreText){const hint=window._bsDebugSnippet?' PDF near name: "'+window._bsDebugSnippet.slice(0,80)+'"':' Name not found in PDF.';sm.textContent='⚠ Could not parse box score for '+displayName+'.'+hint;sm.className='status-msg warn';}
   else{sm.textContent='✓ Card generated — using TrackMan data.';sm.className='status-msg';}
-
   document.getElementById('rSwing').textContent=pct(swings.length,np);document.getElementById('rZSwing').textContent=pct(zSwings.length,zRows.length);
   document.getElementById('rChase').textContent=pct(ozSwings.length,ozRows.length);document.getElementById('rWhiff').textContent=pct(whiffs.length,swings.length);
   document.getElementById('rStrike').textContent=pct(strikes.length,np);document.getElementById('rBall').textContent=pct(rows.filter(r=>/ball/i.test(r.PitchCall)).length,np);
   document.getElementById('footL').textContent='⚾ '+opp;
-  document.getElementById('footC').textContent='Data: TrackMan · Murray State University · '+date;
+  document.getElementById('footC').textContent='Data: TrackMan · Murray State Baseball · '+date;
   document.getElementById('card').style.display='block';
-
   setTimeout(()=>{
     drawPieChart(rows);
     const vsRHP=rows.filter(r=>r.PitcherThrows==='Right'||!r.PitcherThrows),vsLHP=rows.filter(r=>r.PitcherThrows==='Left');
