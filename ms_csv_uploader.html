@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,125 +6,46 @@
 <title>Murray State Baseball — TrackMan Uploader</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0a0a0a;
-    color: #f0f0f0;
-    min-height: 100vh;
-    padding: 24px 16px;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #CFB53B;
-    letter-spacing: 0.5px;
-  }
-  .header p {
-    font-size: 13px;
-    color: #888;
-    margin-top: 4px;
-  }
-  .card {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .card h2 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #CFB53B;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  label.file-label {
-    display: block;
-    background: #002147;
-    border: 2px dashed #CFB53B;
-    border-radius: 8px;
-    padding: 24px;
-    text-align: center;
-    cursor: pointer;
-    color: #CFB53B;
-    font-size: 14px;
-    -webkit-transition: background 0.2s;
-    transition: background 0.2s;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #f0f0f0; min-height: 100vh; padding: 24px 16px; }
+  .header { text-align: center; margin-bottom: 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #CFB53B; letter-spacing: 0.5px; }
+  .header p { font-size: 13px; color: #888; margin-top: 4px; }
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .card h2 { font-size: 14px; font-weight: 600; color: #CFB53B; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  label.file-label { display: block; background: #002147; border: 2px dashed #CFB53B; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; color: #CFB53B; font-size: 14px; -webkit-transition: background 0.2s; transition: background 0.2s; }
   label.file-label:active { background: #002f5f; }
   input[type="file"] { display: none; }
-  .file-list {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #aaa;
-  }
-  .file-list div {
-    padding: 4px 0;
-    border-bottom: 1px solid #2a2a2a;
-  }
-  .btn {
-    display: block;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto 16px auto;
-    padding: 14px;
-    background: #CFB53B;
-    color: #002147;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    -webkit-appearance: none;
-  }
-  .btn:disabled {
-    background: #555;
-    color: #888;
-    cursor: not-allowed;
-  }
+  .file-list { margin-top: 12px; font-size: 13px; color: #aaa; }
+  .file-list div { padding: 4px 0; border-bottom: 1px solid #2a2a2a; }
+  .btn { display: block; width: 100%; max-width: 600px; margin: 0 auto 16px auto; padding: 14px; background: #CFB53B; color: #002147; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; -webkit-appearance: none; }
+  .btn:disabled { background: #555; color: #888; cursor: not-allowed; }
   .btn:active:not(:disabled) { background: #b89e2a; }
-  .log {
-    max-width: 600px;
-    margin: 0 auto;
-    font-size: 12px;
-    color: #aaa;
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    padding: 12px;
-    min-height: 60px;
-    max-height: 200px;
-    overflow-y: auto;
-    font-family: monospace;
-  }
+  .log { max-width: 600px; margin: 0 auto; font-size: 12px; color: #aaa; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; min-height: 60px; max-height: 200px; overflow-y: auto; font-family: monospace; }
   .log .success { color: #4ade80; }
   .log .error { color: #f87171; }
   .log .info { color: #60a5fa; }
-  .progress-bar-wrap {
-    max-width: 600px;
-    margin: 0 auto 16px auto;
-    background: #2a2a2a;
-    border-radius: 6px;
-    height: 8px;
-    overflow: hidden;
-    display: none;
-  }
-  .progress-bar {
-    height: 100%;
-    background: #CFB53B;
-    width: 0%;
-    -webkit-transition: width 0.3s;
-    transition: width 0.3s;
-    border-radius: 6px;
-  }
+  .progress-bar-wrap { max-width: 600px; margin: 0 auto 16px auto; background: #2a2a2a; border-radius: 6px; height: 8px; overflow: hidden; display: none; }
+  .progress-bar { height: 100%; background: #CFB53B; width: 0%; -webkit-transition: width 0.3s; transition: width 0.3s; border-radius: 6px; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #1a1a1a; border: 1px solid #CFB53B; border-radius: 14px; padding: 24px; width: 100%; max-width: 500px; margin: auto; }
+  .modal h3 { font-size: 18px; font-weight: 700; color: #CFB53B; margin-bottom: 6px; }
+  .modal p { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .form-group input { width: 100%; padding: 10px 12px; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0f0f0; font-size: 15px; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
+  .form-group input:focus { outline: none; border-color: #CFB53B; }
+  .form-group .hint { font-size: 11px; color: #555; margin-top: 4px; }
+  .game-id-box { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #888; font-family: monospace; margin-bottom: 14px; word-break: break-all; }
+  .already-exists { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4ade80; margin-bottom: 14px; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-btns .btn { margin: 0; flex: 1; padding: 14px; }
+  .btn-skip { flex: 0 0 auto; padding: 14px 20px; background: transparent; color: #555; border: 1px solid #333; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; -webkit-appearance: none; }
+  .modal-log { margin-top: 12px; font-size: 12px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .modal-log.success { background: rgba(74,222,128,0.1); color: #4ade80; display: block; }
+  .modal-log.error { background: rgba(248,113,113,0.1); color: #f87171; display: block; }
 </style>
 </head>
 <body>
@@ -137,9 +57,7 @@
 
 <div class="card">
   <h2>Select TrackMan CSV Files</h2>
-  <label class="file-label" for="csvInput">
-    Tap to select CSV file(s)
-  </label>
+  <label class="file-label" for="csvInput">Tap to select CSV file(s)</label>
   <input type="file" id="csvInput" accept=".csv" multiple>
   <div class="file-list" id="fileList"></div>
 </div>
@@ -152,23 +70,57 @@
 
 <div class="log" id="log"><span class="info">Ready. Select one or more CSV files to begin.</span></div>
 
+<!-- Game Info Modal -->
+<div class="modal-overlay" id="gameModal">
+  <div class="modal">
+    <h3>📋 Save Game Info</h3>
+    <p>Pitches uploaded! Save game details so the report tools can find this game in the dropdown.</p>
+
+    <div class="form-group">
+      <label>Game ID (detected from CSV)</label>
+      <div class="game-id-box" id="modalGameId">—</div>
+    </div>
+
+    <div class="already-exists" id="alreadyExistsMsg" style="display:none">
+      ✓ Game already in database — you can update the box score URL below.
+    </div>
+
+    <div class="form-group">
+      <label>Display Name</label>
+      <input type="text" id="modalDisplayName" placeholder="e.g. Belmont Game 1">
+    </div>
+
+    <div class="form-group">
+      <label>Date</label>
+      <input type="text" id="modalDate" placeholder="YYYY-MM-DD">
+    </div>
+
+    <div class="form-group">
+      <label>Box Score URL <span style="color:#555;font-weight:400;text-transform:none">(optional — paste from desktop)</span></label>
+      <input type="text" id="modalBoxScoreUrl" placeholder="https://goracers.com/...">
+      <div class="hint">From goracers.com box score page — enables auto-fetch in report tools</div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn" id="modalSaveBtn" onclick="saveGameInfo()">Save Game</button>
+      <button class="btn-skip" onclick="closeModal()">Skip</button>
+    </div>
+    <div class="modal-log" id="modalLog"></div>
+  </div>
+</div>
+
 <script>
-  const SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
+  var SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
 
-  const csvInput = document.getElementById('csvInput');
-  const fileList = document.getElementById('fileList');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const log = document.getElementById('log');
-  const progressWrap = document.getElementById('progressWrap');
-  const progressBar = document.getElementById('progressBar');
-
-  let parsedFiles = [];
+  var parsedFiles = [];
+  var detectedGame = {};
 
   function addLog(msg, type) {
     var line = document.createElement('div');
     line.className = type || '';
     line.textContent = msg;
+    var log = document.getElementById('log');
     log.appendChild(line);
     log.scrollTop = log.scrollHeight;
   }
@@ -192,9 +144,7 @@
   }
 
   function splitCSVLine(line) {
-    var result = [];
-    var cur = '';
-    var inQuotes = false;
+    var result = [], cur = '', inQuotes = false;
     for (var i = 0; i < line.length; i++) {
       var c = line[i];
       if (c === '"') { inQuotes = !inQuotes; }
@@ -210,43 +160,13 @@
     var floatFields = ['RelSpeed','VertRelAngle','HorzRelAngle','SpinRate','SpinAxis','RelHeight','RelSide','Extension','VertBreak','InducedVertBreak','HorzBreak','PlateLocHeight','PlateLocSide','ZoneSpeed','VertApprAngle','HorzApprAngle','ZoneTime','ExitSpeed','Angle','Direction','HitSpinRate','PositionAt110X','PositionAt110Y','PositionAt110Z','Distance','LastTrackedDistance','Bearing','HangTime','pfxX','pfxZ','x0','y0','z0','vx0','vy0','vz0','ax0','ay0','az0','ZoneTop','ZoneBottom'];
     var out = {};
     for (var k in row) {
-      if (intFields.indexOf(k) !== -1) {
-        out[k] = row[k] !== null && row[k] !== '' ? parseInt(row[k], 10) : null;
-      } else if (floatFields.indexOf(k) !== -1) {
-        out[k] = row[k] !== null && row[k] !== '' ? parseFloat(row[k]) : null;
-      } else {
-        out[k] = row[k];
-      }
+      if (intFields.indexOf(k) !== -1) { out[k] = row[k] !== null && row[k] !== '' ? parseInt(row[k], 10) : null; }
+      else if (floatFields.indexOf(k) !== -1) { out[k] = row[k] !== null && row[k] !== '' ? parseFloat(row[k]) : null; }
+      else { out[k] = row[k]; }
     }
     return out;
   }
 
-  csvInput.addEventListener('change', function() {
-    parsedFiles = [];
-    fileList.innerHTML = '';
-    log.innerHTML = '';
-    var files = Array.from(this.files);
-    if (!files.length) { uploadBtn.disabled = true; return; }
-
-    var pending = files.length;
-    files.forEach(function(file) {
-      var div = document.createElement('div');
-      div.textContent = '📄 ' + file.name;
-      fileList.appendChild(div);
-
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var rows = parseCSV(e.target.result);
-        parsedFiles.push({ name: file.name, rows: rows });
-        addLog('Parsed ' + file.name + ': ' + rows.length + ' pitches', 'info');
-        pending--;
-        if (pending === 0) uploadBtn.disabled = false;
-      };
-      reader.readAsText(file);
-    });
-  });
-
-  // All known TrackMan columns - any CSV column not in this list is ignored
   var KNOWN_COLUMNS = [
     'PitchUID','Date','Time','PAofInning','PitchofPA','Pitcher','PitcherId','PitcherThrows',
     'PitcherTeam','Batter','BatterId','BatterSide','BatterTeam','PitcherSet','Inning',
@@ -266,12 +186,35 @@
     'PitcherUID','BatterUID','CatcherUID'
   ];
 
-  uploadBtn.addEventListener('click', function() {
+  document.getElementById('csvInput').addEventListener('change', function() {
+    parsedFiles = [];
+    document.getElementById('fileList').innerHTML = '';
+    document.getElementById('log').innerHTML = '';
+    var files = Array.from(this.files);
+    if (!files.length) { document.getElementById('uploadBtn').disabled = true; return; }
+    var pending = files.length;
+    files.forEach(function(file) {
+      var div = document.createElement('div');
+      div.textContent = '📄 ' + file.name;
+      document.getElementById('fileList').appendChild(div);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var rows = parseCSV(e.target.result);
+        parsedFiles.push({ name: file.name, rows: rows });
+        addLog('Parsed ' + file.name + ': ' + rows.length + ' pitches', 'info');
+        pending--;
+        if (pending === 0) document.getElementById('uploadBtn').disabled = false;
+      };
+      reader.readAsText(file);
+    });
+  });
+
+  document.getElementById('uploadBtn').addEventListener('click', function() {
     if (!parsedFiles.length) return;
-    uploadBtn.disabled = true;
-    progressWrap.style.display = 'block';
-    progressBar.style.width = '0%';
-    log.innerHTML = '';
+    document.getElementById('uploadBtn').disabled = true;
+    document.getElementById('progressWrap').style.display = 'block';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('log').innerHTML = '';
 
     var allRows = [];
     parsedFiles.forEach(function(f) {
@@ -285,47 +228,139 @@
       });
     });
 
-    addLog('Starting upload of ' + allRows.length + ' total pitches...', 'info');
+    // Detect game info from first row
+    if (allRows.length) {
+      var s = allRows[0];
+      detectedGame = {
+        game_id:    s.GameID    || '',
+        date:       s.Date      || '',
+        home_team:  s.HomeTeam  || '',
+        away_team:  s.AwayTeam  || ''
+      };
+    }
 
-    var BATCH = 500;
-    var total = allRows.length;
-    var uploaded = 0;
+    addLog('Starting upload of ' + allRows.length + ' total pitches...', 'info');
+    var BATCH = 500, total = allRows.length, uploaded = 0;
 
     function uploadBatch(start) {
       if (start >= total) {
-        progressBar.style.width = '100%';
+        document.getElementById('progressBar').style.width = '100%';
         addLog('✅ Upload complete! ' + uploaded + ' pitches inserted.', 'success');
-        uploadBtn.disabled = false;
+        document.getElementById('uploadBtn').disabled = false;
+        openGameModal();
         return;
       }
       var batch = allRows.slice(start, start + BATCH);
       fetch(SUPABASE_URL + '/rest/v1/pitches', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Prefer': 'return=minimal' },
         body: JSON.stringify(batch)
       }).then(function(res) {
-        if (!res.ok) {
-          return res.text().then(function(t) { throw new Error(t); });
-        }
+        if (!res.ok) { return res.text().then(function(t) { throw new Error(t); }); }
         uploaded += batch.length;
-        var pct = Math.round((uploaded / total) * 100);
-        progressBar.style.width = pct + '%';
+        document.getElementById('progressBar').style.width = Math.round((uploaded / total) * 100) + '%';
         addLog('Uploaded ' + uploaded + ' / ' + total, 'info');
         uploadBatch(start + BATCH);
       }).catch(function(err) {
         addLog('❌ Error: ' + err.message, 'error');
-        uploadBtn.disabled = false;
+        document.getElementById('uploadBtn').disabled = false;
       });
     }
 
     uploadBatch(0);
   });
-</script>
 
+  // ── Game Info Modal ──────────────────────────────────────────────────────────
+
+  async function openGameModal() {
+    var gameId = detectedGame.game_id || '';
+    var date   = detectedGame.date   || '';
+    var away   = (detectedGame.away_team || '').replace(/_/g, ' ');
+
+    document.getElementById('modalGameId').textContent = gameId || '(not detected)';
+    document.getElementById('modalDate').value = date;
+    document.getElementById('modalBoxScoreUrl').value = '';
+    document.getElementById('modalLog').className = 'modal-log';
+    document.getElementById('modalLog').textContent = '';
+    document.getElementById('modalSaveBtn').disabled = false;
+    document.getElementById('modalSaveBtn').textContent = 'Save Game';
+
+    // Auto-suggest display name from away team
+    document.getElementById('modalDisplayName').value = away
+      ? away.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+      : '';
+
+    // Check if already exists
+    document.getElementById('alreadyExistsMsg').style.display = 'none';
+    if (gameId) {
+      try {
+        var r = await fetch(SUPABASE_URL + '/rest/v1/games?game_id=eq.' + encodeURIComponent(gameId) + '&select=game_id,display_name,box_score_url',
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });
+        var existing = await r.json();
+        if (Array.isArray(existing) && existing.length) {
+          document.getElementById('alreadyExistsMsg').style.display = 'block';
+          if (existing[0].display_name) document.getElementById('modalDisplayName').value = existing[0].display_name;
+          if (existing[0].box_score_url) document.getElementById('modalBoxScoreUrl').value = existing[0].box_score_url;
+        }
+      } catch(e) {}
+    }
+
+    document.getElementById('gameModal').classList.add('active');
+  }
+
+  async function saveGameInfo() {
+    var gameId      = detectedGame.game_id || '';
+    var displayName = document.getElementById('modalDisplayName').value.trim();
+    var date        = document.getElementById('modalDate').value.trim();
+    var boxUrl      = document.getElementById('modalBoxScoreUrl').value.trim();
+    var saveBtn     = document.getElementById('modalSaveBtn');
+
+    if (!gameId)      { showModalLog('No game ID detected from CSV.', 'error'); return; }
+    if (!displayName) { showModalLog('Please enter a display name.', 'error'); return; }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    var record = {
+      game_id:       gameId,
+      display_name:  displayName,
+      date:          date || null,
+      home_team:     detectedGame.home_team || null,
+      away_team:     detectedGame.away_team || null,
+      box_score_url: boxUrl || null
+    };
+
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/games', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Prefer': 'return=minimal,resolution=merge-duplicates'
+        },
+        body: JSON.stringify([record])
+      });
+      if (!res.ok) { var t = await res.text(); throw new Error(t); }
+      showModalLog('✅ Game saved!', 'success');
+      saveBtn.textContent = 'Saved ✓';
+      setTimeout(closeModal, 1400);
+    } catch(e) {
+      showModalLog('❌ ' + e.message, 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Game';
+    }
+  }
+
+  function showModalLog(msg, type) {
+    var el = document.getElementById('modalLog');
+    el.className = 'modal-log ' + (type || '');
+    el.textContent = msg;
+  }
+
+  function closeModal() {
+    document.getElementById('gameModal').classList.remove('active');
+  }
+</script>
 </body>
 </html>
