@@ -470,7 +470,7 @@ async function generate() {
 
     var pitchData = rows.map(function(r) {
       return {
-        type: TYPE_MAP[r.TaggedPitchType] || r.TaggedPitchType || 'Other',
+        type: (function(t,a){var raw=(!t||t==='Undefined')?a:t;return TYPE_MAP[raw]||raw||'Other';})(r.TaggedPitchType,r.AutoPitchType),
         bs:   r.BatterSide,
         x:    parseFloat(r.PlateLocSide)     || 0,
         y:    parseFloat(r.PlateLocHeight)   || 0,
