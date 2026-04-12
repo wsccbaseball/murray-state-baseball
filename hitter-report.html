@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -271,33 +270,30 @@ font-size: 15px; font-weight: 700; cursor: pointer;
       </div>
     </div>
 
-```
-<div class="right-panel">
-  <div class="zone-grid">
-    <div class="chart-box">
-      <div class="chart-title">Swings vs RHP</div>
-      <div class="chart-sub" id="subSwRHP">—</div>
-      <canvas id="zSwRHP" width="120" height="120"></canvas>
+    <div class="right-panel">
+      <div class="zone-grid">
+        <div class="chart-box">
+          <div class="chart-title">Swings vs RHP</div>
+          <div class="chart-sub" id="subSwRHP">—</div>
+          <canvas id="zSwRHP" width="120" height="120"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Swings vs LHP</div>
+          <div class="chart-sub" id="subSwLHP">—</div>
+          <canvas id="zSwLHP" width="120" height="120"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Whiffs vs RHP</div>
+          <div class="chart-sub" id="subWhRHP">—</div>
+          <canvas id="zWhRHP" width="120" height="120"></canvas>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">Whiffs vs LHP</div>
+          <div class="chart-sub" id="subWhLHP">—</div>
+          <canvas id="zWhLHP" width="120" height="120"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="chart-box">
-      <div class="chart-title">Swings vs LHP</div>
-      <div class="chart-sub" id="subSwLHP">—</div>
-      <canvas id="zSwLHP" width="120" height="120"></canvas>
-    </div>
-    <div class="chart-box">
-      <div class="chart-title">Whiffs vs RHP</div>
-      <div class="chart-sub" id="subWhRHP">—</div>
-      <canvas id="zWhRHP" width="120" height="120"></canvas>
-    </div>
-    <div class="chart-box">
-      <div class="chart-title">Whiffs vs LHP</div>
-      <div class="chart-sub" id="subWhLHP">—</div>
-      <canvas id="zWhLHP" width="120" height="120"></canvas>
-    </div>
-  </div>
-</div>
-```
-
   </div>
 
   <div class="pa-section">
@@ -429,29 +425,8 @@ document.getElementById('gameSelect').addEventListener('change', async function(
     bsel.innerHTML = '<option>Error loading batters</option>';
   }
 
-  // Auto-fetch box score
-  var gd = window._gameData[gameId];
-  var boxUrl = gd && gd.box_score_url ? gd.box_score_url : '';
-  if (boxUrl) {
-    document.getElementById('pdfStatus').textContent = 'Fetching box score...';
-    try {
-      var edgeUrl = SUPABASE_URL + '/functions/v1/fetch-boxscore?url=' + encodeURIComponent(boxUrl);
-      var resp = await fetch(edgeUrl, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });
-      var data = await resp.json();
-      window._boxScoreData = data;
-      if (data && data.pitching) {
-        document.getElementById('pdfStatus').textContent = '✓ Box score auto-loaded';
-        // Convert auto-fetched data to text format for existing parser
-        boxScoreText = JSON.stringify(data);
-      } else {
-        document.getElementById('pdfStatus').textContent = 'Auto-fetch found no data — upload PDF manually';
-      }
-    } catch(err) {
-      document.getElementById('pdfStatus').textContent = 'Auto-fetch failed — upload PDF manually';
-    }
-  } else {
-    document.getElementById('pdfStatus').textContent = 'No box score URL on file — upload PDF manually';
-  }
+
+  document.getElementById('pdfStatus').textContent = 'Upload PDF box score to add R/RBI stats (optional).';
 });
 
 document.getElementById('batterSelect').addEventListener('change', function() {
@@ -821,6 +796,5 @@ function closeOverlay(){document.getElementById('imgOverlay').classList.remove('
 
 loadGames();
 </script>
-
 </body>
 </html>
