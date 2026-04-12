@@ -376,7 +376,7 @@ document.getElementById('gameSelect').addEventListener('change', async function(
         opt.value = b;
         var parts = b.split(',');
         opt.textContent = parts.length > 1 ? parts[1].trim() + ' ' + parts[0].trim() : b;
-        wsGrp.appendChild(opt);
+        murGrp.appendChild(opt);
       });
       bsel.appendChild(murGrp);
     }
