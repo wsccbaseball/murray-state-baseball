@@ -567,64 +567,49 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
             scores.push(parseInt(sm[1]));
           }
 
-          // Score extraction — Sidearm PDF format
-          // Pattern: "TeamName score (record)" e.g. "Murray St. 9 (20-10, 7-0)"
+          // Score extraction using SCORE BY INNINGS linescore
+          // Top row = away team, bottom row = home team (universal baseball convention)
+          // PDF format: "R H E [AwayTeam] [inning scores X or num] [R] [H] [E] [HomeTeam] [inning scores] [R] [H] [E]"
           let awayScore = null, homeScore = null;
           window._umpPdfText = text;
 
-          // Strategy 1: score before win-loss record "N (XX-XX"
-          const scoreRecordPat = /(\d{1,2})\s*\(\d{1,2}-\d{1,2}/g;
-          const scoreMatches = [];
-          let sm2;
-          while ((sm2 = scoreRecordPat.exec(text)) !== null) {
-            scoreMatches.push(sm2[1]);
-          }
-          if (scoreMatches.length >= 2) {
-            awayScore = scoreMatches[0];
-            homeScore = scoreMatches[1];
-          }
-
-          // Strategy 2: R H E linescore table
-          if (awayScore === null) {
-            const rheIdx = text.indexOf('R H E');
-            if (rheIdx > -1) {
-              const rheSection = text.slice(rheIdx, rheIdx + 300);
-              const triplets = rheSection.match(/\b(\d{1,2})\s+\d+\s+\d+\b/g);
-              if (triplets && triplets.length >= 2) {
-                awayScore = triplets[0].split(/\s+/)[0];
-                homeScore = triplets[1].split(/\s+/)[0];
+          const rheIdx = text.indexOf('R H E');
+          if (rheIdx > -1) {
+            const afterRHE = text.slice(rheIdx + 5).trim();
+            const tokens = afterRHE.split(/\s+/);
+            // Walk tokens, accumulate number groups separated by word-token gaps
+            // Each team's stats = [innings...] [R] [H] [E] — last 3 numbers are R H E
+            const numGroups = [];
+            let currentNums = [];
+            for (let i = 0; i < Math.min(tokens.length, 80); i++) {
+              const t = tokens[i];
+              if (/^\d+$/.test(t)) {
+                currentNums.push(parseInt(t));
+              } else if (t === 'X') {
+                // X = not played (home team last inning) — skip but don't break group
+              } else {
+                // Non-numeric token = team name separator
+                if (currentNums.length >= 3) numGroups.push([...currentNums]);
+                currentNums = [];
+                if (numGroups.length >= 2) break; // have both teams
               }
             }
+            if (currentNums.length >= 3) numGroups.push(currentNums);
+
+            // R is 3rd from last in each group (R H E)
+            if (numGroups.length >= 2) {
+              const ag = numGroups[0], hg = numGroups[1];
+              awayScore = String(ag[ag.length - 3]);
+              homeScore = String(hg[hg.length - 3]);
+            }
           }
+          console.log('R H E section:', rheIdx > -1 ? text.slice(rheIdx, rheIdx+150) : 'NOT FOUND', 'away:', awayScore, 'home:', homeScore);
 
           if (awayScore !== null && homeScore !== null) {
-            // In Sidearm PDFs the AWAY team is listed first in the page header
-            // "Belmont vs Murray St." — away team appears first in the text
-            // The score record pattern picks up scores in text order
-            // Check which team appears first in the PDF text to determine order
-            const gMeta = gamesMeta[document.getElementById('game-select').value];
-            const awayTeam = (gMeta && gMeta.away_team || '').replace(/_/g,' ').toLowerCase();
-            const homeTeam = (gMeta && gMeta.home_team || '').replace(/_/g,' ').toLowerCase();
-            // Extract keyword from team code (first meaningful word)
-            const awayKw = awayTeam.split(' ')[0].slice(0,4);
-            const homeKw = homeTeam.split(' ')[0].slice(0,4);
-            const textLower = text.toLowerCase();
-            const awayPos = awayKw ? textLower.indexOf(awayKw) : -1;
-            const homePos = homeKw ? textLower.indexOf(homeKw) : -1;
-            // whichever team appears first in PDF text, their score is scoreMatches[0]
-            let finalAway, finalHome;
-            if (awayPos > -1 && homePos > -1 && awayPos < homePos) {
-              // Away team appears first — standard visiting game format
-              finalAway = scoreMatches[0]; finalHome = scoreMatches[1];
-            } else {
-              // Home team appears first — home game format (Murray hosting)
-              finalAway = scoreMatches[1]; finalHome = scoreMatches[0];
-            }
-            document.getElementById('away-score').value = finalAway;
-            document.getElementById('home-score').value = finalHome;
-            found.push('Score: ' + finalAway + '-' + finalHome);
+            document.getElementById('away-score').value = awayScore;
+            document.getElementById('home-score').value = homeScore;
+            found.push('Score: ' + awayScore + '-' + homeScore);
           }
-          console.log('Score debug — matches:', scoreMatches, 'away:', awayScore, 'home:', homeScore);
           console.log('Score debug — finalIdx:', finalIdx,
             'before window:', finalIdx > -1 ? text.slice(Math.max(0,finalIdx-60), finalIdx) : 'N/A',
             'after window:', finalIdx > -1 ? text.slice(finalIdx, finalIdx+60) : 'N/A');
