@@ -571,7 +571,9 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
           // Sidearm format: "3 Final 9" where scores are standalone numbers
           // We search a window around "Final" to find the scores
           let awayScore = null, homeScore = null;
+          window._umpPdfText = text;
           const finalIdx = text.search(/\bFinal\b/i);
+          console.log('First 300 chars of PDF:', text.slice(0,300));
           if (finalIdx > -1) {
             // Look back up to 60 chars before Final for a standalone number
             const before = text.slice(Math.max(0, finalIdx - 60), finalIdx);
