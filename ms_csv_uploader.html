@@ -239,35 +239,58 @@
       };
     }
 
-    addLog('Starting upload of ' + allRows.length + ' total pitches...', 'info');
-    var BATCH = 500, total = allRows.length, uploaded = 0;
-
-    function uploadBatch(start) {
-      if (start >= total) {
-        document.getElementById('progressBar').style.width = '100%';
-        addLog('✅ Upload complete! ' + uploaded + ' pitches inserted.', 'success');
-        document.getElementById('uploadBtn').disabled = false;
+    // Deduplication check
+    var gameIds = Array.from(new Set(allRows.map(function(r){return r.GameID;}).filter(Boolean)));
+    addLog('Checking for existing games...', 'info');
+    var existingIds = [];
+    Promise.all(gameIds.map(function(gid){
+      return fetch(SUPABASE_URL+'/rest/v1/pitches?select=GameID&GameID=eq.'+encodeURIComponent(gid)+'&limit=1',
+        {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
+        .then(function(r){return r.json();})
+        .then(function(rows){if(rows&&rows.length)existingIds.push(gid);});
+    })).then(function(){
+      if(existingIds.length){
+        var skipped=allRows.filter(function(r){return existingIds.indexOf(r.GameID)>-1;}).length;
+        allRows=allRows.filter(function(r){return existingIds.indexOf(r.GameID)===-1;});
+        addLog('⚠️ Skipped '+skipped+' pitches — already uploaded: '+existingIds.join(', '),'info');
+      }
+      if(!allRows.length){
+        addLog('✅ Nothing to upload — all games already exist.','success');
+        document.getElementById('uploadBtn').disabled=false;
         openGameModal();
         return;
       }
-      var batch = allRows.slice(start, start + BATCH);
-      fetch(SUPABASE_URL + '/rest/v1/pitches', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Prefer': 'return=minimal' },
-        body: JSON.stringify(batch)
-      }).then(function(res) {
-        if (!res.ok) { return res.text().then(function(t) { throw new Error(t); }); }
-        uploaded += batch.length;
-        document.getElementById('progressBar').style.width = Math.round((uploaded / total) * 100) + '%';
-        addLog('Uploaded ' + uploaded + ' / ' + total, 'info');
-        uploadBatch(start + BATCH);
-      }).catch(function(err) {
-        addLog('❌ Error: ' + err.message, 'error');
-        document.getElementById('uploadBtn').disabled = false;
-      });
-    }
-
-    uploadBatch(0);
+      addLog('Starting upload of '+allRows.length+' pitches...','info');
+      var BATCH=500,total=allRows.length,uploaded=0;
+      function uploadBatch(start){
+        if(start>=total){
+          document.getElementById('progressBar').style.width='100%';
+          addLog('✅ Upload complete! '+uploaded+' pitches inserted.','success');
+          document.getElementById('uploadBtn').disabled=false;
+          openGameModal();
+          return;
+        }
+        var batch=allRows.slice(start,start+BATCH);
+        fetch(SUPABASE_URL+'/rest/v1/pitches',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
+          body:JSON.stringify(batch)
+        }).then(function(res){
+          if(!res.ok){return res.text().then(function(t){throw new Error(t);});}
+          uploaded+=batch.length;
+          document.getElementById('progressBar').style.width=Math.round((uploaded/total)*100)+'%';
+          addLog('Uploaded '+uploaded+' / '+total,'info');
+          uploadBatch(start+BATCH);
+        }).catch(function(err){
+          addLog('❌ Error: '+err.message,'error');
+          document.getElementById('uploadBtn').disabled=false;
+        });
+      }
+      uploadBatch(0);
+    }).catch(function(err){
+      addLog('❌ Dedup check failed: '+err.message,'error');
+      document.getElementById('uploadBtn').disabled=false;
+    });
   });
 
   // ── Game Info Modal ──────────────────────────────────────────────────────────
