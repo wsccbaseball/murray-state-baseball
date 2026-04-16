@@ -573,9 +573,19 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
           let awayScore = null, homeScore = null;
           window._umpPdfText = text;
 
-          const rheIdx = text.indexOf('R H E');
+          // Try multiple formats for the R H E header
+          let rheIdx = text.indexOf('R H E');
+          if (rheIdx === -1) rheIdx = text.indexOf('R  H  E');
+          if (rheIdx === -1) rheIdx = text.indexOf('RHE');
+          if (rheIdx === -1) {
+            // Try finding SCORE BY INNINGS which always precedes the linescore
+            const sbiIdx = text.indexOf('SCORE BY INNINGS');
+            if (sbiIdx > -1) rheIdx = sbiIdx;
+          }
           if (rheIdx > -1) {
-            const afterRHE = text.slice(rheIdx + 5).trim();
+            // Skip past the header text to get to the numbers
+            const headerEnd = rheIdx + (text.slice(rheIdx, rheIdx+20).includes('INNINGS') ? text.slice(rheIdx).indexOf('E')+1 : 5);
+            const afterRHE = text.slice(headerEnd).trim();
             const tokens = afterRHE.split(/\s+/);
             // Walk tokens, accumulate number groups separated by word-token gaps
             // Each team's stats = [innings...] [R] [H] [E] — last 3 numbers are R H E
@@ -603,7 +613,12 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
               homeScore = String(hg[hg.length - 3]);
             }
           }
-          console.log('R H E section:', rheIdx > -1 ? text.slice(rheIdx, rheIdx+150) : 'NOT FOUND', 'away:', awayScore, 'home:', homeScore);
+          // Debug: show chars around where R H E should be
+          const rIdx = text.indexOf(' R ');
+          const scoreByIdx = text.indexOf('SCORE BY');
+          console.log('R H E idx:', rheIdx, '| SCORE BY idx:', scoreByIdx, '| R idx:', rIdx);
+          if (scoreByIdx > -1) console.log('After SCORE BY:', JSON.stringify(text.slice(scoreByIdx, scoreByIdx+30)));
+          console.log('R H E section:', rheIdx > -1 ? JSON.stringify(text.slice(rheIdx, rheIdx+50)) : 'NOT FOUND', 'away:', awayScore, 'home:', homeScore);
 
           if (awayScore !== null && homeScore !== null) {
             document.getElementById('away-score').value = awayScore;
