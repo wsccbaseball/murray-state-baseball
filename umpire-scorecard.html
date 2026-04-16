@@ -610,9 +610,7 @@ document.getElementById('pdfInputUmp').addEventListener('change', async function
             document.getElementById('home-score').value = homeScore;
             found.push('Score: ' + awayScore + '-' + homeScore);
           }
-          console.log('Score debug — finalIdx:', finalIdx,
-            'before window:', finalIdx > -1 ? text.slice(Math.max(0,finalIdx-60), finalIdx) : 'N/A',
-            'after window:', finalIdx > -1 ? text.slice(finalIdx, finalIdx+60) : 'N/A');
+
         }
 
         if (found.length) {
