@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -27,31 +28,32 @@
   .progress-bar-wrap { max-width: 600px; margin: 0 auto 16px auto; background: #2a2a2a; border-radius: 6px; height: 8px; overflow: hidden; display: none; }
   .progress-bar { height: 100%; background: #CFB53B; width: 0%; -webkit-transition: width 0.3s; transition: width 0.3s; border-radius: 6px; }
 
-  /* Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
-  .modal-overlay.active { display: flex; }
-  .modal { background: #1a1a1a; border: 1px solid #CFB53B; border-radius: 14px; padding: 24px; width: 100%; max-width: 500px; margin: auto; }
-  .modal h3 { font-size: 18px; font-weight: 700; color: #CFB53B; margin-bottom: 6px; }
-  .modal p { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .form-group input { width: 100%; padding: 10px 12px; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0f0f0; font-size: 15px; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
-  .form-group input:focus { outline: none; border-color: #CFB53B; }
-  .form-group .hint { font-size: 11px; color: #555; margin-top: 4px; }
-  .game-id-box { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #888; font-family: monospace; margin-bottom: 14px; word-break: break-all; }
-  .already-exists { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4ade80; margin-bottom: 14px; }
-  .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-  .modal-btns .btn { margin: 0; flex: 1; padding: 14px; }
-  .btn-skip { flex: 0 0 auto; padding: 14px 20px; background: transparent; color: #555; border: 1px solid #333; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; -webkit-appearance: none; }
-  .modal-log { margin-top: 12px; font-size: 12px; padding: 8px 12px; border-radius: 6px; display: none; }
-  .modal-log.success { background: rgba(74,222,128,0.1); color: #4ade80; display: block; }
-  .modal-log.error { background: rgba(248,113,113,0.1); color: #f87171; display: block; }
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
+.modal-overlay.active { display: flex; }
+.modal { background: #1a1a1a; border: 1px solid #CFB53B; border-radius: 14px; padding: 24px; width: 100%; max-width: 500px; margin: auto; }
+.modal h3 { font-size: 18px; font-weight: 700; color: #CFB53B; margin-bottom: 6px; }
+.modal p { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.form-group input { width: 100%; padding: 10px 12px; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0f0f0; font-size: 15px; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
+.form-group input:focus { outline: none; border-color: #CFB53B; }
+.form-group .hint { font-size: 11px; color: #555; margin-top: 4px; }
+.game-id-box { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #888; font-family: monospace; margin-bottom: 14px; word-break: break-all; }
+.already-exists { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4ade80; margin-bottom: 14px; }
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+.modal-btns .btn { margin: 0; flex: 1; padding: 14px; }
+.btn-skip { flex: 0 0 auto; padding: 14px 20px; background: transparent; color: #555; border: 1px solid #333; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; -webkit-appearance: none; }
+.modal-log { margin-top: 12px; font-size: 12px; padding: 8px 12px; border-radius: 6px; display: none; }
+.modal-log.success { background: rgba(74,222,128,0.1); color: #4ade80; display: block; }
+.modal-log.error { background: rgba(248,113,113,0.1); color: #f87171; display: block; }
 </style>
+
 </head>
 <body>
 
 <div class="header">
-  <h1>⚾ Murray State Baseball</h1>
+  <h1>&#x26BE; Murray State Baseball</h1>
   <p>TrackMan CSV Uploader</p>
 </div>
 
@@ -71,36 +73,39 @@
 <div class="log" id="log"><span class="info">Ready. Select one or more CSV files to begin.</span></div>
 
 <!-- Game Info Modal -->
+
 <div class="modal-overlay" id="gameModal">
   <div class="modal">
-    <h3>📋 Save Game Info</h3>
+    <h3>&#x1F4CB; Save Game Info</h3>
     <p>Pitches uploaded! Save game details so the report tools can find this game in the dropdown.</p>
 
-    <div class="form-group">
-      <label>Game ID (detected from CSV)</label>
-      <div class="game-id-box" id="modalGameId">—</div>
-    </div>
+```
+<div class="form-group">
+  <label>Game ID (detected from CSV)</label>
+  <div class="game-id-box" id="modalGameId">—</div>
+</div>
 
-    <div class="already-exists" id="alreadyExistsMsg" style="display:none">
-      ✓ Game already in database.
-    </div>
+<div class="already-exists" id="alreadyExistsMsg" style="display:none">
+  &#x2713; Game already in database.
+</div>
 
-    <div class="form-group">
-      <label>Display Name</label>
-      <input type="text" id="modalDisplayName" placeholder="e.g. Belmont Game 1">
-    </div>
+<div class="form-group">
+  <label>Display Name</label>
+  <input type="text" id="modalDisplayName" placeholder="e.g. Belmont Game 1">
+</div>
 
-    <div class="form-group">
-      <label>Date</label>
-      <input type="text" id="modalDate" placeholder="YYYY-MM-DD">
-    </div>
+<div class="form-group">
+  <label>Date</label>
+  <input type="text" id="modalDate" placeholder="YYYY-MM-DD">
+</div>
 
+<div class="modal-btns">
+  <button class="btn" id="modalSaveBtn" onclick="saveGameInfo()">Save Game</button>
+  <button class="btn-skip" onclick="closeModal()">Skip</button>
+</div>
+<div class="modal-log" id="modalLog"></div>
+```
 
-    <div class="modal-btns">
-      <button class="btn" id="modalSaveBtn" onclick="saveGameInfo()">Save Game</button>
-      <button class="btn-skip" onclick="closeModal()">Skip</button>
-    </div>
-    <div class="modal-log" id="modalLog"></div>
   </div>
 </div>
 
@@ -190,7 +195,7 @@
     var pending = files.length;
     files.forEach(function(file) {
       var div = document.createElement('div');
-      div.textContent = '📄 ' + file.name;
+      div.textContent = '\uD83D\uDCC4 ' + file.name;
       document.getElementById('fileList').appendChild(div);
       var reader = new FileReader();
       reader.onload = function(e) {
@@ -227,10 +232,16 @@
     if (allRows.length) {
       var s = allRows[0];
       detectedGame = {
-        game_id:    s.GameID    || '',
-        date:       (function(d){if(!d||d.indexOf('/')<0)return d;var p=d.split('/');return p.length===3?p[2]+'-'+(p[0].length<2?'0'+p[0]:p[0])+'-'+(p[1].length<2?'0'+p[1]:p[1]):d;})(s.Date||''),
-        home_team:  s.HomeTeam  || '',
-        away_team:  s.AwayTeam  || ''
+        game_id:   s.GameID   || '',
+        date:      (function(d) {
+          if (!d || d.indexOf('/') < 0) return d;
+          var p = d.split('/');
+          return p.length === 3
+            ? p[2] + '-' + (p[0].length < 2 ? '0'+p[0] : p[0]) + '-' + (p[1].length < 2 ? '0'+p[1] : p[1])
+            : d;
+        })(s.Date || ''),
+        home_team: s.HomeTeam || '',
+        away_team: s.AwayTeam || ''
       };
     }
 
@@ -238,57 +249,57 @@
     var gameIds = Array.from(new Set(allRows.map(function(r){return r.GameID;}).filter(Boolean)));
     addLog('Checking for existing games...', 'info');
     var existingIds = [];
-    Promise.all(gameIds.map(function(gid){
+    Promise.all(gameIds.map(function(gid) {
       return fetch(SUPABASE_URL+'/rest/v1/pitches?select=GameID&GameID=eq.'+encodeURIComponent(gid)+'&limit=1',
-        {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
-        .then(function(r){return r.json();})
-        .then(function(rows){if(rows&&rows.length)existingIds.push(gid);});
-    })).then(function(){
-      if(existingIds.length){
-        var skipped=allRows.filter(function(r){return existingIds.indexOf(r.GameID)>-1;}).length;
-        allRows=allRows.filter(function(r){return existingIds.indexOf(r.GameID)===-1;});
-        addLog('⚠️ Skipped '+skipped+' pitches — already uploaded: '+existingIds.join(', '),'info');
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY } })
+        .then(function(r) { return r.json(); })
+        .then(function(rows) { if (rows && rows.length) existingIds.push(gid); });
+    })).then(function() {
+      if (existingIds.length) {
+        var skipped = allRows.filter(function(r) { return existingIds.indexOf(r.GameID) > -1; }).length;
+        allRows = allRows.filter(function(r) { return existingIds.indexOf(r.GameID) === -1; });
+        addLog('\u26a0\ufe0f Skipped '+skipped+' pitches \u2014 already uploaded: '+existingIds.join(', '), 'info');
       }
-      if(!allRows.length){
-        addLog('✅ Nothing to upload — all games already exist.','success');
-        document.getElementById('uploadBtn').disabled=false;
+      if (!allRows.length) {
+        addLog('\u2705 Nothing to upload \u2014 all games already exist.', 'success');
+        document.getElementById('uploadBtn').disabled = false;
         openGameModal();
         return;
       }
-      addLog('Starting upload of '+allRows.length+' pitches...','info');
-      var BATCH=500,total=allRows.length,uploaded=0;
-      function uploadBatch(start){
-        if(start>=total){
-          document.getElementById('progressBar').style.width='100%';
-          addLog('✅ Upload complete! '+uploaded+' pitches inserted.','success');
-          document.getElementById('uploadBtn').disabled=false;
+      addLog('Starting upload of '+allRows.length+' pitches...', 'info');
+      var BATCH = 500, total = allRows.length, uploaded = 0;
+      function uploadBatch(start) {
+        if (start >= total) {
+          document.getElementById('progressBar').style.width = '100%';
+          addLog('\u2705 Upload complete! '+uploaded+' pitches inserted.', 'success');
+          document.getElementById('uploadBtn').disabled = false;
           openGameModal();
           return;
         }
-        var batch=allRows.slice(start,start+BATCH);
-        fetch(SUPABASE_URL+'/rest/v1/pitches',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
-          body:JSON.stringify(batch)
-        }).then(function(res){
-          if(!res.ok){return res.text().then(function(t){throw new Error(t);});}
-          uploaded+=batch.length;
-          document.getElementById('progressBar').style.width=Math.round((uploaded/total)*100)+'%';
-          addLog('Uploaded '+uploaded+' / '+total,'info');
-          uploadBatch(start+BATCH);
-        }).catch(function(err){
-          addLog('❌ Error: '+err.message,'error');
-          document.getElementById('uploadBtn').disabled=false;
+        var batch = allRows.slice(start, start + BATCH);
+        fetch(SUPABASE_URL+'/rest/v1/pitches', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Prefer': 'return=minimal' },
+          body: JSON.stringify(batch)
+        }).then(function(res) {
+          if (!res.ok) { return res.text().then(function(t) { throw new Error(t); }); }
+          uploaded += batch.length;
+          document.getElementById('progressBar').style.width = Math.round((uploaded/total)*100) + '%';
+          addLog('Uploaded '+uploaded+' / '+total, 'info');
+          uploadBatch(start + BATCH);
+        }).catch(function(err) {
+          addLog('\u274c Error: '+err.message, 'error');
+          document.getElementById('uploadBtn').disabled = false;
         });
       }
       uploadBatch(0);
-    }).catch(function(err){
-      addLog('❌ Dedup check failed: '+err.message,'error');
-      document.getElementById('uploadBtn').disabled=false;
+    }).catch(function(err) {
+      addLog('\u274c Dedup check failed: '+err.message, 'error');
+      document.getElementById('uploadBtn').disabled = false;
     });
   });
 
-  // ── Game Info Modal ──────────────────────────────────────────────────────────
+  // ── Game Info Modal ───────────────────────────────────────────────────────
 
   async function openGameModal() {
     var gameId = detectedGame.game_id || '';
@@ -297,7 +308,6 @@
 
     document.getElementById('modalGameId').textContent = gameId || '(not detected)';
     document.getElementById('modalDate').value = date;
-    document.getElementById('modalBoxScoreUrl').value = '';
     document.getElementById('modalLog').className = 'modal-log';
     document.getElementById('modalLog').textContent = '';
     document.getElementById('modalSaveBtn').disabled = false;
@@ -312,8 +322,8 @@
     document.getElementById('alreadyExistsMsg').style.display = 'none';
     if (gameId) {
       try {
-        var r = await fetch(SUPABASE_URL + '/rest/v1/games?game_id=eq.' + encodeURIComponent(gameId) + '&select=game_id,display_name,box_score_url',
-          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } });
+        var r = await fetch(SUPABASE_URL+'/rest/v1/games?game_id=eq.'+encodeURIComponent(gameId)+'&select=game_id,display_name',
+          { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY } });
         var existing = await r.json();
         if (Array.isArray(existing) && existing.length) {
           document.getElementById('alreadyExistsMsg').style.display = 'block';
@@ -338,31 +348,31 @@
     saveBtn.textContent = 'Saving...';
 
     var record = {
-      game_id:       gameId,
-      display_name:  displayName,
-      date:          date || null,
-      home_team:     detectedGame.home_team || null,
-      away_team:     detectedGame.away_team || null,
+      game_id:      gameId,
+      display_name: displayName,
+      date:         date || null,
+      home_team:    detectedGame.home_team || null,
+      away_team:    detectedGame.away_team || null,
       box_score_url: null
     };
 
     try {
-      var res = await fetch(SUPABASE_URL + '/rest/v1/games', {
+      var res = await fetch(SUPABASE_URL+'/rest/v1/games', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Authorization': 'Bearer '+SUPABASE_KEY,
           'Prefer': 'return=minimal,resolution=merge-duplicates'
         },
         body: JSON.stringify([record])
       });
       if (!res.ok) { var t = await res.text(); throw new Error(t); }
-      showModalLog('✅ Game saved!', 'success');
-      saveBtn.textContent = 'Saved ✓';
+      showModalLog('\u2705 Game saved!', 'success');
+      saveBtn.textContent = 'Saved \u2713';
       setTimeout(closeModal, 1400);
     } catch(e) {
-      showModalLog('❌ ' + e.message, 'error');
+      showModalLog('\u274c ' + e.message, 'error');
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save Game';
     }
@@ -378,5 +388,6 @@
     document.getElementById('gameModal').classList.remove('active');
   }
 </script>
+
 </body>
 </html>
