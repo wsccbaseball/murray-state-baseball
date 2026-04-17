@@ -5,69 +5,114 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MS Catcher Framing</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html,body { max-width:100vw; overflow-x:hidden; }
-body { background: #0d1117; color: #e6edf3; font-family: -apple-system, sans-serif; }
 
-#upload-screen { min-height: 100vh; padding: 2rem 1rem; display: -webkit-flex; display: flex; -webkit-flex-direction: column; flex-direction: column; -webkit-align-items: center; align-items: center; -webkit-justify-content: center; justify-content: center; gap: 1.2rem; }
-.hero-title { font-size: 2rem; font-weight: 800; color: #CFB53B; text-align: center; }
-.hero-sub { color: #6e8098; text-align: center; margin-top: 0.4rem; font-size: 0.88rem; }
-.upload-box { background: #161d27; border: 1px solid #21303f; border-radius: 14px; padding: 1.4rem; width: 100%; max-width: 540px; }
-.field-group { margin-bottom: 1rem; }
-.field-group label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6e8098; margin-bottom: 0.4rem; }
-.field-group select { width: 100%; padding: 0.6rem 0.75rem; background: #0d1117; border: 1px solid #21303f; border-radius: 8px; color: #e6edf3; font-size: 0.9rem; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
+/* ── Upload screen — light Murray State style ── */
+#upload-screen {
+min-height: 100vh;
+background: #f0f2f5;
+padding: 24px 12px 48px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: flex-start;
+}
+
+.upload-panel {
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+padding: 20px 16px;
+width: 100%; max-width: 500px;
+margin: 0 auto;
+}
+
+.upload-panel h1 {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 22px; font-weight: 800; color: #002147;
+margin-bottom: 4px;
+}
+.upload-panel p {
+font-size: 13px; color: #666; margin-bottom: 16px;
+}
+
+.field-group { margin-bottom: 14px; }
+.field-group label {
+display: block; font-size: 11px; font-weight: 700;
+color: #002147; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.field-group select {
+width: 100%; padding: 10px;
+border: 1.5px solid #CFB53B; border-radius: 6px;
+font-family: ‘Barlow’, sans-serif; font-size: 15px;
+color: #1a1a1a; background: #fff; -webkit-appearance: none;
+}
 .field-group select:disabled { opacity: 0.4; }
-.note-box { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.9rem; font-size: 0.78rem; color: #58a6ff; line-height: 1.5; }
-.ump-note { font-size: 0.72rem; color: #3fb950; margin-top: 0.4rem; display: none; }
-#btn-run { display: block; width: 100%; padding: 0.85rem; background: #CFB53B; color: #002147; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1.1rem; -webkit-appearance: none; }
-#btn-run:disabled { opacity: 0.35; }
-.loading-msg { font-size: 0.8rem; color: #6e8098; text-align: center; margin-top: 0.5rem; min-height: 1.2rem; }
 
+.ump-note {
+font-size: 12px; color: #2a8a4a; font-weight: 600;
+margin-top: 6px; display: none; min-height: 16px;
+}
+
+#btn-run {
+display: block; width: 100%; padding: 13px;
+background: #002147; border: none; border-radius: 8px;
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 17px; font-weight: 800;
+color: #CFB53B; cursor: pointer; letter-spacing: 1px;
+margin-top: 4px;
+}
+#btn-run:disabled { background: #7a8faa; cursor: not-allowed; color: #fff; }
+
+.loading-msg {
+font-size: 12px; color: #002147; font-weight: 600;
+text-align: center; margin-top: 8px; min-height: 16px;
+}
+
+/* ── Results screen — dark theme unchanged ── */
+body.results-mode { background: #0d1117; color: #e6edf3; font-family: -apple-system, sans-serif; }
 #results-screen { display: none; padding: 1.2rem; max-width: 600px; margin: 0 auto; }
-.res-hdr { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; margin-bottom: 1.2rem; }
+.res-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
 .res-title { font-size: 1.4rem; font-weight: 800; color: #CFB53B; }
-#btn-back { background: transparent; border: 1px solid #21303f; border-radius: 8px; padding: 0.45rem 0.9rem; color: #6e8098; font-size: 0.8rem; cursor: pointer; -webkit-appearance: none; }
+#btn-back { background: transparent; border: 1px solid #21303f; border-radius: 8px; padding: .45rem .9rem; color: #6e8098; font-size: .8rem; cursor: pointer; -webkit-appearance: none; }
 .meta-bar { margin-bottom: 1rem; }
-.pill { display: inline-block; background: #161d27; border: 1px solid #21303f; border-radius: 7px; padding: 0.3rem 0.7rem; font-size: 0.75rem; color: #6e8098; margin: 0.2rem; }
+.pill { display: inline-block; background: #161d27; border: 1px solid #21303f; border-radius: 7px; padding: .3rem .7rem; font-size: .75rem; color: #6e8098; margin: .2rem; }
 .pill span { color: #e6edf3; font-weight: 600; }
-.legend { margin-bottom: 1rem; font-size: 0.75rem; color: #6e8098; }
+.legend { margin-bottom: 1rem; font-size: .75rem; color: #6e8098; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 3px; vertical-align: middle; }
-
 .ccard { background: #161d27; border: 1px solid #21303f; border-radius: 13px; overflow: hidden; margin-bottom: 1.2rem; }
-.ccard-head { background: #1c2535; padding: 0.9rem 1.1rem; border-bottom: 1px solid #21303f; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; -webkit-justify-content: space-between; justify-content: space-between; }
-.cname { font-size: 1.3rem; font-weight: 800; }
-.cpitches { font-size: 0.72rem; color: #6e8098; margin-top: 0.1rem; }
-.score-badge { font-size: 1.5rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 8px; }
+.ccard-head { background: #1c2535; padding: .9rem 1.1rem; border-bottom: 1px solid #21303f; display: flex; align-items: center; justify-content: space-between; }
+.cname { font-size: 1.3rem; font-weight: 800; color: #e6edf3; }
+.cpitches { font-size: .72rem; color: #6e8098; margin-top: .1rem; }
+.score-badge { font-size: 1.5rem; font-weight: 800; padding: .2rem .6rem; border-radius: 8px; }
 .score-g { background: rgba(63,185,80,0.18); color: #3fb950; }
 .score-r { background: rgba(248,81,73,0.18); color: #f85149; }
 .score-n { background: rgba(207,181,59,0.15); color: #CFB53B; }
-.cstats { padding: 0.9rem 1.1rem; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; }
-.srow { width: 50%; padding-bottom: 0.6rem; }
-.slabel { font-size: 0.65rem; color: #6e8098; text-transform: uppercase; letter-spacing: 0.06em; }
-.sval { font-size: 1rem; font-weight: 700; margin-top: 0.1rem; }
-.ssub { font-size: 0.67rem; color: #6e8098; }
+.cstats { padding: .9rem 1.1rem; display: flex; flex-wrap: wrap; }
+.srow { width: 50%; padding-bottom: .6rem; }
+.slabel { font-size: .65rem; color: #6e8098; text-transform: uppercase; letter-spacing: .06em; }
+.sval { font-size: 1rem; font-weight: 700; margin-top: .1rem; color: #e6edf3; }
+.ssub { font-size: .67rem; color: #6e8098; }
 .g { color: #3fb950; } .r { color: #f85149; } .au { color: #CFB53B; }
-.zone-wrap { padding: 0.9rem 1.1rem; border-top: 1px solid #21303f; }
-.zone-label { font-size: 0.68rem; color: #6e8098; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.zone-wrap { padding: .9rem 1.1rem; border-top: 1px solid #21303f; }
+.zone-label { font-size: .68rem; color: #6e8098; text-transform: uppercase; letter-spacing: .07em; margin-bottom: .5rem; }
 canvas { display: block; border-radius: 6px; max-width: 100%; }
-
-.rtable { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 0.7rem; }
-.rtable th { font-size: 0.63rem; color: #6e8098; text-transform: uppercase; padding: 0.3rem 0.4rem; text-align: left; border-bottom: 1px solid #21303f; }
-.rtable td { padding: 0.32rem 0.4rem; border-bottom: 1px solid rgba(33,48,63,0.4); }
+.rtable { width: 100%; border-collapse: collapse; font-size: .76rem; margin-top: .7rem; color: #e6edf3; }
+.rtable th { font-size: .63rem; color: #6e8098; text-transform: uppercase; padding: .3rem .4rem; text-align: left; border-bottom: 1px solid #21303f; }
+.rtable td { padding: .32rem .4rem; border-bottom: 1px solid rgba(33,48,63,0.4); }
 .rtable tr:last-child td { border-bottom: none; }
 .bar-bg { background: #21303f; border-radius: 3px; height: 5px; margin-top: 2px; }
 .bar-fg { height: 100%; border-radius: 3px; }
-
-.defs { background: #161d27; border: 1px solid #21303f; border-radius: 12px; padding: 1.1rem 1.3rem; margin-top: 1.5rem; font-size: 0.78rem; line-height: 1.7; color: #6e8098; }
-.defs-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: #e6edf3; margin-bottom: 0.6rem; font-weight: 700; }
+.defs { background: #161d27; border: 1px solid #21303f; border-radius: 12px; padding: 1.1rem 1.3rem; margin-top: 1.5rem; font-size: .78rem; line-height: 1.7; color: #6e8098; }
+.defs-title { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: #e6edf3; margin-bottom: .6rem; font-weight: 700; }
 .defs b { color: #e6edf3; }
-.save-btn { display: block; width: 100%; padding: 0.85rem; background: #002147; color: #CFB53B; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; -webkit-appearance: none; }
-.save-btn:active { opacity: 0.85; }
-.save-btn:disabled { opacity: 0.4; }
+.save-btn { display: block; width: 100%; padding: .85rem; background: #002147; color: #CFB53B; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 1rem; -webkit-appearance: none; }
+.save-btn:active { opacity: .85; }
+.save-btn:disabled { opacity: .4; }
 .img-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
-.img-overlay.active { display: -webkit-flex; display: flex; }
+.img-overlay.active { display: flex; }
 .img-overlay img { max-width: 100%; max-height: 75vh; border-radius: 8px; }
 .overlay-hint { color: #fff; font-size: 15px; font-weight: 600; margin-top: 14px; text-align: center; }
 .overlay-close { margin-top: 16px; padding: 10px 32px; background: rgba(255,255,255,0.15); color: #fff; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -76,25 +121,33 @@ canvas { display: block; border-radius: 6px; max-width: 100%; }
 </head>
 <body>
 
+<!-- Upload screen -->
+
 <div id="upload-screen">
-  <div style="text-align:center;">
-    <div class="hero-title">Catcher Framing</div>
-    <div class="hero-sub">Murray State University &middot; TrackMan</div>
-  </div>
-  <div class="upload-box">
-    <div class="field-group">
-      <label>Step 1 — Select Game</label>
-      <select id="gameSelect"><option value="">Loading games...</option></select>
-    </div>
-    <div class="field-group">
-      <label>Step 2 — Select Catcher</label>
-      <select id="catcherSelect" disabled><option value="">— select game first —</option></select>
-    </div>
-    <div class="ump-note" id="umpNote" style="margin-top:.5rem;font-size:.78rem;color:#3fb950;min-height:1.2rem;"></div>
-    <button id="btn-run" disabled>Generate Framing Report</button>
-    <div class="loading-msg" id="loadingMsg"></div>
+  <div class="upload-panel">
+    <h1>&#x26BE; Catcher Framing</h1>
+    <p>Murray State University &middot; TrackMan</p>
+
+```
+<div class="field-group">
+  <label>Step 1 &mdash; Select Game</label>
+  <select id="gameSelect"><option value="">Loading games...</option></select>
+</div>
+
+<div class="field-group">
+  <label>Step 2 &mdash; Select Catcher</label>
+  <select id="catcherSelect" disabled><option value="">— select game first —</option></select>
+</div>
+
+<div class="ump-note" id="umpNote"></div>
+<button id="btn-run" disabled>GENERATE FRAMING REPORT</button>
+<div class="loading-msg" id="loadingMsg"></div>
+```
+
   </div>
 </div>
+
+<!-- Results screen (dark, unchanged) -->
 
 <div id="results-screen">
   <div class="res-hdr">
@@ -109,7 +162,7 @@ canvas { display: block; border-radius: 6px; max-width: 100%; }
     <span style="color:#3d5166">- -</span> Shadow Zone
   </div>
   <div id="grid"></div>
-  <button class="save-btn" id="saveBtn" style="display:none" onclick="saveImage()">📷 Save Card Image</button>
+  <button class="save-btn" id="saveBtn" style="display:none" onclick="saveImage()">&#x1F4F7; Save Card Image</button>
   <div class="defs">
     <div class="defs-title">Metric Definitions</div>
     <b>Called pitches only</b> &mdash; StrikeCalled &amp; BallCalled. Swings/fouls/in-play excluded.<br>
@@ -121,59 +174,35 @@ canvas { display: block; border-radius: 6px; max-width: 100%; }
   </div>
 </div>
 
+<div class="img-overlay" id="imgOverlay">
+  <img id="overlayImg" src="" alt="Framing Card">
+  <div class="overlay-hint">Hold image to save to Photos</div>
+  <button class="overlay-close" onclick="document.getElementById('imgOverlay').classList.remove('active')">Close</button>
+</div>
+
 <script>
 var SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
 
-var SZ_W = 0.833;
-var DEFAULT_TOP = 3.5, DEFAULT_BOT = 1.5;
-var SHADOW = 1.455 / 12;
-var RINGS = [0.04, 0.08, SHADOW];
-var RWEIGHTS = [1.0, 1.4, 1.8];
-var RNAMES = ['Ring 1 (inner)', 'Ring 2 (mid)', 'Ring 3 (outer)'];
+var SZ_W=0.833, DEFAULT_TOP=3.5, DEFAULT_BOT=1.5;
+var SHADOW=1.455/12, RINGS=[0.04,0.08,1.455/12], RWEIGHTS=[1.0,1.4,1.8];
+var RNAMES=['Ring 1 (inner)','Ring 2 (mid)','Ring 3 (outer)'];
 
-var COUNT_RE = {
-  '0-0':0.444,'1-0':0.562,'2-0':0.628,'3-0':0.765,
-  '0-1':0.306,'1-1':0.380,'2-1':0.437,'3-1':0.622,
-  '0-2':0.191,'1-2':0.250,'2-2':0.305,'3-2':0.456
-};
-var RE24 = [
-  [0.544,0.941,1.170,1.556,1.321,1.743,1.978,2.395],
-  [0.291,0.587,0.700,1.068,0.890,1.088,1.399,1.756],
-  [0.112,0.242,0.325,0.552,0.375,0.529,0.661,0.978]
-];
+var COUNT_RE={'0-0':0.444,'1-0':0.562,'2-0':0.628,'3-0':0.765,'0-1':0.306,'1-1':0.380,'2-1':0.437,'3-1':0.622,'0-2':0.191,'1-2':0.250,'2-2':0.305,'3-2':0.456};
+var RE24=[[0.544,0.941,1.170,1.556,1.321,1.743,1.978,2.395],[0.291,0.587,0.700,1.068,0.890,1.088,1.399,1.756],[0.112,0.242,0.325,0.552,0.375,0.529,0.661,0.978]];
 
-function walkResult(baseState) {
-  var on1=!!(baseState&1),on2=!!(baseState&2),on3=!!(baseState&4);
-  var runs=0,n1=true,n2=on2,n3=on3;
-  if(on1){n2=true;if(on2){n3=true;if(on3)runs=1;}}
-  return{newState:(n1?1:0)|(n2?2:0)|(n3?4:0),runs:runs};
-}
+function walkResult(bs){var on1=!!(bs&1),on2=!!(bs&2),on3=!!(bs&4),runs=0,n1=true,n2=on2,n3=on3;if(on1){n2=true;if(on2){n3=true;if(on3)runs=1;}}return{newState:(n1?1:0)|(n2?2:0)|(n3?4:0),runs:runs};}
+function reValue(b,s,o,bs){var so=Math.min(Math.max(isNaN(o)?0:o,0),2),bst=isNaN(bs)||bs<0||bs>7?0:bs;if(b>=4){var w=walkResult(bst);return w.runs+RE24[so][w.newState];}if(s>=3){return so===2?0:RE24[so+1][bst];}return COUNT_RE[b+'-'+s]||COUNT_RE['0-0'];}
+function stolenStrikeDelta(b,s,o,bs){return reValue(b+1,s,o,bs)-reValue(b,s+1,o,bs);}
+function lostStrikeDelta(b,s,o,bs){return reValue(b,s+1,o,bs)-reValue(b+1,s,o,bs);}
 
-function reValue(balls,strikes,outs,baseState) {
-  var safeOuts=Math.min(Math.max(isNaN(outs)?0:outs,0),2);
-  var bs=isNaN(baseState)||baseState<0||baseState>7?0:baseState;
-  if(balls>=4){var w=walkResult(bs);return w.runs+RE24[safeOuts][w.newState];}
-  if(strikes>=3){return safeOuts===2?0:RE24[safeOuts+1][bs];}
-  return COUNT_RE[balls+'-'+strikes]||COUNT_RE['0-0'];
-}
+var gameData={}, allPitches=[];
 
-function stolenStrikeDelta(balls,strikes,outs,baseState) {
-  return reValue(balls+1,strikes,outs,baseState)-reValue(balls,strikes+1,outs,baseState);
-}
-function lostStrikeDelta(balls,strikes,outs,baseState) {
-  return reValue(balls,strikes+1,outs,baseState)-reValue(balls+1,strikes,outs,baseState);
-}
-
-var gameData = {};
-var allPitches = [];
-
-async function supaFetch(path) {
+async function supaFetch(path){
   var rows=[],from=0;
   while(true){
     var sep=path.indexOf('?')>-1?'&':'?';
-    var r=await fetch(SUPABASE_URL+'/rest/v1/'+path+sep+'limit=1000&offset='+from,
-      {headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    var r=await fetch(SUPABASE_URL+'/rest/v1/'+path+sep+'limit=1000&offset='+from,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
     var d=await r.json();
     if(!Array.isArray(d)||!d.length)break;
     rows=rows.concat(d);
@@ -183,19 +212,13 @@ async function supaFetch(path) {
   return rows;
 }
 
-async function loadGames() {
-  try {
+async function loadGames(){
+  try{
     var rows=await supaFetch('games?select=game_id,display_name,date&order=date.desc,display_name.desc');
     var sel=document.getElementById('gameSelect');
     sel.innerHTML='<option value="">— select game —</option>';
-    rows.forEach(function(g){
-      gameData[g.game_id]=g;
-      var label=g.display_name||g.game_id;
-      sel.innerHTML+='<option value="'+g.game_id+'">'+label+'</option>';
-    });
-  } catch(e) {
-    document.getElementById('gameSelect').innerHTML='<option>Error loading games</option>';
-  }
+    rows.forEach(function(g){gameData[g.game_id]=g;sel.innerHTML+='<option value="'+g.game_id+'">'+(g.display_name||g.game_id)+'</option>';});
+  }catch(e){document.getElementById('gameSelect').innerHTML='<option>Error loading games</option>';}
 }
 
 document.getElementById('gameSelect').addEventListener('change',async function(){
@@ -209,7 +232,7 @@ document.getElementById('gameSelect').addEventListener('change',async function()
   csel.innerHTML='<option>Loading catchers...</option>';
   csel.disabled=true;
   document.getElementById('loadingMsg').textContent='Fetching pitch data...';
-  try {
+  try{
     var rows=await supaFetch('pitches?GameID=eq.'+encodeURIComponent(gameId));
     allPitches=rows;
     var catchers=[],seen={};
@@ -228,19 +251,17 @@ document.getElementById('gameSelect').addEventListener('change',async function()
     });
     csel.disabled=false;
     document.getElementById('loadingMsg').textContent='';
-    try {
+    try{
       var umpRows=await supaFetch('umpire_games?game_id=eq.'+encodeURIComponent(gameId)+'&select=umpire_name');
-      if(umpRows.length){umpNote.textContent='✓ Umpire data on file ('+umpRows[0].umpire_name+') — zone adjustment ready.';umpNote.style.display='block';}
-    } catch(e){}
-  } catch(e) {
+      if(umpRows.length){umpNote.textContent='\u2713 Umpire data on file ('+umpRows[0].umpire_name+')';umpNote.style.display='block';}
+    }catch(e){}
+  }catch(e){
     csel.innerHTML='<option>Error loading catchers</option>';
     document.getElementById('loadingMsg').textContent='Error: '+e.message;
   }
 });
 
-document.getElementById('catcherSelect').addEventListener('change',function(){
-  document.getElementById('btn-run').disabled=!this.value;
-});
+document.getElementById('catcherSelect').addEventListener('change',function(){document.getElementById('btn-run').disabled=!this.value;});
 
 document.getElementById('btn-run').addEventListener('click',function(){
   var gameId=document.getElementById('gameSelect').value;
@@ -251,49 +272,28 @@ document.getElementById('btn-run').addEventListener('click',function(){
   if(called.length<5){document.getElementById('loadingMsg').textContent='Not enough called pitches for this catcher.';return;}
   var metrics=computeMetrics(catcherName,called);
   var g=gameData[gameId];
-  var gameName=g?(g.display_name||gameId):gameId;
-  renderResults(metrics,gameName,called.length);
+  renderResults(metrics,g?(g.display_name||gameId):gameId,called.length);
 });
 
 document.getElementById('btn-back').addEventListener('click',resetApp);
 
-function ringIdx(dist){
-  if(dist<0)return -1;
-  for(var i=0;i<RINGS.length;i++){if(dist<=RINGS[i])return i;}
-  return -1;
-}
-
-function getZone(r){
-  var top=parseFloat(r['ZoneTop'])||DEFAULT_TOP;
-  var bot=parseFloat(r['ZoneBottom'])||DEFAULT_BOT;
-  return{l:-SZ_W,r:SZ_W,b:bot,t:top};
-}
-
-function inZoneCheck(s,h,zone){return s>=zone.l&&s<=zone.r&&h>=zone.b&&h<=zone.t;}
-
-function distToEdgeZone(s,h,zone){
-  if(inZoneCheck(s,h,zone))return -1;
-  var dx=Math.max(zone.l-s,s-zone.r,0),dy=Math.max(zone.b-h,h-zone.t,0);
-  return Math.sqrt(dx*dx+dy*dy);
-}
+function ringIdx(dist){if(dist<0)return -1;for(var i=0;i<RINGS.length;i++){if(dist<=RINGS[i])return i;}return -1;}
+function getZone(r){return{l:-SZ_W,r:SZ_W,b:parseFloat(r['ZoneBottom'])||DEFAULT_BOT,t:parseFloat(r['ZoneTop'])||DEFAULT_TOP};}
+function inZoneCheck(s,h,z){return s>=z.l&&s<=z.r&&h>=z.b&&h<=z.t;}
+function distToEdgeZone(s,h,z){if(inZoneCheck(s,h,z))return -1;var dx=Math.max(z.l-s,s-z.r,0),dy=Math.max(z.b-h,h-z.t,0);return Math.sqrt(dx*dx+dy*dy);}
 
 function computeMetrics(name,rows){
   var stolen=0,lost=0,inZoneStr=0,inZoneBall=0,strikeTotal=0;
   var rings=[{total:0,strikes:0},{total:0,strikes:0},{total:0,strikes:0}];
   var pts=[],re24Runs=0,topVals=[],botVals=[];
   for(var i=0;i<rows.length;i++){
-    var r=rows[i];
-    var s=parseFloat(r['PlateLocSide']),h=parseFloat(r['PlateLocHeight']);
+    var r=rows[i],s=parseFloat(r['PlateLocSide']),h=parseFloat(r['PlateLocHeight']);
     if(isNaN(s)||isNaN(h))continue;
-    var call=(r['PitchCall']||'').trim();
-    var isStr=call==='StrikeCalled',isBall=call==='BallCalled';
+    var call=(r['PitchCall']||'').trim(),isStr=call==='StrikeCalled',isBall=call==='BallCalled';
     if(!isStr&&!isBall)continue;
-    var zone=getZone(r);
-    topVals.push(zone.t);botVals.push(zone.b);
+    var zone=getZone(r);topVals.push(zone.t);botVals.push(zone.b);
     var inside=inZoneCheck(s,h,zone),dist=distToEdgeZone(s,h,zone),ri=ringIdx(dist);
-    var balls=parseInt(r['Balls']||r['BallCount']||0)||0;
-    var strikes=parseInt(r['Strikes']||r['StrikeCount']||0)||0;
-    var outs=parseInt(r['Outs']||r['OutsBeforePitch']||0)||0;
+    var balls=parseInt(r['Balls']||r['BallCount']||0)||0,strikes=parseInt(r['Strikes']||r['StrikeCount']||0)||0,outs=parseInt(r['Outs']||r['OutsBeforePitch']||0)||0;
     var on1=!!(r['Runner1B']||'').trim(),on2=!!(r['Runner2B']||'').trim(),on3=!!(r['Runner3B']||'').trim();
     var baseState=(on1?1:0)|(on2?2:0)|(on3?4:0);
     if(isStr){strikeTotal++;if(!inside){stolen++;re24Runs+=stolenStrikeDelta(balls,strikes,outs,baseState);}else inZoneStr++;}
@@ -301,16 +301,13 @@ function computeMetrics(name,rows){
     if(ri>=0){rings[ri].total++;if(isStr)rings[ri].strikes++;}
     pts.push({s:s,h:h,isStr:isStr});
   }
-  var total=rows.length;
-  var shTot=rings[0].total+rings[1].total+rings[2].total,shStr=rings[0].strikes+rings[1].strikes+rings[2].strikes;
+  var total=rows.length,shTot=rings[0].total+rings[1].total+rings[2].total,shStr=rings[0].strikes+rings[1].strikes+rings[2].strikes;
   var shPct=shTot>0?shStr/shTot:0,wN=0,wD=0;
   for(var i=0;i<rings.length;i++){if(rings[i].total>0){wN+=(rings[i].strikes/rings[i].total)*RWEIGHTS[i]*rings[i].total;wD+=RWEIGHTS[i]*rings[i].total;}}
   var wPct=wD>0?wN/wD:0.63,fs=wD>0?Math.round((wPct/0.63)*100):100;
   var izTot=inZoneStr+inZoneBall;
   topVals.sort(function(a,b){return a-b;});botVals.sort(function(a,b){return a-b;});
-  var medTop=topVals.length?topVals[Math.floor(topVals.length/2)]:DEFAULT_TOP;
-  var medBot=botVals.length?botVals[Math.floor(botVals.length/2)]:DEFAULT_BOT;
-  return{name:name,total:total,strikeTotal:strikeTotal,stolen:stolen,lost:lost,net:stolen-lost,fRuns:re24Runs,shTot:shTot,shPct:shPct,izPct:izTot>0?inZoneStr/izTot:0,oPct:total>0?strikeTotal/total:0,rings:rings,framingScore:fs,pts:pts,medTop:medTop,medBot:medBot};
+  return{name:name,total:total,strikeTotal:strikeTotal,stolen:stolen,lost:lost,net:stolen-lost,fRuns:re24Runs,shTot:shTot,shPct:shPct,izPct:izTot>0?inZoneStr/izTot:0,rings:rings,framingScore:fs,pts:pts,medTop:topVals.length?topVals[Math.floor(topVals.length/2)]:DEFAULT_TOP,medBot:botVals.length?botVals[Math.floor(botVals.length/2)]:DEFAULT_BOT};
 }
 
 function p2(v){return(v*100).toFixed(1)+'%';}
@@ -320,6 +317,7 @@ function pill(l,v){return'<span class="pill">'+l+': <span>'+v+'</span></span> ';
 
 function renderResults(c,gameName,nCalled){
   document.getElementById('upload-screen').style.display='none';
+  document.body.classList.add('results-mode');
   document.getElementById('results-screen').style.display='block';
   var displayName=c.name;
   if(c.name.indexOf(',')>-1){var p=c.name.split(',');displayName=(p[1]||'').trim()+' '+p[0].trim();}
@@ -344,7 +342,7 @@ function renderResults(c,gameName,nCalled){
     '<div class="zone-wrap">'+
       '<div class="zone-label">Called Pitch Locations</div>'+
       '<canvas id="cv0" width="280" height="230"></canvas>'+
-      '<div class="zone-label" style="margin-top:0.8rem">Shadow Zone Ring Breakdown</div>'+
+      '<div class="zone-label" style="margin-top:.8rem">Shadow Zone Ring Breakdown</div>'+
       '<table class="rtable"><thead><tr><th>Ring</th><th>Pitches</th><th>Strike%</th><th>Wt</th></tr></thead>'+
       '<tbody id="rb0"></tbody></table>'+
     '</div>';
@@ -356,9 +354,7 @@ function renderResults(c,gameName,nCalled){
   window.scrollTo(0,0);
 }
 
-function srow(label,val,sub){
-  return'<div class="srow"><div class="slabel">'+label+'</div><div class="sval">'+val+'</div><div class="ssub">'+sub+'</div></div>';
-}
+function srow(label,val,sub){return'<div class="srow"><div class="slabel">'+label+'</div><div class="sval">'+val+'</div><div class="ssub">'+sub+'</div></div>';}
 
 function drawZone(id,pts,medTop,medBot){
   var cv=document.getElementById(id);if(!cv||!cv.getContext)return;
@@ -373,10 +369,7 @@ function drawZone(id,pts,medTop,medBot){
   ctx.restore();
   ctx.strokeStyle='#CFB53B';ctx.lineWidth=1.8;
   ctx.strokeRect(mx(-SZ_W),my(szTop),mx(SZ_W)-mx(-SZ_W),my(szBot)-my(szTop));
-  for(var i=0;i<pts.length;i++){
-    var p=pts[i];ctx.beginPath();ctx.arc(mx(p.s),my(p.h),3.2,0,Math.PI*2);
-    ctx.fillStyle=p.isStr?'rgba(63,185,80,0.75)':'rgba(248,81,73,0.65)';ctx.fill();
-  }
+  for(var i=0;i<pts.length;i++){var p=pts[i];ctx.beginPath();ctx.arc(mx(p.s),my(p.h),3.2,0,Math.PI*2);ctx.fillStyle=p.isStr?'rgba(63,185,80,0.75)':'rgba(248,81,73,0.65)';ctx.fill();}
   ctx.fillStyle='#3d5166';ctx.font='9px -apple-system, sans-serif';ctx.textAlign='center';
   ctx.fillText("CATCHER'S VIEW",W/2,H-5);
 }
@@ -401,7 +394,7 @@ function resetApp(){
   document.getElementById('loadingMsg').textContent='';
   document.getElementById('umpNote').style.display='none';
   document.getElementById('saveBtn').style.display='none';
-  document.getElementById('upload-screen').style.display='-webkit-flex';
+  document.body.classList.remove('results-mode');
   document.getElementById('upload-screen').style.display='flex';
   document.getElementById('results-screen').style.display='none';
 }
@@ -411,24 +404,19 @@ function isIOS(){return/iP(hone|ad|od)/i.test(navigator.userAgent);}
 async function saveImage(){
   var btn=document.getElementById('saveBtn');
   btn.disabled=true;btn.textContent='Rendering...';
-  try {
+  try{
     var card=document.getElementById('grid');
     var cardWidth=card.getBoundingClientRect().width;
     var canvas=await html2canvas(card,{scale:2,useCORS:true,backgroundColor:'#0d1117',width:cardWidth,windowWidth:cardWidth,logging:false});
     var dataUrl=canvas.toDataURL('image/png');
     if(isIOS()){document.getElementById('overlayImg').src=dataUrl;document.getElementById('imgOverlay').classList.add('active');}
     else{var a=document.createElement('a');var cname=document.getElementById('catcherSelect').value.split(',')[0].trim();a.download='framing_'+cname.replace(/\s+/g,'_')+'.png';a.href=dataUrl;a.click();}
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='📷 Save Card Image';
+  }catch(e){alert('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='\uD83D\uDCF7 Save Card Image';
 }
 
 loadGames();
 </script>
 
-<div class="img-overlay" id="imgOverlay">
-  <img id="overlayImg" src="" alt="Framing Card">
-  <div class="overlay-hint">Hold image to save to Photos</div>
-  <button class="overlay-close" onclick="document.getElementById('imgOverlay').classList.remove('active')">Close</button>
-</div>
 </body>
 </html>
