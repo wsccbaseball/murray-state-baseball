@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -201,7 +202,8 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
     </select>
   </div>
 
-  <button class="gen-btn" id="generateBtn" disabled onclick="generate()">GENERATE CARD</button>
+<button class="gen-btn" id="generateBtn" disabled onclick="generate()">GENERATE CARD</button>
+
   <div class="status-msg" id="statusMsg"></div>
 </div>
 
@@ -288,24 +290,15 @@ var SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
 
 var TYPE_MAP = {
-  // Fastball variants
   'Fastball':'Fastball','Four-Seam':'Fastball','Four-Seam Fastball':'Fastball',
   'FourSeamFastBall':'Fastball','Four Seam':'Fastball','FA':'Fastball',
-  // Sinker variants
   'Sinker':'Sinker','Two-Seam Fastball':'Sinker','TwoSeamFastBall':'Sinker',
   'Two-Seam':'Sinker','Two Seam':'Sinker','SI':'Sinker',
-  // Curveball variants
   'Curveball':'Curveball','CurveBall':'Curveball','Curve':'Curveball','CB':'Curveball','CU':'Curveball',
-  // Slider variants
   'Slider':'Slider','SL':'Slider',
-  // Cutter variants
   'Cutter':'Cutter','Cut Fastball':'Cutter','FC':'Cutter','CT':'Cutter',
-  // ChangeUp variants
-  'Changeup':'ChangeUp','ChangeUp':'ChangeUp','Change-up':'ChangeUp',
-  'Change Up':'ChangeUp','CH':'ChangeUp',
-  // Splitter variants
+  'Changeup':'ChangeUp','ChangeUp':'ChangeUp','Change-up':'ChangeUp','Change Up':'ChangeUp','CH':'ChangeUp',
   'Splitter':'Splitter','Split-Finger':'Splitter','FS':'Splitter',
-  // Knuckleball
   'Knuckleball':'Knuckleball','KN':'Knuckleball'
 };
 var TC = {
@@ -324,7 +317,7 @@ var pdfOpponent = '';
 
 function flipName(n) {
   if (!n) return n;
-  if (n.indexOf(',') > -1) { var p = n.split(','); return (p[1]||''). trim() + ' ' + (p[0]||''). trim(); }
+  if (n.indexOf(',') > -1) { var p = n.split(','); return (p[1]||'').trim() + ' ' + (p[0]||'').trim(); }
   return n;
 }
 
@@ -383,15 +376,47 @@ document.getElementById('gameSelect').addEventListener('change', async function(
 
   psel.innerHTML = '<option>Loading pitchers...</option>';
   psel.disabled = true;
+
   try {
     var rows = await supaFetch('pitches?select=Pitcher,PitcherTeam&GameID=eq.' + encodeURIComponent(gameId));
-    var murP = rows.filter(function(r) { return r.PitcherTeam && r.PitcherTeam.toLowerCase().indexOf('mur') > -1; });
-    var src = murP.length ? murP : rows;
-    var pitchers = Array.from(new Set(src.map(function(r) { return r.Pitcher; }))).sort();
+
+    // Split into Murray State and opponent
+    var murRows = rows.filter(function(r) { return r.PitcherTeam && r.PitcherTeam.toLowerCase().indexOf('mur') > -1; });
+    var oppRows = rows.filter(function(r) { return !r.PitcherTeam || r.PitcherTeam.toLowerCase().indexOf('mur') === -1; });
+
+    var murPitchers = Array.from(new Set(murRows.map(function(r){return r.Pitcher;}))).sort();
+    var oppPitchers = Array.from(new Set(oppRows.map(function(r){return r.Pitcher;}))).sort();
+
+    var oppTeamLabel = 'Opponent';
+    if (oppRows.length) {
+      var rawTeam = (oppRows[0].PitcherTeam || '').replace(/_\d+$/,'').replace(/_/g,' ').trim();
+      if (rawTeam) oppTeamLabel = rawTeam;
+    }
+
     psel.innerHTML = '<option value="">&#8212; select pitcher &#8212;</option>';
-    pitchers.forEach(function(p) {
-      psel.innerHTML += '<option value="'+p+'">'+flipName(p)+'</option>';
-    });
+
+    if (murPitchers.length) {
+      var murGroup = document.createElement('optgroup');
+      murGroup.label = 'Murray State';
+      murPitchers.forEach(function(p) {
+        var o = document.createElement('option');
+        o.value = p; o.textContent = flipName(p);
+        murGroup.appendChild(o);
+      });
+      psel.appendChild(murGroup);
+    }
+
+    if (oppPitchers.length) {
+      var oppGroup = document.createElement('optgroup');
+      oppGroup.label = oppTeamLabel;
+      oppPitchers.forEach(function(p) {
+        var o = document.createElement('option');
+        o.value = p; o.textContent = flipName(p);
+        oppGroup.appendChild(o);
+      });
+      psel.appendChild(oppGroup);
+    }
+
     psel.disabled = false;
   } catch(e) {
     psel.innerHTML = '<option>Error loading pitchers</option>';
@@ -495,6 +520,14 @@ async function generate() {
     var hand = rows[0].PitcherThrows || 'R';
     var handStr = (hand==='Left'||hand==='L') ? 'LHP' : 'RHP';
     var date = rows[0].Date || '\u2014';
+
+    // Determine team from pitch data — the ground truth
+    var pitcherTeamRaw = rows[0].PitcherTeam || '';
+    var isOpp = pitcherTeamRaw.toLowerCase().indexOf('mur') === -1;
+    var pitcherTeamLabel = isOpp
+      ? (pitcherTeamRaw.replace(/_\d+$/,'').replace(/_/g,' ').trim() || 'Opponent')
+      : 'Murray State Baseball';
+
     var opp = pdfOpponent;
     if (!opp) {
       try {
@@ -504,7 +537,11 @@ async function generate() {
         }
       } catch(e) {}
     }
-    if (!opp) opp = (rows[0].BatterTeam||''). replace(/_\d+$/,'').replace(/_/g,' ').trim() || 'Opponent';
+    if (!opp) opp = (rows[0].BatterTeam||'').replace(/_\d+$/,'').replace(/_/g,' ').trim() || 'Opponent';
+
+    var gameLabel = isOpp
+      ? date + ' \u2014 ' + pitcherTeamLabel + ' vs Murray State'
+      : date + ' vs ' + opp;
 
     var innings = Array.from(new Set(rows.map(function(r){return parseInt(r.Inning);}).filter(function(n){return !isNaN(n);})));
     var role = innings.indexOf(1)>-1 ? 'Start' : 'Relief';
@@ -517,10 +554,10 @@ async function generate() {
     var displayName = flipName(pitcherRaw);
 
     document.getElementById('cardName').textContent     = displayName;
-    document.getElementById('cardHand').textContent     = handStr+' \u2014 Murray State Baseball';
-    document.getElementById('cardGameLine').textContent = date+' vs '+opp;
-    document.getElementById('cFootL').textContent       = '\u26be '+opp+' ('+role+')';
-    document.getElementById('cFootC').textContent       = 'Data: TrackMan \u00b7 Murray State Baseball \u00b7 '+date;
+    document.getElementById('cardHand').textContent     = handStr + ' \u2014 ' + pitcherTeamLabel;
+    document.getElementById('cardGameLine').textContent = gameLabel;
+    document.getElementById('cFootL').textContent       = '\u26be ' + (isOpp ? 'vs Murray State' : opp) + ' (' + role + ')';
+    document.getElementById('cFootC').textContent       = 'Data: TrackMan \u00b7 Murray State Baseball \u00b7 ' + date;
     document.getElementById('cIP').textContent  = bs ? bs.ip  : '\u2014';
     document.getElementById('cNP').textContent  = np;
     document.getElementById('cPA').textContent  = bs ? bs.pa  : paVal;
@@ -593,7 +630,7 @@ function buildPitchTable(data, types) {
     var col=TC[t]||'#888';
     var row=document.createElement('tr');
     row.innerHTML=
-      '<td class="pname" style="color:'+col+';border-left:3px solid '+col+'">' +(SHORT[t]||t)+'</td>'+
+      '<td class="pname" style="color:'+col+';border-left:3px solid '+col+'">'+(SHORT[t]||t)+'</td>'+
       '<td>'+pts.length+'</td><td>'+(pts.length/total*100).toFixed(1)+'%</td>'+
       '<td>'+avg('velo').toFixed(1)+'</td>'+
       '<td>'+Math.max.apply(null,veloArr).toFixed(1)+'</td>'+
@@ -732,5 +769,6 @@ function closeModal(e){
 
 loadGames();
 </script>
+
 </body>
 </html>
