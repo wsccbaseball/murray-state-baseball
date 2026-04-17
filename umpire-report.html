@@ -22,7 +22,6 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 .status-msg { font-size: 12px; color: #002147; margin-top: 8px; min-height: 16px; font-weight: 600; }
 
 .report { display: none; max-width: 500px; margin: 0 auto; }
-
 .rpt-header { background: linear-gradient(135deg, #002147, #003d7a); border-radius: 10px 10px 0 0; padding: 12px 16px 10px; }
 .rpt-name { font-family: ‘Barlow Condensed’, sans-serif; font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1; }
 .rpt-sub { font-family: ‘Barlow Condensed’, sans-serif; font-size: 12px; color: #CFB53B; margin-top: 2px; }
@@ -32,9 +31,7 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 .sstat:last-child { border-right: none; }
 .sstat-val { font-family: ‘Barlow Condensed’, sans-serif; font-size: 22px; font-weight: 800; color: #002147; line-height: 1; }
 .sstat-lbl { font-size: 9px; color: #7a8faa; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 1px; }
-.val-green { color: #1a7a35; }
-.val-red { color: #d93025; }
-.val-orange { color: #b8892a; }
+.val-green { color: #1a7a35; } .val-red { color: #d93025; } .val-orange { color: #b8892a; }
 
 .section { background: #fff; border-left: 1px solid #dde4ef; border-right: 1px solid #dde4ef; border-top: 1px solid #dde4ef; padding: 10px 12px; }
 .section-title { font-family: ‘Barlow Condensed’, sans-serif; font-size: 11px; font-weight: 800; color: #002147; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
@@ -62,6 +59,10 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 
 .rpt-footer { background: #e8eef6; border: 1px solid #dde4ef; border-radius: 0 0 10px 10px; padding: 5px 12px; font-size: 10px; color: #8a9ab0; text-align: center; }
 
+.defs { max-width: 500px; margin: 10px auto 0; background: #fff; border: 1px solid #dde4ef; border-left: 3px solid #002147; border-radius: 6px; padding: 12px 14px; font-size: 11px; line-height: 1.8; color: #5a6a7a; font-family: ‘Barlow Condensed’, sans-serif; display: none; }
+.defs-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #002147; margin-bottom: 6px; font-family: ‘Barlow Condensed’, sans-serif; }
+.defs b { color: #002147; }
+
 .save-btn { display: block; width: 100%; max-width: 500px; margin: 10px auto 0; padding: 12px; background: #002147; border: none; border-radius: 8px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 15px; font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px; }
 
 .img-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
@@ -75,7 +76,7 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 <body>
 
 <div class="ui-panel">
-  <h2>🎯 Umpire Scouting Report</h2>
+  <h2>Umpire Scouting Report</h2>
   <p>Select an umpire to view their tendencies and historical accuracy.</p>
   <div class="field-group">
     <label>Umpire</label>
@@ -117,10 +118,10 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
   <div class="section">
     <div class="section-title">Tendencies</div>
     <div class="tendency-grid">
-      <div class="tendency-box"><div class="t-val" id="tClear">—</div><div class="t-lbl">Avg Clear Misses / Game</div></div>
-      <div class="tendency-box"><div class="t-val" id="tBorderline">—</div><div class="t-lbl">Avg Borderline / Game</div></div>
-      <div class="tendency-box"><div class="t-val" id="tFavorPct">—</div><div class="t-lbl">Games With Favor Bias</div></div>
-      <div class="tendency-box"><div class="t-val" id="tFavorTeam">—</div><div class="t-lbl">Most Favored Side</div></div>
+      <div class="tendency-box"><div class="t-val" id="tZoneTend">—</div><div class="t-lbl">Zone Tendency</div></div>
+      <div class="tendency-box"><div class="t-val" id="tConsistency">—</div><div class="t-lbl">Consistency (Acc Range)</div></div>
+      <div class="tendency-box"><div class="t-val" id="tGap">—</div><div class="t-lbl">Strike vs Ball Gap</div></div>
+      <div class="tendency-box"><div class="t-val" id="tAvgFavor">—</div><div class="t-lbl">Avg Favor Runs / Game</div></div>
     </div>
   </div>
   <div class="section">
@@ -135,6 +136,14 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
     <div id="gameLog"></div>
   </div>
   <div class="rpt-footer" id="rptFooter">TrackMan · Murray State Baseball Analytics</div>
+</div>
+
+<div class="defs" id="defsBox">
+  <div class="defs-title">Metric Definitions</div>
+  <b>Zone Tendency</b> — compares ball accuracy to strike accuracy. <em>Squeezer</em>: misses called strikes more — pitchers should work the zone edges. <em>Expander</em>: calls strikes outside the zone — hitters beware of chasing. <em>Neutral</em>: within 3 points either way.<br>
+  <b>Consistency</b> — highest minus lowest single-game accuracy. A small range means a predictable ump; a wide range means performance varies game to game.<br>
+  <b>Strike vs Ball Gap</b> — ball accuracy minus strike accuracy as a signed number. Positive = better at calling balls (squeezer). Negative = better at calling strikes (expander).<br>
+  <b>Avg Favor Runs</b> — average RE24-based run value of favoritism per game. Higher values mean miscalls had a larger run impact on average.
 </div>
 
 <button class="save-btn" id="saveBtn" style="display:none" onclick="saveImage()">📥 SAVE REPORT IMAGE</button>
@@ -178,45 +187,58 @@ async function generate() {
     const rows = await supaFetch('umpire_games?umpire_name=eq.' + encodeURIComponent(name) + '&order=game_date.desc');
     if (!rows.length) { document.getElementById('statusMsg').textContent = 'No data found for ' + name; document.getElementById('genBtn').disabled = false; return; }
     const n = rows.length;
-    const avgAcc = (rows.reduce((s,r) => s+(r.overall_acc||0),0)/n).toFixed(1);
-    const avgBall = (rows.reduce((s,r) => s+(r.ball_acc||0),0)/n).toFixed(1);
+    const avgAcc    = (rows.reduce((s,r) => s+(r.overall_acc||0),0)/n).toFixed(1);
+    const avgBall   = (rows.reduce((s,r) => s+(r.ball_acc||0),0)/n).toFixed(1);
     const avgStrike = (rows.reduce((s,r) => s+(r.strike_acc||0),0)/n).toFixed(1);
     const avgMissed = ((rows.reduce((s,r) => s+(r.missed_clear||0)+(r.missed_borderline||0),0))/n).toFixed(1);
-    const avgClear = (rows.reduce((s,r) => s+(r.missed_clear||0),0)/n).toFixed(1);
-    const avgBorderline = (rows.reduce((s,r) => s+(r.missed_borderline||0),0)/n).toFixed(1);
-    const avgFavor = (rows.reduce((s,r) => s+(r.favor_runs||0),0)/n).toFixed(2);
-    const gamesWithFavor = rows.filter(r => (r.favor_runs||0) > 0.05).length;
-    const favorPct = Math.round(gamesWithFavor/n*100)+'%';
-    const favorCounts = {};
-    rows.forEach(r => { if(r.favor_team) favorCounts[r.favor_team]=(favorCounts[r.favor_team]||0)+1; });
-    const topFavor = Object.keys(favorCounts).sort((a,b)=>favorCounts[b]-favorCounts[a])[0]||'Even';
+    const avgFavor  = (rows.reduce((s,r) => s+(r.favor_runs||0),0)/n).toFixed(2);
+
+    // Zone Tendency
+    const ballAccNum   = parseFloat(avgBall);
+    const strikeAccNum = parseFloat(avgStrike);
+    const gap = ballAccNum - strikeAccNum;
+    let zoneTend, zoneTendColor;
+    if (gap > 3)       { zoneTend = 'Squeezer'; zoneTendColor = '#d93025'; }
+    else if (gap < -3) { zoneTend = 'Expander';  zoneTendColor = '#1a6fb5'; }
+    else               { zoneTend = 'Neutral';   zoneTendColor = '#b8892a'; }
+
+    // Consistency
+    const accs     = rows.map(r => r.overall_acc || 0);
+    const accRange = (Math.max(...accs) - Math.min(...accs)).toFixed(1);
+
+    // Strike vs Ball Gap
+    const gapSigned = (gap >= 0 ? '+' : '') + gap.toFixed(1);
 
     document.getElementById('rptName').textContent = name;
-    document.getElementById('rptSub').textContent = n+' game'+(n!==1?'s':'')+' tracked · Murray State Baseball';
-    document.getElementById('sAcc').textContent = avgAcc+'%';
+    document.getElementById('rptSub').textContent  = n+' game'+(n!==1?'s':'')+' tracked · Murray State Baseball';
+    document.getElementById('sAcc').textContent    = avgAcc+'%';
     document.getElementById('sMissed').textContent = avgMissed;
-    document.getElementById('sGames').textContent = n;
-    document.getElementById('sFavor').textContent = '+'+avgFavor;
+    document.getElementById('sGames').textContent  = n;
+    document.getElementById('sFavor').textContent  = '+'+avgFavor;
     const accNum = parseFloat(avgAcc);
     document.getElementById('sAcc').className = 'sstat-val '+(accNum>=95?'val-green':accNum>=90?'val-orange':'val-red');
+
     document.getElementById('barOverall').style.width = avgAcc+'%';
-    document.getElementById('barBall').style.width = avgBall+'%';
-    document.getElementById('barStrike').style.width = avgStrike+'%';
+    document.getElementById('barBall').style.width    = avgBall+'%';
+    document.getElementById('barStrike').style.width  = avgStrike+'%';
     document.getElementById('lblOverall').textContent = avgAcc+'%';
-    document.getElementById('lblBall').textContent = avgBall+'%';
-    document.getElementById('lblStrike').textContent = avgStrike+'%';
-    document.getElementById('tClear').textContent = avgClear;
-    document.getElementById('tBorderline').textContent = avgBorderline;
-    document.getElementById('tFavorPct').textContent = favorPct;
-    document.getElementById('tFavorTeam').textContent = topFavor.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    document.getElementById('lblBall').textContent    = avgBall+'%';
+    document.getElementById('lblStrike').textContent  = avgStrike+'%';
+
+    document.getElementById('tZoneTend').textContent    = zoneTend;
+    document.getElementById('tZoneTend').style.color    = zoneTendColor;
+    document.getElementById('tConsistency').textContent = accRange+' pts';
+    document.getElementById('tGap').textContent         = gapSigned+' pts';
+    document.getElementById('tGap').style.color         = gap > 3 ? '#d93025' : gap < -3 ? '#1a6fb5' : '#b8892a';
+    document.getElementById('tAvgFavor').textContent    = '+'+avgFavor;
 
     const log = document.getElementById('gameLog');
     log.innerHTML = '';
     rows.forEach(r => {
-      const acc = r.overall_acc ? r.overall_acc+'%' : '—';
+      const acc    = r.overall_acc ? r.overall_acc+'%' : '—';
       const accNum = r.overall_acc||0;
       const accColor = accNum>=95?'#1a7a35':accNum>=90?'#b8892a':'#d93025';
-      const isMurray = r.favor_team && (r.favor_team.toLowerCase().includes('mur'));
+      const isMurray = r.favor_team && r.favor_team.toLowerCase().includes('mur');
       const favor = r.favor_runs>0.05
         ? `<span class="favor-badge favor-${isMurray?'home':'away'}">${(r.favor_team||'?').replace(/_/g,' ').slice(0,8)} +${(r.favor_runs||0).toFixed(2)}</span>`
         : '<span class="favor-badge favor-even">Even</span>';
@@ -224,10 +246,11 @@ async function generate() {
       log.innerHTML += `<div class="game-row"><div class="game-name">${gameName}</div><div class="game-acc" style="color:${accColor}">${acc}</div><div style="text-align:center;font-family:'Barlow Condensed',sans-serif">${r.missed_clear||0}</div><div style="text-align:center;font-family:'Barlow Condensed',sans-serif">${r.missed_borderline||0}</div><div>${favor}</div></div>`;
     });
 
-    document.getElementById('rptFooter').textContent = 'Generated '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · TrackMan · Murray State Baseball Analytics';
-    document.getElementById('report').style.display = 'block';
-    document.getElementById('saveBtn').style.display = 'block';
-    document.getElementById('statusMsg').textContent = '';
+    document.getElementById('rptFooter').textContent  = 'Generated '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · TrackMan · Murray State Baseball Analytics';
+    document.getElementById('report').style.display   = 'block';
+    document.getElementById('defsBox').style.display  = 'block';
+    document.getElementById('saveBtn').style.display  = 'block';
+    document.getElementById('statusMsg').textContent  = '';
     document.getElementById('genBtn').disabled = false;
     document.getElementById('report').scrollIntoView({behavior:'smooth'});
   } catch(e) {
