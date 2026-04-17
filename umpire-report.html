@@ -42,6 +42,16 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 .trend-bar { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
 .trend-val { font-family: ‘Barlow Condensed’, sans-serif; font-size: 12px; font-weight: 700; color: #002147; width: 38px; text-align: right; flex-shrink: 0; }
 
+.tendency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tendency-box { background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 6px; padding: 8px 10px; }
+.tendency-box .t-val { font-family: ‘Barlow Condensed’, sans-serif; font-size: 18px; font-weight: 800; color: #002147; line-height: 1.1; }
+.tendency-box .t-lbl { font-size: 10px; color: #7a8faa; margin-top: 2px; }
+.t-loading { font-family: ‘Barlow Condensed’, sans-serif; font-size: 12px; color: #9b8c74; font-style: italic; }
+
+.chart-toggle-btn { display: block; width: 100%; padding: 7px 12px; background: transparent; border: none; border-top: 1px solid #dde4ef; font-family: ‘Barlow Condensed’, sans-serif; font-size: 11px; font-weight: 700; color: #7a8faa; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; text-align: center; margin-top: 10px; }
+.chart-toggle-btn:hover { color: #002147; }
+.chart-section { display: none; padding-top: 8px; }
+
 .game-row { display: grid; grid-template-columns: 1fr 48px 48px 48px 60px; gap: 4px; align-items: center; padding: 5px 0; border-bottom: 1px solid #eef2f8; font-family: ‘Barlow Condensed’, sans-serif; font-size: 12px; }
 .game-row:last-child { border-bottom: none; }
 .game-row-head { font-size: 10px; font-weight: 700; color: #7a8faa; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -52,11 +62,6 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 .favor-away { background: rgba(217,48,37,0.10); color: #d93025; }
 .favor-even { background: rgba(90,106,122,0.10); color: #5a6a7a; }
 
-.tendency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.tendency-box { background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 6px; padding: 8px 10px; }
-.tendency-box .t-val { font-family: ‘Barlow Condensed’, sans-serif; font-size: 20px; font-weight: 800; color: #002147; line-height: 1; }
-.tendency-box .t-lbl { font-size: 10px; color: #7a8faa; margin-top: 2px; }
-
 .rpt-footer { background: #e8eef6; border: 1px solid #dde4ef; border-radius: 0 0 10px 10px; padding: 5px 12px; font-size: 10px; color: #8a9ab0; text-align: center; }
 
 .defs { max-width: 500px; margin: 10px auto 0; background: #fff; border: 1px solid #dde4ef; border-left: 3px solid #002147; border-radius: 6px; padding: 12px 14px; font-size: 11px; line-height: 1.8; color: #5a6a7a; font-family: ‘Barlow Condensed’, sans-serif; display: none; }
@@ -64,7 +69,6 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 .defs b { color: #002147; }
 
 .save-btn { display: block; width: 100%; max-width: 500px; margin: 10px auto 0; padding: 12px; background: #002147; border: none; border-radius: 8px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 15px; font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px; }
-
 .img-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
 .img-overlay.active { display: flex; }
 .img-overlay img { max-width: 100%; max-height: 75vh; border-radius: 8px; }
@@ -115,15 +119,39 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
       <div class="trend-val" id="lblStrike">—</div>
     </div>
   </div>
+
   <div class="section">
-    <div class="section-title">Tendencies</div>
+    <div class="section-title">Location Tendencies</div>
     <div class="tendency-grid">
-      <div class="tendency-box"><div class="t-val" id="tZoneTend">—</div><div class="t-lbl">Zone Tendency</div></div>
-      <div class="tendency-box"><div class="t-val" id="tConsistency">—</div><div class="t-lbl">Consistency (Acc Range)</div></div>
-      <div class="tendency-box"><div class="t-val" id="tGap">—</div><div class="t-lbl">Strike vs Ball Gap</div></div>
-      <div class="tendency-box"><div class="t-val" id="tAvgFavor">—</div><div class="t-lbl">Avg Favor Runs / Game</div></div>
+      <div class="tendency-box">
+        <div class="t-val t-loading" id="tExpDir">Loading…</div>
+        <div class="t-lbl">Expansion Direction</div>
+      </div>
+      <div class="tendency-box">
+        <div class="t-val t-loading" id="tExpHt">Loading…</div>
+        <div class="t-lbl">Expansion Height</div>
+      </div>
+      <div class="tendency-box">
+        <div class="t-val t-loading" id="tSqueeze">Loading…</div>
+        <div class="t-lbl">Squeeze Spot</div>
+      </div>
+      <div class="tendency-box">
+        <div class="t-val t-loading" id="tSig">Loading…</div>
+        <div class="t-lbl">Miss Signature</div>
+      </div>
+    </div>
+    <button class="chart-toggle-btn" id="chartToggleBtn" onclick="toggleChart()">Show Chart ▼</button>
+    <div class="chart-section" id="chartSection">
+      <div style="font-size:10px;color:#7a8faa;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;font-style:italic;">All missed calls across tracked games · catcher's view</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;">
+        <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#d93025;margin-right:3px;vertical-align:middle"></span>Stolen Strike</span>
+        <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#1a6fb5;margin-right:3px;vertical-align:middle"></span>Lost Strike</span>
+      </div>
+      <canvas id="cvLocation" width="460" height="300" style="display:block;width:100%;height:auto;border-radius:4px;background:#f8fafd;border:1px solid #dde4ef;"></canvas>
+      <div id="locationNote" style="font-size:10px;color:#7a8faa;text-align:center;margin-top:4px;font-family:'Barlow Condensed',sans-serif;font-style:italic;"></div>
     </div>
   </div>
+
   <div class="section">
     <div class="section-title">Game Log</div>
     <div class="game-row game-row-head">
@@ -139,11 +167,11 @@ body { font-family: 'Barlow', sans-serif; background: #f0f2f5; min-height: 100vh
 </div>
 
 <div class="defs" id="defsBox">
-  <div class="defs-title">Metric Definitions</div>
-  <b>Zone Tendency</b> — compares ball accuracy to strike accuracy. <em>Squeezer</em>: misses called strikes more — pitchers should work the zone edges. <em>Expander</em>: calls strikes outside the zone — hitters beware of chasing. <em>Neutral</em>: within 3 points either way.<br>
-  <b>Consistency</b> — highest minus lowest single-game accuracy. A small range means a predictable ump; a wide range means performance varies game to game.<br>
-  <b>Strike vs Ball Gap</b> — ball accuracy minus strike accuracy as a signed number. Positive = better at calling balls (squeezer). Negative = better at calling strikes (expander).<br>
-  <b>Avg Favor Runs</b> — average RE24-based run value of favoritism per game. Higher values mean miscalls had a larger run impact on average.
+  <div class="defs-title">Location Tendency Definitions</div>
+  <b>Expansion Direction</b> — horizontal average of stolen strikes (StrikeCalled outside zone). Away to RHH = he expands toward the outside corner; Inside to RHH = he expands toward the inner half; Both Sides = no clear horizontal bias.<br>
+  <b>Expansion Height</b> — vertical average of stolen strikes relative to the zone. Low = he steals strikes below the zone; High = above; Middle = no clear height preference.<br>
+  <b>Squeeze Spot</b> — where his lost strikes (BallCalled inside zone) cluster. Tells you which part of the zone he consistently fails to call a strike in. Rare = fewer than 3 lost strikes tracked.<br>
+  <b>Miss Signature</b> — one-phrase read combining expansion direction and height. Tells your pitcher and catcher exactly where this ump is most likely to reward a well-located pitch outside the zone.
 </div>
 
 <button class="save-btn" id="saveBtn" style="display:none" onclick="saveImage()">📥 SAVE REPORT IMAGE</button>
@@ -183,31 +211,24 @@ async function generate() {
   if (!name) return;
   document.getElementById('statusMsg').textContent = 'Loading...';
   document.getElementById('genBtn').disabled = true;
+
+  ['tExpDir','tExpHt','tSqueeze','tSig'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = 'Loading…'; el.style.color = ''; el.className = 't-val t-loading';
+  });
+  document.getElementById('chartSection').style.display = 'none';
+  document.getElementById('chartToggleBtn').textContent = 'Show Chart ▼';
+
   try {
     const rows = await supaFetch('umpire_games?umpire_name=eq.' + encodeURIComponent(name) + '&order=game_date.desc');
     if (!rows.length) { document.getElementById('statusMsg').textContent = 'No data found for ' + name; document.getElementById('genBtn').disabled = false; return; }
+
     const n = rows.length;
     const avgAcc    = (rows.reduce((s,r) => s+(r.overall_acc||0),0)/n).toFixed(1);
     const avgBall   = (rows.reduce((s,r) => s+(r.ball_acc||0),0)/n).toFixed(1);
     const avgStrike = (rows.reduce((s,r) => s+(r.strike_acc||0),0)/n).toFixed(1);
     const avgMissed = ((rows.reduce((s,r) => s+(r.missed_clear||0)+(r.missed_borderline||0),0))/n).toFixed(1);
     const avgFavor  = (rows.reduce((s,r) => s+(r.favor_runs||0),0)/n).toFixed(2);
-
-    // Zone Tendency
-    const ballAccNum   = parseFloat(avgBall);
-    const strikeAccNum = parseFloat(avgStrike);
-    const gap = ballAccNum - strikeAccNum;
-    let zoneTend, zoneTendColor;
-    if (gap > 3)       { zoneTend = 'Squeezer'; zoneTendColor = '#d93025'; }
-    else if (gap < -3) { zoneTend = 'Expander';  zoneTendColor = '#1a6fb5'; }
-    else               { zoneTend = 'Neutral';   zoneTendColor = '#b8892a'; }
-
-    // Consistency
-    const accs     = rows.map(r => r.overall_acc || 0);
-    const accRange = (Math.max(...accs) - Math.min(...accs)).toFixed(1);
-
-    // Strike vs Ball Gap
-    const gapSigned = (gap >= 0 ? '+' : '') + gap.toFixed(1);
 
     document.getElementById('rptName').textContent = name;
     document.getElementById('rptSub').textContent  = n+' game'+(n!==1?'s':'')+' tracked · Murray State Baseball';
@@ -225,21 +246,14 @@ async function generate() {
     document.getElementById('lblBall').textContent    = avgBall+'%';
     document.getElementById('lblStrike').textContent  = avgStrike+'%';
 
-    document.getElementById('tZoneTend').textContent    = zoneTend;
-    document.getElementById('tZoneTend').style.color    = zoneTendColor;
-    document.getElementById('tConsistency').textContent = accRange+' pts';
-    document.getElementById('tGap').textContent         = gapSigned+' pts';
-    document.getElementById('tGap').style.color         = gap > 3 ? '#d93025' : gap < -3 ? '#1a6fb5' : '#b8892a';
-    document.getElementById('tAvgFavor').textContent    = '+'+avgFavor;
-
     const log = document.getElementById('gameLog');
     log.innerHTML = '';
     rows.forEach(r => {
-      const acc    = r.overall_acc ? r.overall_acc+'%' : '—';
-      const accNum = r.overall_acc||0;
+      const acc      = r.overall_acc ? r.overall_acc+'%' : '—';
+      const accNum   = r.overall_acc||0;
       const accColor = accNum>=95?'#1a7a35':accNum>=90?'#b8892a':'#d93025';
       const isMurray = r.favor_team && r.favor_team.toLowerCase().includes('mur');
-      const favor = r.favor_runs>0.05
+      const favor    = r.favor_runs>0.05
         ? `<span class="favor-badge favor-${isMurray?'home':'away'}">${(r.favor_team||'?').replace(/_/g,' ').slice(0,8)} +${(r.favor_runs||0).toFixed(2)}</span>`
         : '<span class="favor-badge favor-even">Even</span>';
       const gameName = r.display_name?r.display_name.replace(/Midweek /i,'').replace(/ Game/i,' G'):(r.game_id||'—');
@@ -253,10 +267,170 @@ async function generate() {
     document.getElementById('statusMsg').textContent  = '';
     document.getElementById('genBtn').disabled = false;
     document.getElementById('report').scrollIntoView({behavior:'smooth'});
+
+    fetchLocationData(rows);
+
   } catch(e) {
     document.getElementById('statusMsg').textContent = 'Error: '+e.message;
     document.getElementById('genBtn').disabled = false;
   }
+}
+
+async function fetchLocationData(umpireRows) {
+  try {
+    const gameIds = umpireRows.map(r => r.game_id).filter(Boolean);
+    if (!gameIds.length) { setTendencyError(); return; }
+
+    const pitches = await supaFetch(
+      'pitches?GameID=in.(' + gameIds.join(',') + ')' +
+      '&PitchCall=in.(StrikeCalled,BallCalled)' +
+      '&select=PlateLocSide,PlateLocHeight,ZoneTop,ZoneBottom,PitchCall' +
+      '&limit=5000'
+    );
+
+    if (!Array.isArray(pitches) || !pitches.length) { setTendencyError(); return; }
+
+    const SZ_W = 0.833, DEFAULT_TOP = 3.5, DEFAULT_BOT = 1.5;
+    const stolen = [], lost = [], topVals = [], botVals = [];
+
+    pitches.forEach(r => {
+      const s = parseFloat(r.PlateLocSide), h = parseFloat(r.PlateLocHeight);
+      if (isNaN(s) || isNaN(h)) return;
+      const top = parseFloat(r.ZoneTop)    || DEFAULT_TOP;
+      const bot = parseFloat(r.ZoneBottom) || DEFAULT_BOT;
+      topVals.push(top); botVals.push(bot);
+      const inZ = s >= -SZ_W && s <= SZ_W && h >= bot && h <= top;
+      if (r.PitchCall === 'StrikeCalled' && !inZ) stolen.push({s, h, top, bot});
+      if (r.PitchCall === 'BallCalled'   &&  inZ) lost.push({s, h, top, bot});
+    });
+
+    topVals.sort((a,b)=>a-b); botVals.sort((a,b)=>a-b);
+    const medTop = topVals.length ? topVals[Math.floor(topVals.length/2)] : DEFAULT_TOP;
+    const medBot = botVals.length ? botVals[Math.floor(botVals.length/2)] : DEFAULT_BOT;
+
+    // Expansion Direction
+    let expDir = '—', expDirColor = '#002147';
+    if (stolen.length >= 3) {
+      const avgS = stolen.reduce((s,p) => s+p.s, 0) / stolen.length;
+      if      (avgS < -0.15) { expDir = 'Away to RHH';   expDirColor = '#1a6fb5'; }
+      else if (avgS >  0.15) { expDir = 'Inside to RHH'; expDirColor = '#b8892a'; }
+      else                   { expDir = 'Both Sides';    expDirColor = '#1a7a35'; }
+    } else if (stolen.length > 0) { expDir = 'Too Few'; expDirColor = '#7a8faa'; }
+
+    // Expansion Height
+    let expHt = '—', expHtColor = '#002147';
+    if (stolen.length >= 3) {
+      const avgH    = stolen.reduce((s,p) => s+p.h, 0) / stolen.length;
+      const midZone = (medTop + medBot) / 2;
+      if      (avgH < midZone - 0.3) { expHt = 'Low';    expHtColor = '#d93025'; }
+      else if (avgH > midZone + 0.3) { expHt = 'High';   expHtColor = '#1a6fb5'; }
+      else                           { expHt = 'Middle'; expHtColor = '#b8892a'; }
+    } else if (stolen.length > 0) { expHt = 'Too Few'; expHtColor = '#7a8faa'; }
+
+    // Squeeze Spot
+    let squeezeSpot = 'Rare', squeezeColor = '#7a8faa';
+    if (lost.length >= 3) {
+      const zw = SZ_W * 2 / 3;
+      const buckets = {};
+      lost.forEach(p => {
+        const zh     = (p.top - p.bot) / 3;
+        const hLabel = p.s < -SZ_W + zw ? 'Away' : p.s > SZ_W - zw ? 'Inside' : 'Center';
+        const vLabel = p.h < p.bot + zh ? 'Low' : p.h > p.top - zh ? 'High' : 'Middle';
+        buckets[vLabel+'-'+hLabel] = (buckets[vLabel+'-'+hLabel]||0) + 1;
+      });
+      squeezeSpot  = Object.keys(buckets).sort((a,b) => buckets[b]-buckets[a])[0] || 'Even';
+      squeezeColor = '#002147';
+    }
+
+    // Miss Signature
+    let sig = '—', sigColor = '#002147';
+    if (stolen.length >= 3) {
+      const parts = [];
+      if (expHt  !== 'Middle'     && expHt  !== '—' && expHt  !== 'Too Few') parts.push(expHt);
+      if (expDir !== 'Both Sides' && expDir !== '—' && expDir !== 'Too Few') parts.push(expDir);
+      sig      = parts.length ? parts.join(' / ') + ' Expander' : 'Zone Expander';
+      sigColor = '#d93025';
+    } else if (lost.length >= 3) {
+      sig = 'Zone Squeezer'; sigColor = '#1a6fb5';
+    } else {
+      sig = 'Insufficient Data'; sigColor = '#7a8faa';
+    }
+
+    setTendencyBox('tExpDir',  expDir,      expDirColor);
+    setTendencyBox('tExpHt',   expHt,       expHtColor);
+    setTendencyBox('tSqueeze', squeezeSpot, squeezeColor);
+    setTendencyBox('tSig',     sig,         sigColor);
+
+    document.getElementById('locationNote').textContent =
+      stolen.length + ' stolen strikes · ' + lost.length + ' lost strikes across ' + gameIds.length + ' games';
+    drawLocationChart(stolen, lost, medTop, medBot);
+
+  } catch(e) { setTendencyError(); }
+}
+
+function setTendencyBox(id, text, color) {
+  const el = document.getElementById(id);
+  el.textContent = text; el.style.color = color || '#002147'; el.className = 't-val';
+}
+function setTendencyError() {
+  ['tExpDir','tExpHt','tSqueeze','tSig'].forEach(id => setTendencyBox(id, 'No data', '#7a8faa'));
+}
+
+function toggleChart() {
+  const section = document.getElementById('chartSection');
+  const btn     = document.getElementById('chartToggleBtn');
+  const open    = section.style.display === 'block';
+  section.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? 'Show Chart ▼' : 'Hide Chart ▲';
+}
+
+function drawLocationChart(stolen, lost, medTop, medBot) {
+  const cv = document.getElementById('cvLocation');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, PAD = 28;
+  const SZ_W = 0.833, SHADOW = 1.455 / 12;
+  const xMin=-1.5, xMax=1.5, yMin=0.8, yMax=4.3;
+  const mx = v => PAD + (v-xMin)/(xMax-xMin)*(W-PAD*2);
+  const my = v => H - PAD - (v-yMin)/(yMax-yMin)*(H-PAD*2);
+
+  ctx.fillStyle = '#f8fafd'; ctx.fillRect(0, 0, W, H);
+
+  ctx.save(); ctx.strokeStyle='#b0bec8'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.strokeRect(mx(-SZ_W-SHADOW),my(medTop+SHADOW),mx(SZ_W+SHADOW)-mx(-SZ_W-SHADOW),my(medBot-SHADOW)-my(medTop+SHADOW));
+  ctx.restore();
+
+  const zl=mx(-SZ_W),zr=mx(SZ_W),zt=my(medTop),zb=my(medBot),zw=zr-zl,zh=zb-zt;
+  ctx.strokeStyle='#c5d0dc'; ctx.lineWidth=0.8; ctx.setLineDash([]);
+  for (let i=1;i<3;i++){
+    ctx.beginPath();ctx.moveTo(zl+zw*i/3,zt);ctx.lineTo(zl+zw*i/3,zb);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(zl,zt+zh*i/3);ctx.lineTo(zr,zt+zh*i/3);ctx.stroke();
+  }
+  ctx.strokeStyle='#002147'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.strokeRect(zl,zt,zw,zh);
+
+  ctx.strokeStyle='#d0d8e4'; ctx.lineWidth=0.8; ctx.setLineDash([3,4]);
+  ctx.beginPath();ctx.moveTo(mx(0),zt-10);ctx.lineTo(mx(0),zb+8);ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle='#8a9ab0'; ctx.font='10px Barlow Condensed,sans-serif'; ctx.textAlign='left';
+  ctx.fillText(medTop.toFixed(1)+'ft',zr+4,zt+4);
+  ctx.fillText(medBot.toFixed(1)+'ft',zr+4,zb+4);
+
+  lost.forEach(p => {
+    ctx.beginPath();ctx.arc(mx(p.s),my(p.h),4.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(26,111,181,0.65)';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.6;ctx.stroke();
+  });
+  stolen.forEach(p => {
+    ctx.beginPath();ctx.arc(mx(p.s),my(p.h),4.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(217,48,37,0.70)';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=0.6;ctx.stroke();
+  });
+
+  ctx.fillStyle='#8a9ab0'; ctx.font='10px Barlow Condensed,sans-serif'; ctx.textAlign='center';
+  ctx.fillText("← AWAY TO RHH", mx(-0.55), H-8);
+  ctx.fillText("INSIDE TO RHH →", mx(0.55), H-8);
 }
 
 async function saveImage() {
