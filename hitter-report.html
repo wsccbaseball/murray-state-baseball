@@ -18,17 +18,17 @@ body {
   padding: 14px 8px 40px;
 }
 .ui-panel {
-background: #fff; border-radius: 10px;
-box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-padding: 16px; max-width: 500px; margin: 0 auto 18px;
+  background: #fff; border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  padding: 16px; max-width: 500px; margin: 0 auto 18px;
 }
 .ui-panel h2 {
-font-family: 'Barlow Condensed', sans-serif;
-font-size: 20px; font-weight: 800; color: #002147; margin-bottom: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 800; color: #002147; margin-bottom: 12px;
 }
 .upload-box {
-border: 2px dashed #CFB53B; border-radius: 8px; padding: 10px 12px;
-background: #f9f5e8; cursor: pointer; margin-bottom: 12px;
+  border: 2px dashed #CFB53B; border-radius: 8px; padding: 10px 12px;
+  background: #f9f5e8; cursor: pointer; margin-bottom: 12px;
 }
 .upload-box:hover { border-color: #002147; }
 .upload-box label { font-size: 12px; font-weight: 600; color: #002147; display: block; margin-bottom: 3px; }
@@ -37,18 +37,20 @@ background: #f9f5e8; cursor: pointer; margin-bottom: 12px;
 .fields-row { margin-bottom: 12px; }
 .field-group label { font-size: 11px; font-weight: 600; color: #002147; display: block; margin-bottom: 3px; }
 .field-group select {
-width: 100%; padding: 8px 10px; border: 1.5px solid #CFB53B; border-radius: 6px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: #1a1a1a; background: #fff;
+  width: 100%; padding: 8px 10px; border: 1.5px solid #CFB53B; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: #1a1a1a; background: #fff;
 }
 .generate-btn {
-display: block; width: 100%; padding: 13px;
-background: #002147; border: none; border-radius: 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 17px;
-font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px;
+  display: block; width: 100%; padding: 13px;
+  background: #002147; border: none; border-radius: 8px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 17px;
+  font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px;
 }
 .generate-btn:disabled { background: #7a8faa; cursor: not-allowed; color: #fff; }
 .status-msg { font-size: 12px; color: #2a8a4a; font-weight: 600; margin-top: 7px; text-align: center; min-height: 16px; }
 .status-msg.warn { color: #c0630a; }
+
+/* ── Card ── */
 .card {
 background: #fff; width: 100%; max-width: 500px;
 border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.13);
@@ -60,132 +62,95 @@ padding: 8px 12px 7px;
 display: flex; align-items: center; justify-content: space-between;
 }
 .header-center { text-align: center; flex: 1; }
-.player-name {
-font-family: 'Barlow Condensed', sans-serif;
-font-size: 26px; font-weight: 800; color: #fff; letter-spacing: 1px; line-height: 1;
-}
-.player-info { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: #CFB53B; margin-top: 1px; }
-.summary-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
+.player-name { font-family: ‘Barlow Condensed’, sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: 1px; line-height: 1; }
+.player-info { font-family: ‘Barlow Condensed’, sans-serif; font-size: 11px; color: #CFB53B; margin-top: 1px; }
+.summary-title { font-family: ‘Barlow Condensed’, sans-serif; font-size: 13px; font-weight: 700; color: #fff; margin-top: 2px; }
 .season-tag { font-size: 10px; font-style: italic; color: #b89e2a; }
 .logo-box { width: 42px; text-align: center; }
 .game-line {
 background: #e8f0fb; text-align: center; padding: 5px 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #002147;
+font-family: ‘Barlow Condensed’, sans-serif; font-size: 13px; font-weight: 700; color: #002147;
 border-bottom: 2px solid #b8cce0;
 }
 .stat-table-wrap { padding: 4px 6px 3px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.stat-table { width: 100%; border-collapse: collapse; font-family: 'Barlow Condensed', sans-serif; }
-.stat-table th {
-background: #002147; color: #fff; font-size: 10px; font-weight: 700;
-padding: 4px 3px; text-align: center; white-space: nowrap;
-}
-.stat-table td {
-text-align: center; padding: 5px 3px; font-size: 14px; font-weight: 700; color: #1a1a1a;
-border: 1px solid #dde4ef; background: #f8fafd;
-}
+.stat-table { width: 100%; border-collapse: collapse; font-family: ‘Barlow Condensed’, sans-serif; }
+.stat-table th { background: #002147; color: #fff; font-size: 10px; font-weight: 700; padding: 4px 3px; text-align: center; white-space: nowrap; }
+.stat-table td { text-align: center; padding: 5px 3px; font-size: 14px; font-weight: 700; color: #1a1a1a; border: 1px solid #dde4ef; background: #f8fafd; }
+
 .mid-section { display: flex; border-top: 1px solid #e4eaf4; align-items: stretch; }
-.left-panel {
-width: 154px; flex-shrink: 0; border-right: 1px solid #e4eaf4;
-padding: 6px 5px; display: flex; flex-direction: column; gap: 5px;
-}
-.panel-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147;
-text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px;
-}
-canvas.pie { display: block; margin: 0 auto; }
+
+/* ── Left panel ── */
+.left-panel { width: 154px; flex-shrink: 0; border-right: 1px solid #e4eaf4; padding: 6px 5px; display: flex; flex-direction: column; gap: 5px; }
+.panel-title { font-family: ‘Barlow Condensed’, sans-serif; font-size: 9px; font-weight: 700; color: #002147; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; }
+canvas.pie { display: block; margin: 0 auto; width: 136px; height: 136px; }
 .pie-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px 5px; margin-top: 2px; }
-.pie-legend-item {
-display: flex; align-items: center; gap: 2px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #333;
-}
+.pie-legend-item { display: flex; align-items: center; gap: 2px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 8px; color: #333; }
 .pie-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-.rate-box {
-background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 4px; padding: 4px 2px; text-align: center;
+.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; flex: 1; align-content: stretch; }
+.rate-box { background: #f4f8fd; border: 1px solid #dde4ef; border-radius: 4px; padding: 0 2px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.rate-box .rb-val { font-family: ‘Barlow Condensed’, sans-serif; font-size: 17px; font-weight: 800; color: #002147; line-height: 1; }
+.rate-box .rb-lbl { font-family: ‘Barlow Condensed’, sans-serif; font-size: 8px; font-weight: 600; color: #7a8faa; margin-top: 2px; }
+
+/* ── Right panel ── */
+.right-panel { flex: 1; padding: 5px 4px; min-width: 0; display: flex; flex-direction: column; }
+
+/* ── Swings by Count ── */
+.count-section-title {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 9px; font-weight: 700; color: #002147;
+text-align: center; text-transform: uppercase; letter-spacing: 0.5px;
+margin-bottom: 3px;
 }
-.rate-box .rb-val {
-font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #002147; line-height: 1;
+.count-outer-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 4px;
 }
-.rate-box .rb-lbl {
-font-family: 'Barlow Condensed', sans-serif; font-size: 7px; font-weight: 600; color: #7a8faa; margin-top: 1px;
+.count-cell {
+background: #f4f8fd;
+border: 1px solid #dde4ef;
+border-radius: 4px;
+padding: 2px 2px 2px;
+display: flex; flex-direction: column; align-items: center;
+min-width: 0;
+aspect-ratio: 1;
+overflow: hidden;
 }
-.right-panel { flex: 1; padding: 5px 4px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; }
-.zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; flex: 1; }
-.chart-box {
-background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px; padding: 3px 2px;
-min-width: 0; overflow: hidden;
+.count-cell-lbl {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 8px; font-weight: 700; color: #002147;
+line-height: 1; margin-bottom: 1px;
+flex-shrink: 0;
 }
-.chart-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; color: #002147;
-text-align: center; margin-bottom: 1px;
-}
-.chart-sub { font-size: 7.5px; color: #7a8faa; text-align: center; margin-bottom: 1px; }
-canvas { display: block; margin: 0 auto; max-width: 100%; height: auto; }
-.ev-legend {
-display: flex; justify-content: center; align-items: center; gap: 8px;
-padding: 2px 4px; flex-wrap: wrap;
-}
-.ev-legend-item {
-display: flex; align-items: center; gap: 2px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #555;
-}
+.count-cell canvas { display: block; width: 100% !important; aspect-ratio: 1 !important; flex: 1; min-height: 0; }
+
+/* ── Spray below count ── */
+.spray-below { margin-top: 4px; }
+.ev-legend { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 2px 4px; flex-wrap: wrap; }
+.ev-legend-item { display: flex; align-items: center; gap: 2px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 8px; color: #555; }
 .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.pa-section { border-top: 2px solid #e4eaf4; padding: 5px 6px 6px; }
-.pa-section-title {
-font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 800; color: #002147;
-margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-}
+
+/* ── PA section ── */
+.pa-section { border-top: 2px solid #e4eaf4; padding: 4px 6px 6px; }
+.pa-section-title { font-family: ‘Barlow Condensed’, sans-serif; font-size: 10px; font-weight: 800; color: #002147; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 .pa-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 5px; }
-.pa-legend-item {
-display: flex; align-items: center; gap: 3px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; color: #444;
-}
+.pa-legend-item { display: flex; align-items: center; gap: 3px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 8px; color: #444; }
 .pa-grid { display: flex; flex-wrap: wrap; gap: 4px; }
-.pa-card {
-background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px;
-padding: 3px; flex: 0 0 calc(20% - 4px); min-width: 68px;
-}
-.pa-header {
-font-family: 'Barlow Condensed', sans-serif; font-size: 8px; font-weight: 700; color: #002147;
-text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.pa-result {
-font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-align: center; margin-top: 1px;
-}
-.pa-seq {
-font-family: 'Barlow Condensed', sans-serif; font-size: 7px; color: #7a8faa;
-text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.footer {
-background: #f0f4fa; border-top: 1px solid #dde4ef; padding: 5px 10px;
-display: flex; justify-content: space-between;
-font-family: 'Barlow Condensed', sans-serif; font-size: 9px; color: #6a7f9a;
-}
-.save-btn {
-display: block; width: calc(100% - 16px); margin: 8px auto;
-padding: 11px; background: #002147; border: none; border-radius: 8px;
-font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
-font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px;
-}
+.pa-card { background: #f8fafd; border: 1px solid #dde4ef; border-radius: 5px; padding: 3px; flex: 0 0 calc(20% - 4px); min-width: 68px; }
+.pa-card canvas { width: 100%; height: auto; display: block; }
+.pa-header { font-family: ‘Barlow Condensed’, sans-serif; font-size: 8px; font-weight: 700; color: #002147; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pa-result { font-family: ‘Barlow Condensed’, sans-serif; font-size: 11px; font-weight: 800; text-align: center; margin-top: 1px; }
+.pa-seq { font-family: ‘Barlow Condensed’, sans-serif; font-size: 7px; color: #7a8faa; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.footer { background: #f0f4fa; border-top: 1px solid #dde4ef; padding: 5px 10px; display: flex; justify-content: space-between; font-family: ‘Barlow Condensed’, sans-serif; font-size: 9px; color: #6a7f9a; }
+.save-btn { display: block; width: calc(100% - 16px); margin: 8px auto; padding: 11px; background: #002147; border: none; border-radius: 8px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 15px; font-weight: 800; color: #CFB53B; cursor: pointer; letter-spacing: 1px; }
 .save-btn:active { opacity: 0.85; }
-.img-overlay {
-display: none; position: fixed; inset: 0; z-index: 9999;
-background: rgba(0,0,0,0.88);
-align-items: center; justify-content: center; flex-direction: column; padding: 16px;
-}
+.img-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; flex-direction: column; padding: 16px; }
 .img-overlay.active { display: flex; }
 .img-overlay img { max-width: 100%; max-height: 80vh; border-radius: 6px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
-.overlay-hint {
-margin-top: 14px; font-family: 'Barlow Condensed', sans-serif;
-font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); text-align: center;
-}
-.overlay-close {
-margin-top: 16px; padding: 10px 32px;
-background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3);
-border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif;
-font-size: 15px; font-weight: 700; cursor: pointer;
-}
+.overlay-hint { margin-top: 14px; font-family: ‘Barlow Condensed’, sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); text-align: center; }
+.overlay-close { margin-top: 16px; padding: 10px 32px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; font-family: ‘Barlow Condensed’, sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
 </style>
+
 </head>
 <body>
 
@@ -238,10 +203,10 @@ font-size: 15px; font-weight: 700; cursor: pointer;
     <div class="left-panel">
       <div>
         <div class="panel-title">Pitch Mix Seen</div>
-        <canvas class="pie" id="pieChart" width="136" height="136"></canvas>
+        <canvas class="pie" id="pieChart" width="272" height="272"></canvas>
         <div class="pie-legend" id="pieLegend"></div>
       </div>
-      <div>
+      <div style="margin-top:6px;flex:1;display:flex;flex-direction:column;">
         <div class="panel-title">Plate Discipline</div>
         <div class="rate-grid">
           <div class="rate-box"><div class="rb-val" id="rSwing">—</div><div class="rb-lbl">Swing%</div></div>
@@ -252,20 +217,14 @@ font-size: 15px; font-weight: 700; cursor: pointer;
           <div class="rate-box"><div class="rb-val" id="rBall">—</div><div class="rb-lbl">Ball%</div></div>
         </div>
       </div>
-      <div>
-        <div class="panel-title" style="margin-top:2px;">Spray Chart</div>
-        <div style="background:#f8fafd;border:1px solid #dde4ef;border-radius:5px;padding:3px 2px;">
-          <canvas id="sprayChart" width="136" height="136"></canvas>
-          <div class="ev-legend" id="evLegend"></div>
-        </div>
-      </div>
     </div>
     <div class="right-panel">
-      <div class="zone-grid">
-        <div class="chart-box"><div class="chart-title">Swings vs RHP</div><div class="chart-sub" id="subSwRHP">—</div><canvas id="zSwRHP" width="120" height="120"></canvas></div>
-        <div class="chart-box"><div class="chart-title">Swings vs LHP</div><div class="chart-sub" id="subSwLHP">—</div><canvas id="zSwLHP" width="120" height="120"></canvas></div>
-        <div class="chart-box"><div class="chart-title">Whiffs vs RHP</div><div class="chart-sub" id="subWhRHP">—</div><canvas id="zWhRHP" width="120" height="120"></canvas></div>
-        <div class="chart-box"><div class="chart-title">Whiffs vs LHP</div><div class="chart-sub" id="subWhLHP">—</div><canvas id="zWhLHP" width="120" height="120"></canvas></div>
+      <div class="count-section-title">Swings by Count</div>
+      <div class="count-outer-grid" id="countOuterGrid"></div>
+      <div class="spray-below">
+        <div class="count-section-title" style="margin-top:5px;">Spray Chart</div>
+        <canvas id="sprayChart" width="300" height="220" style="width:100%;height:auto;display:block;border-radius:4px;"></canvas>
+        <div class="ev-legend" id="evLegend"></div>
       </div>
     </div>
   </div>
@@ -361,13 +320,13 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   try {
     var rows = await supaFetch('pitches?GameID=eq.' + encodeURIComponent(gameId));
     allRows = rows;
-    var wsBatters = [...new Set(rows.filter(r => r.BatterTeam && r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
+    var murBatters = [...new Set(rows.filter(r => r.BatterTeam && r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
     var oppBatters = [...new Set(rows.filter(r => !r.BatterTeam || !r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
     bsel.innerHTML = '<option value="">— select batter —</option>';
-    if (wsBatters.length) {
+    if (murBatters.length) {
       var murGrp = document.createElement('optgroup');
       murGrp.label = 'Murray State';
-      wsBatters.forEach(function(b) {
+      murBatters.forEach(function(b) {
         var opt = document.createElement('option');
         opt.value = b;
         var parts = b.split(',');
@@ -410,8 +369,7 @@ document.getElementById('pdfInput').addEventListener('change', function() {
   const reader = new FileReader();
   reader.onload = async e => {
     try {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       const pdf = await pdfjsLib.getDocument({ data: e.target.result }).promise;
       let text = '';
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -523,36 +481,68 @@ function normPitch(t, a) { var raw = (!t || t === 'Undefined') ? a : t; return P
 function pitchColor(t) { return PITCH_COLORS[t] || '#888'; }
 function pct(n, d, dec=1) { if (!d) return '\u2014'; return (n/d*100).toFixed(dec)+'%'; }
 
-function drawZoneChart(canvasId, pitches, showWhiffs) {
-  const cv = document.getElementById(canvasId); if (!cv) return;
-  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
-  const xMin=-1.5,xMax=1.5,yMin=0.8,yMax=4.2;
-  const mx = v => (v-xMin)/(xMax-xMin)*(W-20)+10;
-  const my = v => H-10-(v-yMin)/(yMax-yMin)*(H-20);
-  ctx.clearRect(0,0,W,H); ctx.fillStyle='#f8fafd'; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#333'; ctx.lineWidth=1.8;
-  ctx.strokeRect(mx(-0.83),my(3.5),mx(0.83)-mx(-0.83),my(1.5)-my(3.5));
-  const zW=(mx(0.83)-mx(-0.83))/3,zH=(my(1.5)-my(3.5))/3;
-  ctx.strokeStyle='#ccc'; ctx.lineWidth=0.6;
-  for (let i=1;i<3;i++) {
+// ── Swings by Count ──────────────────────────────────────────────────────────
+function drawCountZone(canvas, swings) {
+  const ctx = canvas.getContext('2d'), W = canvas.width, H = canvas.height;
+  const xMin=-1.9, xMax=1.9, yMin=0.6, yMax=4.4;
+  const mx = v => (v-xMin)/(xMax-xMin)*(W-10)+5;
+  const my = v => H-5-(v-yMin)/(yMax-yMin)*(H-10);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f8fafd'; ctx.fillRect(0,0,W,H);
+  const zW=(mx(0.83)-mx(-0.83))/3, zH=(my(1.5)-my(3.5))/3;
+  ctx.strokeStyle='#ccc'; ctx.lineWidth=1.2;
+  for(let i=1;i<3;i++){
     ctx.beginPath();ctx.moveTo(mx(-0.83)+zW*i,my(3.5));ctx.lineTo(mx(-0.83)+zW*i,my(1.5));ctx.stroke();
     ctx.beginPath();ctx.moveTo(mx(-0.83),my(3.5)+zH*i);ctx.lineTo(mx(0.83),my(3.5)+zH*i);ctx.stroke();
   }
-  const px=mx(0),py=my(0.2);
-  ctx.beginPath();ctx.moveTo(px-6,py-4);ctx.lineTo(px+6,py-4);ctx.lineTo(px+6,py+1);ctx.lineTo(px,py+5);ctx.lineTo(px-6,py+1);ctx.closePath();ctx.strokeStyle='#888';ctx.lineWidth=1;ctx.stroke();
-  pitches.forEach(r => {
-    const x=parseFloat(r.PlateLocSide),y=parseFloat(r.PlateLocHeight); if(isNaN(x)||isNaN(y))return;
-    const col=pitchColor(normPitch(r.TaggedPitchType, r.AutoPitchType));
-    const isW=isWhiff(r),isS=isSwing(r);
-    if(showWhiffs&&!isW)return; if(!showWhiffs&&!isS)return;
-    const cx=mx(x),cy=my(y);
-    ctx.beginPath();ctx.arc(cx,cy,3.8,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,0.3)';ctx.lineWidth=0.6;ctx.stroke();
-    if(isW){ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-2,cy-2);ctx.lineTo(cx+2,cy+2);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+2,cy-2);ctx.lineTo(cx-2,cy+2);ctx.stroke();}
+  ctx.strokeStyle='#333'; ctx.lineWidth=3.5;
+  ctx.strokeRect(mx(-0.83), my(3.5), mx(0.83)-mx(-0.83), my(1.5)-my(3.5));
+  swings.forEach(r => {
+    const x=parseFloat(r.PlateLocSide), y=parseFloat(r.PlateLocHeight);
+    if(isNaN(x)||isNaN(y)) return;
+    const col = pitchColor(normPitch(r.TaggedPitchType, r.AutoPitchType));
+    const cx=mx(x), cy=my(y);
+    ctx.beginPath(); ctx.arc(cx,cy,7,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1; ctx.stroke();
+    if(isWhiff(r)){
+      ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1.8;
+      ctx.beginPath();ctx.moveTo(cx-3.5,cy-3.5);ctx.lineTo(cx+3.5,cy+3.5);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(cx+3.5,cy-3.5);ctx.lineTo(cx-3.5,cy+3.5);ctx.stroke();
+    }
   });
-  ctx.fillStyle='#9aa8bb';ctx.font='7.5px Barlow Condensed, sans-serif';ctx.textAlign='center';
-  ctx.fillText('\u2190 Away',mx(-0.4),H-2);ctx.fillText('In \u2192',mx(0.4),H-2);
 }
+
+function buildCountGrid(rows) {
+  const countMap = {};
+  for(let b=0;b<=3;b++) for(let s=0;s<=2;s++) countMap[`${b}-${s}`]=[];
+  rows.forEach(r => {
+    if(!isSwing(r)) return;
+    const b=parseInt(r.Balls), s=parseInt(r.Strikes);
+    if(isNaN(b)||isNaN(s)) return;
+    const key=`${b}-${s}`;
+    if(countMap[key]) countMap[key].push(r);
+  });
+
+  const container = document.getElementById('countOuterGrid');
+  container.innerHTML = '';
+
+  [0,1,2].forEach(s => {
+    [0,1,2,3].forEach(b => {
+      const key=`${b}-${s}`;
+      const swings=countMap[key];
+      const cell=document.createElement('div'); cell.className='count-cell';
+      const lbl=document.createElement('div'); lbl.className='count-cell-lbl'; lbl.textContent=`${b}-${s}`;
+      const canvasId='cnt_'+b+'_'+s;
+      const cv=document.createElement('canvas'); cv.id=canvasId; cv.width=160; cv.height=160;
+      cv.style.cssText='display:block;width:100%;height:auto;';
+      cell.appendChild(lbl); cell.appendChild(cv);
+      container.appendChild(cell);
+      setTimeout(()=>drawCountZone(cv, swings), 10);
+    });
+  });
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 const FIELD={lf:315,lcf:370,cf:385,rcf:370,rf:315};
 function wallDistAtDir(deg){
@@ -610,8 +600,8 @@ function drawPieChart(pitches){
   const cx=W/2,cy=H/2,r=Math.min(W,H)/2-8;let startAngle=-Math.PI/2;
   types.forEach(([t,n])=>{
     const angle=(n/total)*2*Math.PI,col=pitchColor(t);
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+angle);ctx.closePath();ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
-    if(n/total>0.1){const mid=startAngle+angle/2;ctx.fillStyle='#fff';ctx.font='bold 9px Barlow Condensed, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.round(n/total*100)+'%',cx+(r*0.65)*Math.cos(mid),cy+(r*0.65)*Math.sin(mid));}
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+angle);ctx.closePath();ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+    if(n/total>0.1){const mid=startAngle+angle/2;ctx.fillStyle='#fff';ctx.font='bold 18px Barlow Condensed, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.round(n/total*100)+'%',cx+(r*0.65)*Math.cos(mid),cy+(r*0.65)*Math.sin(mid));}
     startAngle+=angle;
   });
   const legend=document.getElementById('pieLegend');legend.innerHTML='';
@@ -622,23 +612,23 @@ function drawPAZone(canvasId,paPitches){
   const cv=document.getElementById(canvasId);if(!cv)return;
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
   const xMin=-1.4,xMax=1.4,yMin=0.9,yMax=4.1;
-  const mx=v=>(v-xMin)/(xMax-xMin)*(W-6)+3,my=v=>H-3-(v-yMin)/(yMax-yMin)*(H-6);
+  const mx=v=>(v-xMin)/(xMax-xMin)*(W-12)+6,my=v=>H-6-(v-yMin)/(yMax-yMin)*(H-12);
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#f8fafd';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.strokeRect(mx(-0.83),my(3.5),mx(0.83)-mx(-0.83),my(1.5)-my(3.5));
-  const R=3.8;
+  ctx.strokeStyle='#aaa';ctx.lineWidth=2;ctx.strokeRect(mx(-0.83),my(3.5),mx(0.83)-mx(-0.83),my(1.5)-my(3.5));
+  const R=7.6;
   paPitches.forEach((r,idx)=>{
     const x=parseFloat(r.PlateLocSide),y=parseFloat(r.PlateLocHeight);if(isNaN(x)||isNaN(y))return;
     const col=pitchColor(normPitch(r.TaggedPitchType,r.AutoPitchType)),cx=mx(x),cy=my(y),call=r.PitchCall;
-    ctx.fillStyle=col;ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=0.6;
+    ctx.fillStyle=col;ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1.2;
     if(call==='InPlay'){ctx.beginPath();ctx.moveTo(cx,cy-R);ctx.lineTo(cx+R,cy+R*0.7);ctx.lineTo(cx-R,cy+R*0.7);ctx.closePath();ctx.fill();ctx.stroke();}
     else if(call==='FoulBall'||call==='FoulBallNotFieldable'){ctx.beginPath();ctx.rect(cx-R,cy-R,R*2,R*2);ctx.fill();ctx.stroke();}
     else if(/ball/i.test(call)){ctx.beginPath();ctx.moveTo(cx,cy+R);ctx.lineTo(cx+R,cy-R*0.7);ctx.lineTo(cx-R,cy-R*0.7);ctx.closePath();ctx.fill();ctx.stroke();}
     else{ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fill();ctx.stroke();}
-    ctx.fillStyle='#fff';ctx.font='bold 5px Barlow, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,cx,cy);
+    ctx.fillStyle='#fff';ctx.font='bold 10px Barlow, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,cx,cy);
     if(call==='StrikeSwinging'){
-      ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=0.6;ctx.stroke();
-      ctx.fillStyle='#fff';ctx.font='bold 5px Barlow, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,cx,cy);
-      ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx-2.2,cy-2.2);ctx.lineTo(cx+2.2,cy+2.2);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+2.2,cy-2.2);ctx.lineTo(cx-2.2,cy+2.2);ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.25)';ctx.lineWidth=1.2;ctx.stroke();
+      ctx.fillStyle='#fff';ctx.font='bold 10px Barlow, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,cx,cy);
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(cx-4.4,cy-4.4);ctx.lineTo(cx+4.4,cy+4.4);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+4.4,cy-4.4);ctx.lineTo(cx-4.4,cy+4.4);ctx.stroke();
     }
   });
 }
@@ -720,14 +710,8 @@ function generate(){
   document.getElementById('card').style.display='block';
   setTimeout(()=>{
     drawPieChart(rows);
-    const vsRHP=rows.filter(r=>r.PitcherThrows==='Right'||!r.PitcherThrows),vsLHP=rows.filter(r=>r.PitcherThrows==='Left');
-    const rRows=vsRHP.length>0?vsRHP:rows,lRows=vsLHP;
-    drawZoneChart('zSwRHP',rRows,false);drawZoneChart('zSwLHP',lRows,false);drawZoneChart('zWhRHP',rRows,true);drawZoneChart('zWhLHP',lRows,true);
     drawSprayChart('sprayChart',rows);
-    document.getElementById('subSwRHP').textContent=rRows.filter(isSwing).length+' swings';
-    document.getElementById('subSwLHP').textContent=lRows.length?lRows.filter(isSwing).length+' swings':'No LHP faced';
-    document.getElementById('subWhRHP').textContent=rRows.filter(isWhiff).length+' whiffs';
-    document.getElementById('subWhLHP').textContent=lRows.length?lRows.filter(isWhiff).length+' whiffs':'No LHP faced';
+    buildCountGrid(rows);
     document.getElementById('evLegend').innerHTML='<div class="ev-legend-item"><div class="ev-dot" style="background:#6ab0e0"></div>&lt;90</div><div class="ev-legend-item"><div class="ev-dot" style="background:#f4a261"></div>90\u201399</div><div class="ev-legend-item"><div class="ev-dot" style="background:#e63946"></div>100+</div>';
     const grid=document.getElementById('paGrid');grid.innerHTML='';
     paList.forEach((paPitches,idx)=>{
@@ -738,7 +722,7 @@ function generate(){
       const seq=paPitches.map(callCode).join('-');
       const div=document.createElement('div');div.className='pa-card';
       const cid='pa_canvas_'+idx;
-      div.innerHTML=`<div class="pa-header">${pitcherLabel}</div><canvas id="${cid}" width="70" height="70"></canvas><div class="pa-result" style="color:${result.color}">${result.text}</div><div class="pa-seq">${seq}</div>`;
+      div.innerHTML=`<div class="pa-header">${pitcherLabel}</div><canvas id="${cid}" width="140" height="140"></canvas><div class="pa-result" style="color:${result.color}">${result.text}</div><div class="pa-seq">${seq}</div>`;
       grid.appendChild(div);setTimeout(()=>drawPAZone(cid,paPitches),10);
     });
     document.getElementById('card').scrollIntoView({behavior:'smooth'});
