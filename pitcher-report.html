@@ -566,7 +566,7 @@ async function generate() {
     if (!opp) opp = (rows[0].BatterTeam||'').replace(/_\d+$/,'').replace(/_/g,' ').trim() || 'Opponent';
 
     var gameLabel = isOpp
-      ? date + ' \u2014 ' + pitcherTeamLabel + ' vs Murray State'
+      ? date + ' \u2014 ' + opp + ' vs Murray State'
       : date + ' vs ' + opp;
 
     var innings = Array.from(new Set(rows.map(function(r){return parseInt(r.Inning);}).filter(function(n){return !isNaN(n);})));
@@ -580,7 +580,7 @@ async function generate() {
     var displayName = flipName(pitcherRaw);
 
     document.getElementById('cardName').textContent     = displayName;
-    document.getElementById('cardHand').textContent     = handStr + ' \u2014 ' + pitcherTeamLabel;
+    document.getElementById('cardHand').textContent     = handStr + ' \u2014 ' + (isOpp ? opp : 'Murray State Baseball');
     document.getElementById('cardGameLine').textContent = gameLabel;
     document.getElementById('cFootL').textContent       = '\u26be ' + (isOpp ? 'vs Murray State' : opp) + ' (' + role + ')';
     document.getElementById('cFootC').textContent       = 'Data: TrackMan \u00b7 Murray State Baseball \u00b7 ' + date;
