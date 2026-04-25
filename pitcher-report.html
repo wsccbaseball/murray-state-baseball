@@ -110,6 +110,8 @@ input[type="file"] { font-size:14px; padding:8px 0; color:#333; width:100%; }
   font-size:clamp(13px,3.8vw,18px); font-weight:600; color:#1a1a1a;
   border:1px solid #dde4ef; background:#f8fafd;
 }
+.stat-table th.egs-col { background:#003d7a; border-left:2px solid #CFB53B; }
+.stat-table td.egs-col { border-left:2px solid #CFB53B; font-weight:800; font-size:clamp(14px,4vw,20px); }
 .charts-row { display:flex; padding:4px 6px; gap:4px; align-items:flex-start; }
 .chart-box {
   flex:1; min-width:0; background:#f8fafd;
@@ -221,11 +223,16 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
   <div class="game-line" id="cardGameLine">&#8212;</div>
   <div class="stat-table-wrap">
     <table class="stat-table">
-      <thead><tr><th>IP</th><th>NP</th><th>PA</th><th>ER</th><th>H</th><th>K</th><th>BB</th><th>HBP</th><th>Strike%</th><th>Whiffs</th></tr></thead>
+      <thead><tr>
+        <th>IP</th><th>NP</th><th>PA</th><th>ER</th><th>H</th>
+        <th>K</th><th>BB</th><th>HBP</th><th>Strike%</th><th>Whiffs</th>
+        <th class="egs-col">EGS</th>
+      </tr></thead>
       <tbody><tr>
         <td id="cIP">&#8212;</td><td id="cNP">&#8212;</td><td id="cPA">&#8212;</td><td id="cER">&#8212;</td>
         <td id="cH">&#8212;</td><td id="cK">&#8212;</td><td id="cBB">&#8212;</td><td id="cHBP">&#8212;</td>
         <td id="cSP">&#8212;</td><td id="cWH">&#8212;</td>
+        <td id="cEGS" class="egs-col">&#8212;</td>
       </tr></tbody>
     </table>
   </div>
@@ -336,6 +343,34 @@ async function supaFetch(path) {
   return rows;
 }
 
+// ── Enhanced Game Score ──────────────────────────────────────────────────────
+// Formula: 40 + (2 × outs) + (1 × K) − (2 × BB) − (2 × HBP) − (3 × H) − (6 × ER) − (4 × unearned runs)
+function calcEGS(bs, tmK, tmBB, tmHBP) {
+  if (!bs || bs.ip === undefined || bs.ip === null) return null;
+  var ipStr = String(bs.ip);
+  var parts = ipStr.split('.');
+  var fullInnings = parseInt(parts[0]) || 0;
+  var extraOuts   = parts[1] ? parseInt(parts[1]) : 0;
+  var outs = fullInnings * 3 + extraOuts;
+  var k    = (bs.k   !== undefined && bs.k   !== null) ? bs.k   : tmK;
+  var bb   = (bs.bb  !== undefined && bs.bb  !== null) ? bs.bb  : tmBB;
+  var hbp  = (bs.hbp !== undefined && bs.hbp !== null) ? bs.hbp : tmHBP;
+  var h    = (bs.h   !== undefined && bs.h   !== null) ? bs.h   : 0;
+  var er   = (bs.er  !== undefined && bs.er  !== null) ? bs.er  : 0;
+  var r    = (bs.r   !== undefined && bs.r   !== null) ? bs.r   : er;
+  var uner = Math.max(0, r - er);
+  return 40 + (2*outs) + (1*k) - (2*bb) - (2*hbp) - (3*h) - (6*er) - (4*uner);
+}
+
+function egsColor(score) {
+  if (score >= 70) return { bg:'#1a6b3a', fg:'#fff' };
+  if (score >= 60) return { bg:'#4ade80', fg:'#002147' };
+  if (score >= 50) return { bg:'#fde68a', fg:'#002147' };
+  if (score >= 40) return { bg:'#fb923c', fg:'#fff' };
+  return { bg:'#e63946', fg:'#fff' };
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function loadGames() {
   try {
     var rows = await supaFetch('games?select=*');
@@ -379,49 +414,36 @@ document.getElementById('gameSelect').addEventListener('change', async function(
 
   try {
     var rows = await supaFetch('pitches?select=Pitcher,PitcherTeam&GameID=eq.' + encodeURIComponent(gameId));
-
-    // Split into Murray State and opponent
     var murRows = rows.filter(function(r) { return r.PitcherTeam && r.PitcherTeam.toLowerCase().indexOf('mur') > -1; });
     var oppRows = rows.filter(function(r) { return !r.PitcherTeam || r.PitcherTeam.toLowerCase().indexOf('mur') === -1; });
-
     var murPitchers = Array.from(new Set(murRows.map(function(r){return r.Pitcher;}))).sort();
     var oppPitchers = Array.from(new Set(oppRows.map(function(r){return r.Pitcher;}))).sort();
-
     var oppTeamLabel = 'Opponent';
     if (oppRows.length) {
       var rawTeam = (oppRows[0].PitcherTeam || '').replace(/_\d+$/,'').replace(/_/g,' ').trim();
       if (rawTeam) oppTeamLabel = rawTeam;
     }
-
     psel.innerHTML = '<option value="">&#8212; select pitcher &#8212;</option>';
-
     if (murPitchers.length) {
       var murGroup = document.createElement('optgroup');
       murGroup.label = 'Murray State';
       murPitchers.forEach(function(p) {
-        var o = document.createElement('option');
-        o.value = p; o.textContent = flipName(p);
-        murGroup.appendChild(o);
+        var o = document.createElement('option'); o.value = p; o.textContent = flipName(p); murGroup.appendChild(o);
       });
       psel.appendChild(murGroup);
     }
-
     if (oppPitchers.length) {
       var oppGroup = document.createElement('optgroup');
       oppGroup.label = oppTeamLabel;
       oppPitchers.forEach(function(p) {
-        var o = document.createElement('option');
-        o.value = p; o.textContent = flipName(p);
-        oppGroup.appendChild(o);
+        var o = document.createElement('option'); o.value = p; o.textContent = flipName(p); oppGroup.appendChild(o);
       });
       psel.appendChild(oppGroup);
     }
-
     psel.disabled = false;
   } catch(e) {
     psel.innerHTML = '<option>Error loading pitchers</option>';
   }
-
   statusEl.textContent = 'Upload PDF box score to add IP/ER stats (optional).';
 });
 
@@ -517,11 +539,15 @@ async function generate() {
     var strPct = np > 0 ? (allS/np*100).toFixed(1)+'%' : '\u2014';
     var paVal  = rows.filter(function(r) { return r.PitchofPA==='1'; }).length;
 
+    // TrackMan-derived counts for EGS fallback
+    var tmK   = rows.filter(function(r){return r.KorBB==='Strikeout';}).length;
+    var tmBB  = rows.filter(function(r){return r.KorBB==='Walk';}).length;
+    var tmHBP = rows.filter(function(r){return r.PitchCall==='HitByPitch';}).length;
+
     var hand = rows[0].PitcherThrows || 'R';
     var handStr = (hand==='Left'||hand==='L') ? 'LHP' : 'RHP';
     var date = rows[0].Date || '\u2014';
 
-    // Determine team from pitch data — the ground truth
     var pitcherTeamRaw = rows[0].PitcherTeam || '';
     var isOpp = pitcherTeamRaw.toLowerCase().indexOf('mur') === -1;
     var pitcherTeamLabel = isOpp
@@ -569,6 +595,20 @@ async function generate() {
     document.getElementById('cSP').textContent  = strPct;
     document.getElementById('cWH').textContent  = allW;
 
+    // EGS
+    var egsCell = document.getElementById('cEGS');
+    var egs = calcEGS(bs, tmK, tmBB, tmHBP);
+    if (egs !== null) {
+      var colors = egsColor(egs);
+      egsCell.textContent = egs;
+      egsCell.style.background = colors.bg;
+      egsCell.style.color = colors.fg;
+    } else {
+      egsCell.textContent = '\u2014';
+      egsCell.style.background = '';
+      egsCell.style.color = '';
+    }
+
     var types = Array.from(new Set(pitchData.map(function(d){return d.type;}))).filter(function(t){return TC[t];})
       .sort(function(a,b){return pitchData.filter(function(d){return d.type===b;}).length-pitchData.filter(function(d){return d.type===a;}).length;});
 
@@ -589,8 +629,9 @@ async function generate() {
       document.getElementById('card').scrollIntoView({behavior:'smooth'});
     }, 80);
 
+    var egsNote = egs !== null ? ' | EGS: ' + egs : ' (upload PDF box score for EGS)';
     document.getElementById('statusMsg').textContent = bs
-      ? '\u2713 Card generated! (IP='+bs.ip+', ER='+bs.er+')'
+      ? '\u2713 Card generated! (IP='+bs.ip+', ER='+bs.er+')'+egsNote
       : '\u2713 Card generated (no PDF stats found \u2014 check pitcher name matches box score)';
 
   } catch(e) {
