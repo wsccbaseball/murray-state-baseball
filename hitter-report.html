@@ -544,7 +544,7 @@ function buildCountGrid(rows) {
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FIELD={lf:315,lcf:370,cf:385,rcf:370,rf:315};
+const FIELD={lf:330,lcf:375,cf:400,rcf:375,rf:330};
 function wallDistAtDir(deg){
   if(deg<=-45)return FIELD.lf;if(deg<=-22.5)return FIELD.lf+(FIELD.lcf-FIELD.lf)*(deg+45)/22.5;
   if(deg<=0)return FIELD.lcf+(FIELD.cf-FIELD.lcf)*(deg+22.5)/22.5;if(deg<=22.5)return FIELD.cf+(FIELD.rcf-FIELD.cf)*deg/22.5;
