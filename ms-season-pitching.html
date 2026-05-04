@@ -879,54 +879,49 @@ document.getElementById('pdfInputP').addEventListener('change',async function(){
 });
 
 function parseSeasonPitchingPDF(text,fileName){
-  // Presto Sports pitching cols:
-  // #, Name, ERA, W, L, APP, GS, CG, SHO, SV, IP, H, R, ER, BB, SO, 2B, 3B, HR, AB, B/AVG, WP, HBP
-  var lines=text.split(/\n/);
-  var pitching={};
-  lines.forEach(function(line){
-    var tokens=line.trim().split(/\s+/).filter(Boolean);
-    if(tokens.length<12)return;
-    var numIdx=-1;
-    for(var i=0;i<tokens.length;i++){if(/^\d+$/.test(tokens[i])&&parseInt(tokens[i])<100){numIdx=i;break;}}
-    if(numIdx===-1)return;
-    var nameParts=[];
-    var i=numIdx+1;
-    while(i<tokens.length&&isNaN(tokens[i])){nameParts.push(tokens[i]);i++;}
-    if(!nameParts.length)return;
-    var name=nameParts.join(' ').replace(/\.+$/,'').trim();
-    if(!name||/total|opponent/i.test(name))return;
-    var nums=tokens.slice(i).filter(function(t){return t!==''&&t!=='--'&&t!=='-';});
-    if(nums.length<10)return;
-    // era(0) w(1) l(2) app(3) gs(4) cg(5) sho(6) sv(7) ip(8) h(9) r(10) er(11) bb(12) so(13) 2b(14) 3b(15) hr(16) hbp(21 approx)
-    var ipStr=nums[8]||'0.0';
+  // Presto Sports format: # Last, First ERA W-L APP GS CG SHO SV IP H R ER BB SO 2B 3B HR B/AVG WP HP BK SFA SHA
+  seasonPitching={};
+  var flat=text.replace(/\r?\n/g,' ').replace(/\s+/g,' ');
+
+  // Regex: jersey# LastName, FirstName ERA W-L APP GS CG SHO(X-X) SV IP H R ER BB SO 2B 3B HR B/AVG WP HP
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+\d+\s+\d+\s+\d+\s+\d+-\d+\s+\d+\s+([\d]+\.[\d]+)\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
+  var m;
+  while((m=re.exec(flat))!==null){
+    var rawName=m[2].trim();
+    if(/total|opponent/i.test(rawName))continue;
     var entry={
-      name:name,ip:ipStr,
-      era:parseFloat(nums[0])||0,
-      w:parseInt(nums[1])||0,
-      l:parseInt(nums[2])||0,
-      er:parseInt(nums[11])||0,
-      bb:parseInt(nums[12])||0,
-      so:parseInt(nums[13])||0,
-      hr:parseInt(nums[16])||0,
-      hbp:nums[21]?parseInt(nums[21])||0:0
+      name:rawName,
+      era:parseFloat(m[3])||0,
+      w:parseInt(m[4])||0,
+      l:parseInt(m[5])||0,
+      ip:m[6],
+      er:parseInt(m[7])||0,
+      bb:parseInt(m[8])||0,
+      so:parseInt(m[9])||0,
+      hr:parseInt(m[10])||0,
+      hbp:parseInt(m[11])||0
     };
-    var lastName=name.split(/\s+/).pop().toLowerCase();
+    // Store by last name, full name lowercase, and "Last, First" format
+    var parts=rawName.split(',');
+    var lastName=(parts[0]||'').trim().toLowerCase();
+    var firstName=(parts[1]||'').trim().toLowerCase();
     seasonPitching[lastName]=entry;
-    seasonPitching[name.toLowerCase()]=entry;
-  });
-  // Rebuild table
+    seasonPitching[rawName.toLowerCase()]=entry;
+    // Also store as "Last, First" to match TrackMan format
+    if(firstName)seasonPitching[lastName+', '+firstName.split(' ')[0]]=entry;
+  }
+
   var selGames=getSelectedGames();
   var filtered=allPitches.filter(function(r){return r.PitcherTeam&&r.PitcherTeam.toLowerCase().includes('mur')&&(!selGames.length||selGames.includes(r.GameID));});
   var pitchers={};
   filtered.forEach(function(r){var n=(r.Pitcher||'').trim();if(!n)return;if(!pitchers[n])pitchers[n]=[];pitchers[n].push(r);});
   tableData=Object.values(pitchers).map(function(rows){return computePitcherProfile(rows[0].Pitcher,rows);});
   renderTable();
-  var count=Object.keys(seasonPitching).filter(function(k){return!seasonPitching[k].name||seasonPitching[k].name===seasonPitching[k].name;}).length/2;
+  var count=Object.keys(seasonPitching).length;
   document.getElementById('pdfStatusP').textContent='\u2713 Pitching stats loaded \u2014 '+(fileName||'');
   var summary=document.getElementById('pdfSummaryP');
   summary.style.display='block';
-  var count=Object.keys(seasonPitching).length/2;
-  summary.textContent=Math.round(count)+' pitchers parsed \u00b7 Stats available: ERA, IP, FIP';
+  summary.textContent=Math.round(count/3)+' pitchers parsed \u00b7 Stats available: ERA, IP, FIP';
 }
 
 boot();
