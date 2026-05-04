@@ -361,7 +361,7 @@ function computeProfile(name,rows){
 
   return{
     name:name,displayName:displayName,lastName:lastName,
-    gp:bs?parseInt(bs.gp)||0:0,pa:bsPA,
+    gp:bs?parseInt(bs.gp)||0:0,pa:bsPA||tmPA,
     avg:bs?parseFloat(bs.avg)||0:0,obp:bs?parseFloat(bs.obp)||0:0,
     slg:bs?parseFloat(bs.slg)||0:0,woba:woba,
     hr:bs?parseInt(bs.hr)||0:0,rbi:bs?parseInt(bs.rbi)||0:0,
