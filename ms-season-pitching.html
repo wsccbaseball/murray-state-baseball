@@ -203,9 +203,9 @@ canvas{display:block;border-radius:4px}
     <div class="stat-box"><span class="stat-val hi" id="sWOBA">&#8212;</span><span class="stat-lbl">wOBA</span></div>
     <div class="stat-box"><span class="stat-val" id="sKPct">&#8212;</span><span class="stat-lbl">K%</span></div>
     <div class="stat-box"><span class="stat-val" id="sBBPct">&#8212;</span><span class="stat-lbl">BB%</span></div>
-    <div class="stat-box"><span class="stat-val" id="sKBB">&#8212;</span><span class="stat-lbl">K-BB%</span></div>
     <div class="stat-box"><span class="stat-val hi" id="sERA">&#8212;</span><span class="stat-lbl">ERA</span></div>
     <div class="stat-box"><span class="stat-val hi" id="sFIP">&#8212;</span><span class="stat-lbl">FIP</span></div>
+    <div class="stat-box"><span class="stat-val hi" id="sGS">&#8212;</span><span class="stat-lbl">Avg GS</span></div>
   </div>
 </div>
 
@@ -447,17 +447,21 @@ function computePitcherProfile(name, rows){
 
   // FIP from box score IP
   var bs=seasonPitching[lastName.toLowerCase()]||seasonPitching[lastName]||null;
-  var fip=null,era=null,ipDisplay='--';
+  var fip=null,era=null,ipDisplay='--',avgWegs=null;
   if(bs&&bs.ip){
     var ipRaw=String(bs.ip).trim();
     var ipParts=ipRaw.split('.');
     var ipDec=(parseInt(ipParts[0])||0)+(parseInt(ipParts[1]||0)/3);
+    var ipOuts=(parseInt(ipParts[0])||0)*3+(parseInt(ipParts[1]||0));
     ipDisplay=ipRaw;
-    var bsHR=parseInt(bs.hr)||0,bsBB=parseInt(bs.bb)||0,bsHBP=parseInt(bs.hbp)||0,bsK=parseInt(bs.so)||0,bsER=parseInt(bs.er)||0;
+    var bsHR=parseInt(bs.hr)||0,bsBBval=parseInt(bs.bb)||0,bsHBP=parseInt(bs.hbp)||0,bsK=parseInt(bs.so)||0,bsER=parseInt(bs.er)||0;
+    var bsH=parseInt(bs.h)||0,bsAPP=parseInt(bs.app)||1;
     if(ipDec>0){
-      fip=((13*bsHR+3*(bsBB+bsHBP)-2*bsK)/ipDec)+FIP_CONSTANT;
+      fip=((13*bsHR+3*(bsBBval+bsHBP)-2*bsK)/ipDec)+FIP_CONSTANT;
       era=(bsER*9)/ipDec;
     }
+    var wegsTotal=52*bsAPP+2*ipOuts+bsK-2*bsBBval-2*bsH-3*bsER-6*bsHR+0.5*whiffs;
+    avgWegs=wegsTotal/bsAPP;
   }
 
   return{
@@ -480,7 +484,7 @@ function computePitcherProfile(name, rows){
     bestVelo:bestVelo,maxVelo:maxVelo,
     putAwayPct:putAwayOpps>0?putAways/putAwayOpps:0,
     fpsPct:tbf>0?fpsStrikes/tbf:0,
-    fip:fip,era:era,ipDisplay:ipDisplay,
+    fip:fip,era:era,ipDisplay:ipDisplay,avgWegs:avgWegs,
     totalPitches:rows.length,
     pitchTypes:pitchTypes,rows:rows
   };
@@ -885,31 +889,50 @@ function parseSeasonPitchingPDF(text,fileName){
 
   // Regex: jersey# LastName, FirstName ERA W-L APP GS CG SHO(flexible) SV IP H R ER BB SO 2B 3B HR B/AVG WP HP
   // SHO may come as "0-0" or "0 -0" or "0 - 0" from pdf.js so use flexible match
-  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+\d+\s+\d+\s+\d+\s+[\d\s\-]+?\s+\d+\s+([\d]+\.[\d]+)\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+(\d+)\s+\d+\s+\d+\s+[\d\s\-]+?\s+\d+\s+([\d]+\.[\d]+)\s+(\d+)\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
+  var matched=new Set();
   var m;
   while((m=re.exec(flat))!==null){
     var rawName=m[2].trim();
     if(/total|opponent/i.test(rawName))continue;
-    var entry={
-      name:rawName,
-      era:parseFloat(m[3])||0,
-      w:parseInt(m[4])||0,
-      l:parseInt(m[5])||0,
-      ip:m[6],
-      er:parseInt(m[7])||0,
-      bb:parseInt(m[8])||0,
-      so:parseInt(m[9])||0,
-      hr:parseInt(m[10])||0,
-      hbp:parseInt(m[11])||0
-    };
-    // Store by last name, full name lowercase, and "Last, First" format
+    matched.add(rawName.toLowerCase());
+    // m[6]=APP, m[7]=IP, m[8]=H, m[9]=ER, m[10]=BB, m[11]=SO, m[12]=HR, m[13]=HBP
+    var entry={name:rawName,era:parseFloat(m[3])||0,w:parseInt(m[4])||0,l:parseInt(m[5])||0,
+      app:parseInt(m[6])||1,ip:m[7],h:parseInt(m[8])||0,er:parseInt(m[9])||0,
+      bb:parseInt(m[10])||0,so:parseInt(m[11])||0,hr:parseInt(m[12])||0,hbp:parseInt(m[13])||0};
     var parts=rawName.split(',');
     var lastName=(parts[0]||'').trim().toLowerCase();
     var firstName=(parts[1]||'').trim().toLowerCase();
     seasonPitching[lastName]=entry;
     seasonPitching[rawName.toLowerCase()]=entry;
-    // Also store as "Last, First" to match TrackMan format
     if(firstName)seasonPitching[lastName+', '+firstName.split(' ')[0]]=entry;
+  }
+
+  // Fallback: simpler pass for pitchers missed by primary regex (fragmented pdf.js output)
+  var re2=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d]+\.[\d]+)/g;
+  while((m=re2.exec(flat))!==null){
+    var rawName=m[2].trim();
+    if(/total|opponent/i.test(rawName))continue;
+    if(matched.has(rawName.toLowerCase()))continue;
+    var era=parseFloat(m[3])||0;
+    // Get tokens after the ERA
+    var rest=flat.slice(m.index+m[0].length).trim().split(/\s+/).filter(Boolean);
+    // Find IP: next decimal in first 10 tokens
+    var ipVal='0.0',ipIdx=-1;
+    for(var ti=0;ti<Math.min(rest.length,10);ti++){
+      if(/^\d+\.\d+$/.test(rest[ti])){ipVal=rest[ti];ipIdx=ti;break;}
+    }
+    if(ipIdx<0)continue;
+    var nums=rest.slice(ipIdx+1).filter(function(t){return/^\d+$/.test(t);});
+    if(nums.length<3)continue;
+    var entry={name:rawName,era:era,ip:ipVal,er:parseInt(nums[1])||0,bb:parseInt(nums[2])||0,so:parseInt(nums[3])||0,hr:parseInt(nums[6])||0,hbp:parseInt(nums[9])||0,w:0,l:0};
+    var parts=rawName.split(',');
+    var lastName=(parts[0]||'').trim().toLowerCase();
+    var firstName=(parts[1]||'').trim().toLowerCase();
+    seasonPitching[lastName]=entry;
+    seasonPitching[rawName.toLowerCase()]=entry;
+    if(firstName)seasonPitching[lastName+', '+firstName.split(' ')[0]]=entry;
+    matched.add(rawName.toLowerCase());
   }
 
   var selGames=getSelectedGames();
