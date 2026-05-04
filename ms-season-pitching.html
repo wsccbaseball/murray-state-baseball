@@ -170,6 +170,7 @@ canvas{display:block;border-radius:4px}
           <th onclick="sortTable('gbPct')">GB%</th>
           <th onclick="sortTable('fip')">FIP</th>
           <th onclick="sortTable('maxVelo')">Velo</th>
+          <th onclick="sortTable('avgWegs')">Avg GS</th>
         </tr></thead>
         <tbody id="tableBody"></tbody>
       </table>
@@ -680,9 +681,9 @@ function buildCard(){
   document.getElementById('sWOBA').textContent=fmt3(p.wobaAgainst);
   document.getElementById('sKPct').textContent=pct(p.kPct);
   document.getElementById('sBBPct').textContent=pct(p.bbPct);
-  document.getElementById('sKBB').textContent=(p.kBBPct*100).toFixed(1)+'%';
   document.getElementById('sERA').textContent=p.era!==null?p.era.toFixed(2):'--';
   document.getElementById('sFIP').textContent=p.fip!==null?p.fip.toFixed(2):'--';
+  document.getElementById('sGS').textContent=p.avgWegs!==null?p.avgWegs.toFixed(1):'--';
 
   // Stuff
   document.getElementById('tMaxVelo').textContent=p.maxVelo>0?p.maxVelo.toFixed(1):'--';
@@ -851,7 +852,8 @@ function renderTable(){
       '<td class="'+(p.solidPct>=.25?'val-warn':'')+'">'+pct(p.solidPct)+'</td>'+
       '<td class="'+(p.gbPct>=.50?'val-good':'')+'">'+pct(p.gbPct)+'</td>'+
       '<td class="'+(p.fip!==null&&p.fip<=4.50?'val-good':p.fip!==null&&p.fip>=6.00?'val-warn':'val-hi')+'">'+(p.fip!==null?p.fip.toFixed(2):'--')+'</td>'+
-      '<td class="val-hi">'+(p.maxVelo>0?p.maxVelo.toFixed(1):'--')+'</td>';
+      '<td class="val-hi">'+(p.maxVelo>0?p.maxVelo.toFixed(1):'--')+'</td>'+
+      '<td class="'+(p.avgWegs!==null&&p.avgWegs>=50?'val-good':p.avgWegs!==null&&p.avgWegs<40?'val-warn':'val-hi')+'">'+(p.avgWegs!==null?p.avgWegs.toFixed(1):'--')+'</td>';
     tbody.appendChild(tr);
   });
 }
