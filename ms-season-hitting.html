@@ -750,56 +750,42 @@ document.getElementById('pdfInput').addEventListener('change',async function(){
 });
 
 function parseSeasonBattingPDF(text,fileName){
-  // Presto Sports batting stats columns:
-  // #, Name, AVG, GP, GS, AB, R, H, 2B, 3B, HR, RBI, TB, SLG, BB, HBP, SO, GDP, OBP, SF, SH, SB
-  var lines=text.split(/\n/);
+  // Presto Sports format: # Last, First AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB% SF SH SB-ATT ...
+  // Names are "Last, First" with a comma — use regex to match each row
   var batting=[];
-  var POSITIONS=new Set(['ss','c','1b','2b','3b','lf','rf','cf','dh','p','ph','pr','of','if']);
-  lines.forEach(function(line){
-    var tokens=line.trim().split(/\s+/).filter(Boolean);
-    if(tokens.length<10)return;
-    // Try to find name — look for a token that's a last name followed by numbers
-    // Format: num Name... avg gp gs ab r h 2b 3b hr rbi tb slg bb hbp so gdp obp sf sh sb
-    var numIdx=-1;
-    for(var i=0;i<tokens.length;i++){if(/^\d+$/.test(tokens[i])&&parseInt(tokens[i])<100){numIdx=i;break;}}
-    if(numIdx===-1)return;
-    // Collect name tokens until we hit a number or position
-    var nameParts=[];
-    var i=numIdx+1;
-    while(i<tokens.length&&isNaN(tokens[i])&&!POSITIONS.has(tokens[i].toLowerCase().replace(/[^a-z]/g,''))){
-      nameParts.push(tokens[i]);i++;
-    }
-    if(!nameParts.length)return;
-    var name=nameParts.join(' ').replace(/\.+$/,'').trim();
-    if(!name||/total|opponent/i.test(name))return;
-    // Numbers after name
-    var nums=tokens.slice(i).filter(function(t){return!isNaN(t)&&t!==''&&!/^\.$/.test(t);});
-    if(nums.length<10)return;
-    // avg(0) gp(1) gs(2) ab(3) r(4) h(5) 2b(6) 3b(7) hr(8) rbi(9) tb(10) slg(11) bb(12) hbp(13) so(14) gdp(15) obp(16) sf(17) sh(18) sb(19)
-    var avg=parseFloat(nums[0])||0;
-    var obp=nums[16]?parseFloat(nums[16])||0:0;
-    var slg=nums[11]?parseFloat(nums[11])||0:0;
+  var flat=text.replace(/\r?\n/g,' ').replace(/\s+/g,' ');
+
+  // Regex: jersey# LastName, FirstName AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB%
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)/g;
+  var m;
+  while((m=re.exec(flat))!==null){
+    var rawName=m[2].trim();
+    if(/total|opponent/i.test(rawName))continue;
+    // Convert "Last, First" to match TrackMan "Last, First" format
+    var avg=parseFloat(m[3])||0;
+    var obp=parseFloat(m[16])||0;
+    var gp=parseInt(m[4])||0;
+    var ab=parseInt(m[5])||0;
+    var r=parseInt(m[6])||0;
+    var h=parseInt(m[7])||0;
+    var dbl=parseInt(m[8])||0;
+    var tpl=parseInt(m[9])||0;
+    var hr=parseInt(m[10])||0;
+    var rbi=parseInt(m[11])||0;
+    var bb=parseInt(m[12])||0;
+    var hbp=parseInt(m[13])||0;
+    var so=parseInt(m[14])||0;
+    var pa=ab+bb+hbp+(parseInt(m[15])||0); // ab+bb+hbp+sf approx
+    var slg=ab>0?(h-dbl-tpl-hr+2*dbl+3*tpl+4*hr)/ab:0;
     batting.push({
-      name:name,
-      avg:avg,obp:obp,slg:slg,
-      gp:parseInt(nums[1])||0,
-      ab:parseInt(nums[3])||0,
-      r:parseInt(nums[4])||0,
-      h:parseInt(nums[5])||0,
-      doubles:parseInt(nums[6])||0,
-      triples:parseInt(nums[7])||0,
-      hr:parseInt(nums[8])||0,
-      rbi:parseInt(nums[9])||0,
-      bb:parseInt(nums[12])||0,
-      hbp:parseInt(nums[13])||0,
-      so:parseInt(nums[14])||0,
-      sf:parseInt(nums[17])||0,
-      sh:parseInt(nums[18])||0,
-      sb:parseInt(nums[19])||0
+      name:rawName,avg:avg,obp:obp,slg:slg,
+      gp:gp,ab:ab,r:r,h:h,
+      doubles:dbl,triples:tpl,hr:hr,rbi:rbi,
+      bb:bb,hbp:hbp,so:so,
+      sf:parseInt(m[15])||0,sh:0,sb:0
     });
-  });
+  }
   seasonStats={batting:batting};
-  // Rebuild table data with new stats
   var selGames=getSelectedGames();
   var filtered=allPitches.filter(function(r){return r.BatterTeam&&r.BatterTeam.toLowerCase().includes('mur')&&(!selGames.length||selGames.includes(r.GameID));});
   var players={};
