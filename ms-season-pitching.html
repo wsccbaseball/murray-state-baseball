@@ -883,8 +883,9 @@ function parseSeasonPitchingPDF(text,fileName){
   seasonPitching={};
   var flat=text.replace(/\r?\n/g,' ').replace(/\s+/g,' ');
 
-  // Regex: jersey# LastName, FirstName ERA W-L APP GS CG SHO(X-X) SV IP H R ER BB SO 2B 3B HR B/AVG WP HP
-  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+\d+\s+\d+\s+\d+\s+\d+-\d+\s+\d+\s+([\d]+\.[\d]+)\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
+  // Regex: jersey# LastName, FirstName ERA W-L APP GS CG SHO(flexible) SV IP H R ER BB SO 2B 3B HR B/AVG WP HP
+  // SHO may come as "0-0" or "0 -0" or "0 - 0" from pdf.js so use flexible match
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+\d+\s+\d+\s+\d+\s+[\d\s\-]+?\s+\d+\s+([\d]+\.[\d]+)\s+\d+\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
   var m;
   while((m=re.exec(flat))!==null){
     var rawName=m[2].trim();
