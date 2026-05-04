@@ -148,13 +148,17 @@ canvas{display:block;border-radius:4px}
     <div class="filter-count" id="filterCount"></div>
   </div>
 
-  <div class="pdf-bar" id="pdfBar">
-    <div class="pdf-upload-row">
-      <span class="pdf-upload-label">Season Box Score PDF</span>
-      <button class="pdf-file-btn" onclick="document.getElementById('pdfInput').click()">Upload PDF</button>
+  <!-- PDF Upload Card -->
+
+  <div id="pdfCard" style="background:#fffdf7;border-bottom:3px solid #002147;padding:14px 14px 12px;">
+    <div style="font-family:'Anton',sans-serif;font-size:.65rem;color:#002147;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">&#128196; Season Box Score PDF</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:#6b5f47;margin-bottom:10px;font-style:italic;">Upload your season stats PDF to populate AVG, OBP, SLG, wOBA, HR, XBH, K-BB% and GP on the player cards.</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="document.getElementById('pdfInput').click()" style="background:#002147;border:none;padding:10px 18px;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:.08em;color:#CFB53B;cursor:pointer;border-radius:4px;white-space:nowrap;">UPLOAD PDF</button>
       <input type="file" id="pdfInput" accept=".pdf" style="display:none">
-      <span class="pdf-status" id="pdfStatus">Upload to populate AVG / OBP / SLG / wOBA / HR / XBH / K-BB%</span>
+      <div id="pdfStatus" style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:#6b5f47;flex:1;">No file loaded &mdash; TrackMan metrics available without PDF</div>
     </div>
+    <div id="pdfSummary" style="display:none;margin-top:8px;padding:8px 10px;background:#f0e8c0;border-left:3px solid #CFB53B;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:#002147;"></div>
   </div>
 
   <div id="table-screen">
@@ -361,7 +365,7 @@ function computeProfile(name,rows){
 
   return{
     name:name,displayName:displayName,lastName:lastName,
-    gp:bs?parseInt(bs.gp)||0:0,pa:bsPA||tmPA,
+    gp:bs?parseInt(bs.gp)||0:0,pa:bsPA,
     avg:bs?parseFloat(bs.avg)||0:0,obp:bs?parseFloat(bs.obp)||0:0,
     slg:bs?parseFloat(bs.slg)||0:0,woba:woba,
     hr:bs?parseInt(bs.hr)||0:0,rbi:bs?parseInt(bs.rbi)||0:0,
@@ -703,7 +707,7 @@ function onFilterChange(){
 }
 function renderTable(){
   var selectedPlayers=getSelectedPlayers();
-  var data=tableData.filter(function(p){return p.pa>0&&(!selectedPlayers.length||selectedPlayers.includes(p.name));});
+  var data=tableData.filter(function(p){return p.totalPitches>0&&(!selectedPlayers.length||selectedPlayers.includes(p.name));});
   data.sort(function(a,b){var av=a[sortCol]||0,bv=b[sortCol]||0;if(typeof av==='string')return sortAsc?av.localeCompare(bv):bv.localeCompare(av);return sortAsc?av-bv:bv-av;});
   document.getElementById('filterCount').textContent=data.length+' players';
   var tbody=document.getElementById('tableBody');tbody.innerHTML='';
@@ -724,6 +728,7 @@ var seasonStats={batting:[]};
 
 document.getElementById('pdfInput').addEventListener('change',async function(){
   if(!this.files.length)return;
+  var fileName=this.files[0].name;
   document.getElementById('pdfStatus').textContent='Reading PDF...';
   var reader=new FileReader();
   reader.onload=async function(e){
@@ -736,7 +741,7 @@ document.getElementById('pdfInput').addEventListener('change',async function(){
         var content=await page.getTextContent();
         text+=content.items.map(function(item){return item.str;}).join(' ')+'\n';
       }
-      parseSeasonBattingPDF(text);
+      parseSeasonBattingPDF(text,fileName);
     }catch(err){
       document.getElementById('pdfStatus').textContent='Could not read PDF — '+err.message;
     }
@@ -744,7 +749,7 @@ document.getElementById('pdfInput').addEventListener('change',async function(){
   reader.readAsArrayBuffer(this.files[0]);
 });
 
-function parseSeasonBattingPDF(text){
+function parseSeasonBattingPDF(text,fileName){
   // Presto Sports batting stats columns:
   // #, Name, AVG, GP, GS, AB, R, H, 2B, 3B, HR, RBI, TB, SLG, BB, HBP, SO, GDP, OBP, SF, SH, SB
   var lines=text.split(/\n/);
@@ -801,7 +806,10 @@ function parseSeasonBattingPDF(text){
   filtered.forEach(function(r){var n=(r.Batter||'').trim();if(!n)return;if(!players[n])players[n]=[];players[n].push(r);});
   tableData=Object.values(players).map(function(rows){return computeProfile(rows[0].Batter,rows);});
   renderTable();
-  document.getElementById('pdfStatus').textContent='\u2713 '+batting.length+' batters loaded from PDF.';
+  document.getElementById('pdfStatus').textContent='\u2713 '+batting.length+' batters loaded \u2014 '+(fileName||'');
+  var summary=document.getElementById('pdfSummary');
+  summary.style.display='block';
+  summary.textContent=batting.length+' batters parsed \u00b7 Stats available: AVG, OBP, SLG, wOBA, HR, XBH, K-BB%, GP';
 }
 
 boot();
