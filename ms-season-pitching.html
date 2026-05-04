@@ -139,13 +139,17 @@ canvas{display:block;border-radius:4px}
     <div class="filter-count" id="filterCount"></div>
   </div>
 
-  <div class="pdf-bar" id="pdfBar">
-    <div class="pdf-upload-row">
-      <span class="pdf-upload-label">Season Box Score PDF</span>
-      <button class="pdf-file-btn" onclick="document.getElementById('pdfInputP').click()">Upload PDF</button>
+  <!-- PDF Upload Card -->
+
+  <div id="pdfCard" style="background:#fffdf7;border-bottom:3px solid #002147;padding:14px 14px 12px;">
+    <div style="font-family:'Anton',sans-serif;font-size:.65rem;color:#002147;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">&#128196; Season Box Score PDF</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:#6b5f47;margin-bottom:10px;font-style:italic;">Upload your season stats PDF to populate ERA, IP, and FIP on the pitcher cards.</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button onclick="document.getElementById('pdfInputP').click()" style="background:#002147;border:none;padding:10px 18px;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:.08em;color:#CFB53B;cursor:pointer;border-radius:4px;white-space:nowrap;">UPLOAD PDF</button>
       <input type="file" id="pdfInputP" accept=".pdf" style="display:none">
-      <span class="pdf-status" id="pdfStatusP">Upload to populate ERA / IP / FIP</span>
+      <div id="pdfStatusP" style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:#6b5f47;flex:1;">No file loaded &mdash; TrackMan metrics available without PDF</div>
     </div>
+    <div id="pdfSummaryP" style="display:none;margin-top:8px;padding:8px 10px;background:#f0e8c0;border-left:3px solid #CFB53B;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:#002147;"></div>
   </div>
 
   <div id="table-screen">
@@ -820,7 +824,7 @@ function onFilterChange(){
 }
 function renderTable(){
   var selectedPitchers=getSelectedPitchers();
-  var data=tableData.filter(function(p){return p.tbf>0&&(!selectedPitchers.length||selectedPitchers.includes(p.name));});
+  var data=tableData.filter(function(p){return p.totalPitches>0&&(!selectedPitchers.length||selectedPitchers.includes(p.name));});
   data.sort(function(a,b){var av=a[sortCol]||0,bv=b[sortCol]||0;if(typeof av==='string')return sortAsc?av.localeCompare(bv):bv.localeCompare(av);return sortAsc?av-bv:bv-av;});
   document.getElementById('filterCount').textContent=data.length+' pitchers';
   var tbody=document.getElementById('tableBody');tbody.innerHTML='';
@@ -853,6 +857,7 @@ function showMain(){document.getElementById('card-screen').style.display='none';
 
 document.getElementById('pdfInputP').addEventListener('change',async function(){
   if(!this.files.length)return;
+  var fileName=this.files[0].name;
   document.getElementById('pdfStatusP').textContent='Reading PDF...';
   var reader=new FileReader();
   reader.onload=async function(e){
@@ -865,7 +870,7 @@ document.getElementById('pdfInputP').addEventListener('change',async function(){
         var content=await page.getTextContent();
         text+=content.items.map(function(item){return item.str;}).join(' ')+'\n';
       }
-      parseSeasonPitchingPDF(text);
+      parseSeasonPitchingPDF(text,fileName);
     }catch(err){
       document.getElementById('pdfStatusP').textContent='Could not read PDF — '+err.message;
     }
@@ -873,7 +878,7 @@ document.getElementById('pdfInputP').addEventListener('change',async function(){
   reader.readAsArrayBuffer(this.files[0]);
 });
 
-function parseSeasonPitchingPDF(text){
+function parseSeasonPitchingPDF(text,fileName){
   // Presto Sports pitching cols:
   // #, Name, ERA, W, L, APP, GS, CG, SHO, SV, IP, H, R, ER, BB, SO, 2B, 3B, HR, AB, B/AVG, WP, HBP
   var lines=text.split(/\n/);
@@ -917,7 +922,11 @@ function parseSeasonPitchingPDF(text){
   tableData=Object.values(pitchers).map(function(rows){return computePitcherProfile(rows[0].Pitcher,rows);});
   renderTable();
   var count=Object.keys(seasonPitching).filter(function(k){return!seasonPitching[k].name||seasonPitching[k].name===seasonPitching[k].name;}).length/2;
-  document.getElementById('pdfStatusP').textContent='\u2713 Pitching stats loaded from PDF.';
+  document.getElementById('pdfStatusP').textContent='\u2713 Pitching stats loaded \u2014 '+(fileName||'');
+  var summary=document.getElementById('pdfSummaryP');
+  summary.style.display='block';
+  var count=Object.keys(seasonPitching).length/2;
+  summary.textContent=Math.round(count)+' pitchers parsed \u00b7 Stats available: ERA, IP, FIP';
 }
 
 boot();
