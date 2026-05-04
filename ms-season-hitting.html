@@ -763,12 +763,11 @@ function parseSeasonBattingPDF(text,fileName){
   // Regex: jersey# LastName, FirstName AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB%
   // Regex: # Last, First AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB%
   // GP-GS may come as "43-40" or "43 -40" from pdf.js — use flexible match
-  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)[\s\-]+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)/g;
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)[\s\-]+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)\s+(\d+)\s+(\d+)/g;
   var m;
   while((m=re.exec(flat))!==null){
     var rawName=m[2].trim();
     if(/total|opponent/i.test(rawName))continue;
-    // Convert "Last, First" to match TrackMan "Last, First" format
     var avg=parseFloat(m[3])||0;
     var obp=parseFloat(m[16])||0;
     var gp=parseInt(m[4])||0;
@@ -779,17 +778,18 @@ function parseSeasonBattingPDF(text,fileName){
     var tpl=parseInt(m[9])||0;
     var hr=parseInt(m[10])||0;
     var rbi=parseInt(m[11])||0;
-    var bb=parseInt(m[12])||0;
-    var hbp=parseInt(m[13])||0;
-    var so=parseInt(m[14])||0;
-    var pa=ab+bb+hbp+(parseInt(m[15])||0); // ab+bb+hbp+sf approx
+    // m[12]=TB (skipped), m[13]=BB, m[14]=HBP, m[15]=SO, m[16]=OBP, m[17]=SF, m[18]=SH
+    var bb=parseInt(m[13])||0;
+    var hbp=parseInt(m[14])||0;
+    var so=parseInt(m[15])||0;
+    var sf=parseInt(m[17])||0;
+    var sh=parseInt(m[18])||0;
     var slg=ab>0?(h-dbl-tpl-hr+2*dbl+3*tpl+4*hr)/ab:0;
     batting.push({
       name:rawName,avg:avg,obp:obp,slg:slg,
       gp:gp,ab:ab,r:r,h:h,
       doubles:dbl,triples:tpl,hr:hr,rbi:rbi,
-      bb:bb,hbp:hbp,so:so,
-      sf:parseInt(m[15])||0,sh:0,sb:0
+      bb:bb,hbp:hbp,so:so,sf:sf,sh:sh,sb:0
     });
   }
   seasonStats={batting:batting};
