@@ -734,8 +734,7 @@ document.getElementById('pdfInput').addEventListener('change',async function(){
       for(var i=1;i<=pdf.numPages;i++){
         var page=await pdf.getPage(i);
         var content=await page.getTextContent();
-        text+=content.items.map(function(item){return item.str;}).join(' ')+'
-';
+        text+=content.items.map(function(item){return item.str;}).join(' ')+'\n';
       }
       parseSeasonBattingPDF(text);
     }catch(err){
