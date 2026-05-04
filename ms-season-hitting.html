@@ -353,7 +353,12 @@ function computeProfile(name,rows){
   var bestSpeed=topHalf.length>0?topHalf.reduce(function(a,b){return a+b;},0)/topHalf.length:0;
 
   var bs=null;
-  if(seasonStats.batting)bs=seasonStats.batting.find(function(b){return b.name&&b.name.split(' ').pop().toLowerCase()===lastName.toLowerCase();});
+  if(seasonStats.batting)bs=seasonStats.batting.find(function(b){
+    if(!b.name)return false;
+    // Handle "Last, First" format (from PDF) and "First Last" format
+    var bLast=b.name.indexOf(',')>-1?b.name.split(',')[0].trim():b.name.split(' ').pop();
+    return bLast.toLowerCase()===lastName.toLowerCase();
+  });
   var bsAB=bs?parseInt(bs.ab)||0:0;
   var bsBB=bs?parseInt(bs.bb)||0:0;
   var bsHBP=bs?parseInt(bs.hbp)||0:0;
