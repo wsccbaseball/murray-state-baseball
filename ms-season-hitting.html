@@ -722,14 +722,13 @@ function showMain(){document.getElementById('card-screen').style.display='none';
 
 var seasonStats={batting:[]};
 
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
 document.getElementById('pdfInput').addEventListener('change',async function(){
   if(!this.files.length)return;
   document.getElementById('pdfStatus').textContent='Reading PDF...';
   var reader=new FileReader();
   reader.onload=async function(e){
     try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       var pdf=await pdfjsLib.getDocument({data:e.target.result}).promise;
       var text='';
       for(var i=1;i<=pdf.numPages;i++){
