@@ -756,7 +756,9 @@ function parseSeasonBattingPDF(text,fileName){
   var flat=text.replace(/\r?\n/g,' ').replace(/\s+/g,' ');
 
   // Regex: jersey# LastName, FirstName AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB%
-  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)/g;
+  // Regex: # Last, First AVG GP-GS AB R H 2B 3B HR RBI TB SLG% BB HBP SO GDP OB%
+  // GP-GS may come as "43-40" or "43 -40" from pdf.js — use flexible match
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)[\s\-]+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)/g;
   var m;
   while((m=re.exec(flat))!==null){
     var rawName=m[2].trim();
