@@ -280,7 +280,8 @@ function setProgress(pct,msg){document.getElementById('progressFill').style.widt
 function switchPTab(tab){
   activePTab=tab;
   document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
-  document.querySelector('.ptab[onclick="switchPTab(''+tab+'')"]').classList.add('active');
+  document.querySelectorAll('.ptab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.ptab').forEach(function(t){if(t.textContent.trim().toUpperCase()===tab.toUpperCase()){t.classList.add('active');}});
   renderTable();
 }
 
@@ -554,10 +555,25 @@ function renderTable(){
   // Update thead based on active tab
   var thead=document.getElementById('tableHead');
   if(activePTab==='results'){
-    thead.innerHTML='<tr><th onclick="sortTable('displayName')">Pitcher</th><th onclick="sortTable('tbf')">TBF</th><th onclick="sortTable('wobaAgainst')">wOBA</th><th onclick="sortTable('kPct')">K%</th><th onclick="sortTable('bbPct')">BB%</th><th onclick="sortTable('kBBPct')">K-BB%</th><th onclick="sortTable('gbPct')">GB%</th><th onclick="sortTable('fip')">FIP</th><th onclick="sortTable('avgWegs')">Avg GS</th></tr>';
-  } else {
-    thead.innerHTML='<tr><th onclick="sortTable('displayName')">Pitcher</th><th onclick="sortTable('tbf')">TBF</th><th onclick="sortTable('maxVelo')">Velo</th><th onclick="sortTable('cswPct')">CSW%</th><th onclick="sortTable('swstrPct')">SwStr%</th><th onclick="sortTable('chasePct')">Chase%</th><th onclick="sortTable('hardPct')">Hard%</th><th onclick="sortTable('solidPct')">Solid%</th><th onclick="sortTable('putAwayPct')">PutAway%</th></tr>';
-  }
+    thead.innerHTML = activePTab==="results"
+    ? '<tr><th onclick="sortTable(&quot;displayName&quot;)">Pitcher</th>'
+      +'<th onclick="sortTable(&quot;tbf&quot;)">TBF</th>'
+      +'<th onclick="sortTable(&quot;wobaAgainst&quot;)">wOBA</th>'
+      +'<th onclick="sortTable(&quot;kPct&quot;)">K%</th>'
+      +'<th onclick="sortTable(&quot;bbPct&quot;)">BB%</th>'
+      +'<th onclick="sortTable(&quot;kBBPct&quot;)">K-BB%</th>'
+      +'<th onclick="sortTable(&quot;gbPct&quot;)">GB%</th>'
+      +'<th onclick="sortTable(&quot;fip&quot;)">FIP</th>'
+      +'<th onclick="sortTable(&quot;avgWegs&quot;)">Avg GS</th></tr>'
+    : '<tr><th onclick="sortTable(&quot;displayName&quot;)">Pitcher</th>'
+      +'<th onclick="sortTable(&quot;tbf&quot;)">TBF</th>'
+      +'<th onclick="sortTable(&quot;maxVelo&quot;)">Velo</th>'
+      +'<th onclick="sortTable(&quot;cswPct&quot;)">CSW%</th>'
+      +'<th onclick="sortTable(&quot;swstrPct&quot;)">SwStr%</th>'
+      +'<th onclick="sortTable(&quot;chasePct&quot;)">Chase%</th>'
+      +'<th onclick="sortTable(&quot;hardPct&quot;)">Hard%</th>'
+      +'<th onclick="sortTable(&quot;solidPct&quot;)">Solid%</th>'
+      +'<th onclick="sortTable(&quot;putAwayPct&quot;)">PutAway%</th></tr>';
 
   data.forEach(function(p){
     var tr=document.createElement('tr');
@@ -589,6 +605,7 @@ function renderTable(){
     tbody.appendChild(tr);
   });
 }
+}
 function sortTable(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=false;}renderTable();}
 function showMain(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';document.getElementById('bottomBar').style.display='flex';selectedPitcher=null;document.getElementById('genCardBtn').disabled=true;document.getElementById('selHint').textContent='Tap a pitcher to select';}
 
@@ -606,8 +623,7 @@ document.addEventListener('DOMContentLoaded',function(){
         pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         var pdf=await pdfjsLib.getDocument({data:e.target.result}).promise;
         var text='';
-        for(var i=1;i<=pdf.numPages;i++){var page=await pdf.getPage(i);var content=await page.getTextContent();text+=content.items.map(function(item){return item.str;}).join(' ')+'
-';}
+        for(var i=1;i<=pdf.numPages;i++){var page=await pdf.getPage(i);var content=await page.getTextContent();text+=content.items.map(function(item){return item.str;}).join(' ')+'\n';}
         parseSeasonPitchingPDF(text,fileName);
       }catch(err){document.getElementById('pdfStatusP').textContent='Could not read PDF — '+err.message;}
     };
@@ -617,10 +633,8 @@ document.addEventListener('DOMContentLoaded',function(){
 
 function parseSeasonPitchingPDF(text,fileName){
   seasonPitching={};
-  var flat=text.replace(/
-?
-/g,' ').replace(/\s+/g,' ');
-  var re=/(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+(\d+)\s+\d+\s+\d+\s+[\d\s\-]+?\s+\d+\s+([\d]+\.[\d]+)\s+(\d+)\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
+  var flat=text.replace(/\r?\n/g,' ').replace(/\s+/g,' ');
+  var re=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)-(\d+)\s+(\d+)\s+\d+\s+\d+\s+[\d\s\-]+?\s+\d+\s+([\d]+\.[\d]+)\s+(\d+)\s+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+\d+\s+(\d+)\s+[\d.]+\s+\d+\s+(\d+)/g;
   var matched=new Set(),m;
   while((m=re.exec(flat))!==null){
     var rawName=m[2].trim();
@@ -631,7 +645,7 @@ function parseSeasonPitchingPDF(text,fileName){
     seasonPitching[lastName]=entry;seasonPitching[rawName.toLowerCase()]=entry;
     if(firstName)seasonPitching[lastName+', '+firstName.split(' ')[0]]=entry;
   }
-  var re2=/(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d]+\.[\d]+)/g;
+  var re2=/\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d]+\.[\d]+)/g;
   while((m=re2.exec(flat))!==null){
     var rawName=m[2].trim();
     if(/total|opponent/i.test(rawName))continue;
