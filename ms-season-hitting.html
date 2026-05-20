@@ -1134,8 +1134,7 @@ document.addEventListener('DOMContentLoaded', function(){
         for (var i = 1; i <= pdf.numPages; i++){
           var page = await pdf.getPage(i);
           var c2 = await page.getTextContent();
-          text += c2.items.map(function(item){ return item.str; }).join(' ') + '
-';
+          text += c2.items.map(function(item){ return item.str; }).join(' ') + '\n';
         }
         parseSeasonBattingPDF(text, fileName);
       } catch(err){
@@ -1148,10 +1147,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
 function parseSeasonBattingPDF(text, fileName){
   var batting = [];
-  var flat = text.replace(/
-?
-/g, ' ').replace(/\s+/g, ' ');
-  var re = /(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)[\s\-]+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)\s+(\d+)\s+(\d+)/g;
+  var flat = text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ');
+  var re = /\b(\d{1,2})\s+([A-Z][A-Za-z'\-]+,\s*[A-Z][A-Za-z'\-]+)\s+([\d.]+)\s+(\d+)[\s\-]+\d+\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+[\d.%]+\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+\s+([\d.%]+)\s+(\d+)\s+(\d+)/g;
   var m;
   while ((m = re.exec(flat)) !== null){
     var rawName = m[2].trim();
