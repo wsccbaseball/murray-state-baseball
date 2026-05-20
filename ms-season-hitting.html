@@ -749,7 +749,7 @@ function onFilterChange(){
 }
 function renderTable(){
   var selectedPlayers=getSelectedPlayers();
-  var data=tableData.filter(function(p){return p.pa>0&&(!selectedPlayers.length||selectedPlayers.includes(p.name));});
+  var data=tableData.filter(function(p){return p.totalPitches>0&&(!selectedPlayers.length||selectedPlayers.includes(p.name));});
   data.sort(function(a,b){var av=a[sortCol]||0,bv=b[sortCol]||0;if(typeof av==='string')return sortAsc?av.localeCompare(bv):bv.localeCompare(av);return sortAsc?av-bv:bv-av;});
   document.getElementById('filterCount').textContent=data.length+' players';
   var tbody=document.getElementById('tableBody');tbody.innerHTML='';
