@@ -225,7 +225,7 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
       <thead><tr>
         <th>IP</th><th>NP</th><th>PA</th><th>ER</th><th>H</th>
         <th>K</th><th>BB</th><th>HBP</th><th>Strike%</th><th>Whiffs</th>
-        <th class="egs-col">EGS</th>
+        <th class="egs-col">WEGS</th>
       </tr></thead>
       <tbody><tr>
         <td id="cIP">&#8212;</td><td id="cNP">&#8212;</td><td id="cPA">&#8212;</td><td id="cER">&#8212;</td>
@@ -342,26 +342,27 @@ async function supaFetch(path) {
   return rows;
 }
 
-// -- Enhanced Game Score --------------------------------------------------------
-// Formula: 40 + (2 x outs) + (1 x K) - (2 x BB) - (2 x HBP) - (3 x H) - (6 x ER) - (4 x unearned runs)
-function calcEGS(bs, tmK, tmBB, tmHBP) {
+// -- WEGS (Weighted Enhanced Game Score) ----------------------------------------
+// Per-appearance: CONST + 2*Outs + K - 2*BB - 2*H - 3*ER - 6*HR + 0.5*Whiffs
+// WEGS_CONST is an additive offset that centers the scale at ~50 = average. It does
+// NOT change pitcher rankings, only where "average" sits. 52 = NJCAA D1 (calibrated
+// from 62,924 appearances). When NCAA D1 is calibrated (TODO #4), change this one line.
+var WEGS_CONST = 52;
+function calcWEGS(bs, tmK, tmBB, hr, whiffs) {
   if (!bs || bs.ip === undefined || bs.ip === null) return null;
   var ipStr = String(bs.ip);
   var parts = ipStr.split('.');
   var fullInnings = parseInt(parts[0]) || 0;
   var extraOuts   = parts[1] ? parseInt(parts[1]) : 0;
   var outs = fullInnings * 3 + extraOuts;
-  var k    = (bs.k   !== undefined && bs.k   !== null) ? bs.k   : tmK;
-  var bb   = (bs.bb  !== undefined && bs.bb  !== null) ? bs.bb  : tmBB;
-  var hbp  = (bs.hbp !== undefined && bs.hbp !== null) ? bs.hbp : tmHBP;
-  var h    = (bs.h   !== undefined && bs.h   !== null) ? bs.h   : 0;
-  var er   = (bs.er  !== undefined && bs.er  !== null) ? bs.er  : 0;
-  var r    = (bs.r   !== undefined && bs.r   !== null) ? bs.r   : er;
-  var uner = Math.max(0, r - er);
-  return 40 + (2*outs) + (1*k) - (2*bb) - (2*hbp) - (3*h) - (6*er) - (4*uner);
+  var k  = (bs.k  !== undefined && bs.k  !== null) ? bs.k  : tmK;
+  var bb = (bs.bb !== undefined && bs.bb !== null) ? bs.bb : tmBB;
+  var h  = (bs.h  !== undefined && bs.h  !== null) ? bs.h  : 0;
+  var er = (bs.er !== undefined && bs.er !== null) ? bs.er : 0;
+  return Math.round(WEGS_CONST + (2*outs) + (1*k) - (2*bb) - (2*h) - (3*er) - (6*(hr||0)) + (0.5*(whiffs||0)));
 }
 
-function egsColor(score) {
+function wegsColor(score) {
   if (score >= 70) return { bg:'#1a6b3a', fg:'#fff' };
   if (score >= 60) return { bg:'#4ade80', fg:'#002147' };
   if (score >= 50) return { bg:'#fde68a', fg:'#002147' };
@@ -620,11 +621,12 @@ async function generate() {
     document.getElementById('cSP').textContent  = strPct;
     document.getElementById('cWH').textContent  = allW;
 
-    // EGS
+    // WEGS (per appearance) — HR and whiffs come from this game's TrackMan pitches
+    var hrAllowed = rows.filter(function(r){return r.PlayResult==='HomeRun'||r.PlayResult==='Home Run';}).length;
     var egsCell = document.getElementById('cEGS');
-    var egs = calcEGS(bs, tmK, tmBB, tmHBP);
+    var egs = calcWEGS(bs, tmK, tmBB, hrAllowed, allW);
     if (egs !== null) {
-      var colors = egsColor(egs);
+      var colors = wegsColor(egs);
       egsCell.textContent = egs;
       egsCell.style.background = colors.bg;
       egsCell.style.color = colors.fg;
@@ -654,7 +656,7 @@ async function generate() {
       document.getElementById('card').scrollIntoView({behavior:'smooth'});
     }, 80);
 
-    var egsNote = egs !== null ? ' | EGS: ' + egs : ' (box line not found)';
+    var egsNote = egs !== null ? ' | WEGS: ' + egs : ' (box line not found)';
     document.getElementById('statusMsg').textContent = bs
       ? '\u2713 Card generated! (IP='+bs.ip+', ER='+bs.er+')'+egsNote
       : '\u2713 Card generated (no box line found \u2014 check pitcher name matches box score)';
