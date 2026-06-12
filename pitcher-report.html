@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -181,7 +180,7 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
 <div class="upload-section">
   <a href="index.html" class="home-btn">&#8592; Home</a>
   <h1>&#x26BE; Pitcher Game Summary</h1>
-  <p>Select a game, upload the box score PDF, select a pitcher, and generate.</p>
+  <p>Select a game and a pitcher, then generate. The box line fills automatically.</p>
 
   <div class="form-group">
     <label>Step 1 &mdash; Select Game</label>
@@ -189,8 +188,8 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
   </div>
 
   <div class="file-btn-wrap">
-    <label>Step 2 &mdash; Box Score</label>
-    <div class="file-status" id="pdfStatus">Upload PDF box score to add IP/ER stats (optional).</div>
+    <label>Box Score (optional override)</label>
+    <div class="file-status" id="pdfStatus">Box line auto-fills from the database. Upload a PDF only to override.</div>
     <div style="margin-top:8px;font-size:11px;color:#999;">Or upload PDF manually:</div>
     <input type="file" id="pdfFile" accept="*/*" style="margin-top:4px;">
   </div>
@@ -198,7 +197,7 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
   <hr class="divider">
 
   <div class="form-group">
-    <label>Step 3 &mdash; Pitcher</label>
+    <label>Step 2 &mdash; Pitcher</label>
     <select id="pitcherSelect" disabled>
       <option value="">&#8212; select game first &#8212;</option>
     </select>
@@ -343,8 +342,8 @@ async function supaFetch(path) {
   return rows;
 }
 
-// ── Enhanced Game Score ──────────────────────────────────────────────────────
-// Formula: 40 + (2 × outs) + (1 × K) − (2 × BB) − (2 × HBP) − (3 × H) − (6 × ER) − (4 × unearned runs)
+// -- Enhanced Game Score --------------------------------------------------------
+// Formula: 40 + (2 x outs) + (1 x K) - (2 x BB) - (2 x HBP) - (3 x H) - (6 x ER) - (4 x unearned runs)
 function calcEGS(bs, tmK, tmBB, tmHBP) {
   if (!bs || bs.ip === undefined || bs.ip === null) return null;
   var ipStr = String(bs.ip);
@@ -369,7 +368,7 @@ function egsColor(score) {
   if (score >= 40) return { bg:'#fb923c', fg:'#fff' };
   return { bg:'#e63946', fg:'#fff' };
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// -------------------------------------------------------------------------------
 
 async function loadGames() {
   try {
@@ -405,7 +404,7 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   if (!gameId) {
     psel.innerHTML = '<option>Select game first</option>';
     psel.disabled = true;
-    statusEl.textContent = 'Upload PDF box score to add IP/ER stats (optional).';
+    statusEl.textContent = 'Box line auto-fills from the database. Upload a PDF only to override.';
     return;
   }
 
@@ -444,7 +443,7 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   } catch(e) {
     psel.innerHTML = '<option>Error loading pitchers</option>';
   }
-  statusEl.textContent = 'Upload PDF box score to add IP/ER stats (optional).';
+  statusEl.textContent = 'Box line auto-fills from the database. Upload a PDF only to override.';
 });
 
 document.getElementById('pitcherSelect').addEventListener('change', function() {
@@ -470,7 +469,7 @@ document.getElementById('pdfFile').addEventListener('change', function() {
       var joined = allItems.join(' ');
       var oppMatch = joined.match(/^([A-Za-z\s]+?)\s+vs\.\s+Murray State/);
       pdfOpponent = oppMatch ? oppMatch[1].trim() : '';
-      document.getElementById('pdfStatus').textContent = '\u2713 Box score loaded (' + allItems.length + ' items)';
+      document.getElementById('pdfStatus').textContent = '\u2713 PDF override loaded (' + allItems.length + ' items)';
     } catch(err) {
       document.getElementById('pdfStatus').textContent = 'Error: ' + err.message;
     }
@@ -499,6 +498,27 @@ function extractPitcherStats(lastName) {
   return null;
 }
 
+// Pull the box line from the synced box tables, matched by date + pitcher last name.
+// Returns null if not found, so we fall back to a manually uploaded PDF.
+async function getBoxFromTables(date, displayName, lastName) {
+  if (!date || !lastName) return null;
+  try {
+    var games = await supaFetch('ms_box_games?game_date=eq.' + encodeURIComponent(date) + '&select=contest_id&order=contest_id.asc');
+    if (!games.length) return null;
+    var idx = 0;
+    var gm = (displayName || '').match(/(?:game|gm|g)\s*([2-9])/i);   // doubleheader: "Game 2" -> 2nd game
+    if (gm) idx = Math.min(parseInt(gm[1]) - 1, games.length - 1);
+    var cid = games[idx].contest_id;
+    var pitchers = await supaFetch('ms_box_pitching?contest_id=eq.' + cid + '&select=*');
+    var ln = lastName.toLowerCase();
+    var m = pitchers.find(function(p) {
+      return (p.player_name || '').trim().split(/\s+/).pop().toLowerCase() === ln;
+    });
+    if (!m) return null;
+    return { ip: m.ip, h: m.h, r: m.r, er: m.er, bb: m.bb, k: m.so, hbp: m.hbp, pa: m.bf };
+  } catch (e) { return null; }
+}
+
 async function generate() {
   var gameId = document.getElementById('gameSelect').value;
   var pitcherRaw = document.getElementById('pitcherSelect').value;
@@ -514,6 +534,10 @@ async function generate() {
       document.getElementById('generateBtn').disabled = false;
       return;
     }
+
+    var gMeta = await supaFetch('games?game_id=eq.' + encodeURIComponent(gameId) + '&select=date,display_name');
+    var boxDate = (gMeta[0] && gMeta[0].date) || '';
+    var boxGameName = (gMeta[0] && gMeta[0].display_name) || '';
 
     var pitchData = rows.map(function(r) {
       return {
@@ -575,7 +599,8 @@ async function generate() {
     var lastName = pitcherRaw;
     if (lastName.indexOf(',')>-1) lastName=lastName.split(',')[0].trim();
     else lastName=lastName.split(' ').pop();
-    var bs = extractPitcherStats(lastName);
+    var bs = await getBoxFromTables(boxDate, boxGameName, lastName);
+    if (!bs) bs = extractPitcherStats(lastName);
 
     var displayName = flipName(pitcherRaw);
 
@@ -629,10 +654,10 @@ async function generate() {
       document.getElementById('card').scrollIntoView({behavior:'smooth'});
     }, 80);
 
-    var egsNote = egs !== null ? ' | EGS: ' + egs : ' (upload PDF box score for EGS)';
+    var egsNote = egs !== null ? ' | EGS: ' + egs : ' (box line not found)';
     document.getElementById('statusMsg').textContent = bs
       ? '\u2713 Card generated! (IP='+bs.ip+', ER='+bs.er+')'+egsNote
-      : '\u2713 Card generated (no PDF stats found \u2014 check pitcher name matches box score)';
+      : '\u2713 Card generated (no box line found \u2014 check pitcher name matches box score)';
 
   } catch(e) {
     document.getElementById('statusMsg').textContent = 'Error: '+e.message;
