@@ -36,8 +36,8 @@
 .modal p { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 11px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.form-group input { width: 100%; padding: 10px 12px; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0f0f0; font-size: 15px; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
-.form-group input:focus { outline: none; border-color: #CFB53B; }
+.form-group input, .form-group select { width: 100%; padding: 10px 12px; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0f0f0; font-size: 15px; font-family: -apple-system, sans-serif; -webkit-appearance: none; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #CFB53B; }
 .form-group .hint { font-size: 11px; color: #555; margin-top: 4px; }
 .game-id-box { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #888; font-family: monospace; margin-bottom: 14px; word-break: break-all; }
 .already-exists { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4ade80; margin-bottom: 14px; }
@@ -97,7 +97,21 @@
 
 <div class="form-group">
   <label>Date</label>
-  <input type="text" id="modalDate" placeholder="YYYY-MM-DD">
+  <input type="text" id="modalDate" placeholder="YYYY-MM-DD" oninput="syncSeasonFromDate()">
+  <div class="hint">Season is inferred from date: Aug–Dec → YYYY-fall, else YYYY-spring.</div>
+</div>
+
+<div class="form-group">
+  <label>Season (auto)</label>
+  <input type="text" id="modalSeason" placeholder="2026-spring" readonly style="opacity:.85">
+</div>
+
+<div class="form-group">
+  <label>Game Type</label>
+  <select id="modalGameType">
+    <option value="game" selected>Game</option>
+    <option value="intersquad">Intersquad</option>
+  </select>
 </div>
 
 <div class="modal-btns">
@@ -301,6 +315,27 @@
 
   // ── Game Info Modal ───────────────────────────────────────────────────────
 
+  function inferSeasonFromDate(dateStr) {
+    var d = String(dateStr || '').trim();
+    var m = d.match(/^(\d{4})-(\d{2})/);
+    if (!m) {
+      // also accept M/D/YYYY
+      var p = d.split('/');
+      if (p.length === 3) {
+        var yr = p[2], mo = parseInt(p[0], 10);
+        if (yr && !isNaN(mo)) return yr + ((mo >= 8 && mo <= 12) ? '-fall' : '-spring');
+      }
+      return '2026-spring';
+    }
+    var year = m[1], month = parseInt(m[2], 10);
+    return year + ((month >= 8 && month <= 12) ? '-fall' : '-spring');
+  }
+  function syncSeasonFromDate() {
+    var dateEl = document.getElementById('modalDate');
+    var seasonEl = document.getElementById('modalSeason');
+    if (dateEl && seasonEl) seasonEl.value = inferSeasonFromDate(dateEl.value);
+  }
+
   async function openGameModal() {
     var gameId = detectedGame.game_id || '';
     var date   = detectedGame.date   || '';
@@ -308,6 +343,8 @@
 
     document.getElementById('modalGameId').textContent = gameId || '(not detected)';
     document.getElementById('modalDate').value = date;
+    syncSeasonFromDate();
+    document.getElementById('modalGameType').value = 'game';
     document.getElementById('modalLog').className = 'modal-log';
     document.getElementById('modalLog').textContent = '';
     document.getElementById('modalSaveBtn').disabled = false;
@@ -350,12 +387,16 @@
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving...';
 
+    var season = (document.getElementById('modalSeason').value || '').trim() || inferSeasonFromDate(date);
+    var gameType = document.getElementById('modalGameType').value || 'game';
     var record = {
       game_id:      gameId,
       display_name: displayName,
       date:         date || null,
       home_team:    detectedGame.home_team || null,
       away_team:    detectedGame.away_team || null,
+      season:       season,
+      game_type:    gameType,
       box_score_url: null
     };
 

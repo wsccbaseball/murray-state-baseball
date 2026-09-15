@@ -26,6 +26,7 @@ body{font-family:'Barlow Condensed',sans-serif;background:#e8d978;min-height:100
 .filter-bar{background:#fffdf7;border-bottom:2px solid #002147;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
 .fg{display:flex;flex-direction:column;gap:3px;min-width:80px}
 .fg label{font-family:'Anton',sans-serif;font-size:.58rem;color:#6b5f47;text-transform:uppercase;letter-spacing:.08em}
+.fg select{height:32px;background:#fff;border:1px solid #ddd5bc;border-radius:3px;padding:0 6px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:#1a1a2e;max-width:100%}
 .dd-wrap{position:relative;width:100%}
 .dd-trigger{background:#fff;border:1px solid #ddd5bc;border-radius:3px;padding:5px 28px 5px 8px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:#1a1a2e;cursor:pointer;height:32px;display:flex;align-items:center;justify-content:space-between;user-select:none;white-space:nowrap;overflow:hidden}
 .dd-trigger span:first-child{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
@@ -138,10 +139,22 @@ canvas{display:block;border-radius:4px}
 
 <div id="main-screen">
   <div class="page-header">
-    <div><div class="page-header-title">Season Hitting</div><div class="page-header-sub">Murray State Baseball &middot; 2026</div></div>
+    <div><div class="page-header-title">Season Hitting</div><div class="page-header-sub" id="hdrSeason">Murray State &middot; 2026</div></div>
     <a href="index.html" class="home-btn">&larr; Home</a>
   </div>
   <div class="filter-bar">
+    <div class="fg" style="min-width:112px">
+      <label>Season</label>
+      <select id="seasonSel" onchange="onSeasonChange()"></select>
+    </div>
+    <div class="fg" style="min-width:118px">
+      <label>Game Type</label>
+      <select id="typeSel" onchange="onSeasonChange()">
+        <option value="game">Games only</option>
+        <option value="intersquad">Intersquads only</option>
+        <option value="all">All</option>
+      </select>
+    </div>
     <div class="fg" style="min-width:150px;flex:3;position:relative">
       <label>Select Game(s) <span style="font-weight:400;opacity:.6;font-size:.55rem">leave blank for full season</span></label>
       <div class="dd-wrap" id="gameDD">
@@ -228,9 +241,9 @@ canvas{display:block;border-radius:4px}
       <div class="logo-box"><img src="MS-logo.png" alt="WS" style="width:38px;height:38px;object-fit:contain;background:#fff;border-radius:6px;padding:2px"></div>
       <div class="hdr-center">
         <div class="player-name" id="cardName">&#8212;</div>
-        <div class="player-pos" id="cardPos">Walters State CC</div>
+        <div class="player-pos" id="cardPos">Murray State Baseball</div>
         <div class="card-type">Season Hitting Summary</div>
-        <div class="season-tag">2026 MVC Season</div>
+        <div class="season-tag" id="cardSeasonTag">2026 Spring Season</div>
       </div>
       <div class="logo-box"><img src="MS-logo.png" alt="WS" style="width:38px;height:38px;object-fit:contain;background:#fff;border-radius:6px;padding:2px"></div>
     </div>
@@ -300,7 +313,7 @@ canvas{display:block;border-radius:4px}
       </table>
     </div>
     <div class="card-footer">
-      <div>&#9918; Murray State Baseball &middot; 2026</div>
+      <div id="cardFooterSeason">&#9918; Murray State Baseball &middot; 2026</div>
       <div>Data: TrackMan</div>
       <div id="footR">wsccbaseball.github.io</div>
     </div>
@@ -331,8 +344,11 @@ var SUPABASE_URL='https://cmljtqgnctrtfszmowtf.supabase.co';
 var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
 var RE24=[[0.544,0.941,1.170,1.556,1.321,1.743,1.978,2.395],[0.291,0.587,0.700,1.068,0.890,1.088,1.399,1.756],[0.112,0.242,0.325,0.552,0.375,0.529,0.661,0.978]];
 var COUNT_RE={'0-0':0.444,'1-0':0.562,'2-0':0.628,'3-0':0.765,'0-1':0.306,'1-1':0.380,'2-1':0.437,'3-1':0.622,'0-2':0.191,'1-2':0.250,'2-2':0.305,'3-2':0.456};
-var allPitches=[], seasonStats={batting:[]}, gamesMeta=[], tableData=[];
+var allPitches=[], seasonStats={batting:[]}, gamesMeta=[], allGamesMeta=[], tableData=[];
 var sortCol='woba', sortAsc=false, selectedPlayer=null;
+var _qs=new URLSearchParams(location.search);
+var CURRENT_SEASON=_qs.get('season')||'2026-spring';
+var GAME_TYPE_MODE=_qs.get('type')||(_qs.get('intersquad')==='1'?'all':'game');
 
 var PITCH_COLORS={
   'Fastball':'#e63946','Four-Seam':'#e63946','FourSeamFastBall':'#e63946',
@@ -698,22 +714,92 @@ function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 async function boot(){
   try{
-    setProgress(10,'Loading games...');
-    gamesMeta=await supaFetch('games?select=game_id,display_name,date&order=date.asc,display_name.asc');
-    populateGameFilter();
-    setProgress(30,'Loading pitch data...');
-    allPitches=[];
-    for(var i=0;i<gamesMeta.length;i++){
-      var rows=await supaFetch('pitches?GameID=eq.'+encodeURIComponent(gamesMeta[i].game_id));
-      allPitches=allPitches.concat(rows);
-      setProgress(30+Math.round(((i+1)/gamesMeta.length)*60),'Loading game '+(i+1)+' of '+gamesMeta.length+'...');
-    }
-    setProgress(96,'Building stats...');
-    rebuildTableData(allPitches);populatePlayerFilter();populateVisPlayerFilter();renderTable();
-    document.getElementById('loading-screen').style.display='none';
-    document.getElementById('main-screen').style.display='block';
-    document.getElementById('bottomBar').style.display='flex';var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';
+    setProgress(5,'Loading games...');
+    allGamesMeta=await supaFetch('games?select=game_id,display_name,date,season,game_type&order=date.asc,display_name.asc');
+    initSeasonUI();
+    await loadSeasonData();
   }catch(e){document.getElementById('loadMsg').textContent='Error: '+e.message;console.error(e);}
+}
+
+function seasonLabel(s){
+  var m=String(s).match(/^(\d{4})-(\w+)$/);
+  if(!m)return s;
+  return m[1]+' '+m[2].charAt(0).toUpperCase()+m[2].slice(1);
+}
+function seasonHasRealGames(s){
+  return allGamesMeta.some(function(g){return (g.season||'')===s&&(g.game_type||'game')==='game';});
+}
+function initSeasonUI(){
+  var seasons=[];
+  allGamesMeta.forEach(function(g){var s=g.season||'unknown';if(seasons.indexOf(s)<0)seasons.push(s);});
+  seasons.sort();
+  var newest=null,newestDate='';
+  allGamesMeta.forEach(function(g){if((g.date||'')>=newestDate){newestDate=g.date||'';newest=g.season;}});
+  if(!_qs.get('season')&&newest)CURRENT_SEASON=newest;
+  if(!_qs.get('type')&&!_qs.get('intersquad')&&!seasonHasRealGames(CURRENT_SEASON))GAME_TYPE_MODE='intersquad';
+  var sel=document.getElementById('seasonSel');
+  sel.innerHTML='';
+  seasons.forEach(function(s){
+    var o=document.createElement('option');o.value=s;o.textContent=seasonLabel(s);
+    if(s===CURRENT_SEASON)o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById('typeSel').value=GAME_TYPE_MODE;
+  updateSeasonLabels();
+}
+function updateSeasonLabels(){
+  var el=document.getElementById('hdrSeason');
+  if(el)el.textContent='Murray State \u00b7 '+seasonLabel(CURRENT_SEASON);
+  var ct=document.getElementById('cardSeasonTag');
+  if(ct)ct.textContent=seasonLabel(CURRENT_SEASON)+' Season';
+  var ft=document.getElementById('cardFooterSeason');
+  if(ft)ft.innerHTML='&#9918; Murray State Baseball &middot; '+seasonLabel(CURRENT_SEASON);
+}
+function filterSeasonGames(){
+  return allGamesMeta.filter(function(g){
+    if((g.season||'')!==CURRENT_SEASON)return false;
+    var gt=(g.game_type||'game');
+    if(GAME_TYPE_MODE==='game')return gt==='game';
+    if(GAME_TYPE_MODE==='intersquad')return gt!=='game';
+    return true;
+  });
+}
+function onSeasonChange(){
+  CURRENT_SEASON=document.getElementById('seasonSel').value;
+  GAME_TYPE_MODE=document.getElementById('typeSel').value;
+  selectedPlayer=null;
+  document.getElementById('genCardBtn').disabled=true;
+  document.getElementById('selHint').textContent='Tap a player to select';
+  var vb=document.getElementById('visGenBtn');
+  if(vb){vb.disabled=true;vb.removeAttribute('data-player');}
+  var vl=document.getElementById('visPlayerDDLabel');
+  if(vl)vl.textContent='\u2014 Select Hitter \u2014';
+  var va=document.getElementById('visArea');
+  if(va)va.innerHTML='<div class="vis-empty">Select a hitter to generate contact point and spray chart.</div>';
+  updateSeasonLabels();
+  loadSeasonData();
+}
+async function loadSeasonData(){
+  document.getElementById('loading-screen').style.display='flex';
+  document.getElementById('main-screen').style.display='none';
+  document.getElementById('bottomBar').style.display='none';
+  var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='none';
+  setProgress(20,'Loading games...');
+  gamesMeta=filterSeasonGames();
+  populateGameFilter();
+  setProgress(30,'Loading pitch data...');
+  allPitches=[];
+  for(var i=0;i<gamesMeta.length;i++){
+    var rows=await supaFetch('pitches?GameID=eq.'+encodeURIComponent(gamesMeta[i].game_id));
+    allPitches=allPitches.concat(rows);
+    setProgress(30+Math.round(((i+1)/Math.max(gamesMeta.length,1))*60),'Loading game '+(i+1)+' of '+gamesMeta.length+'...');
+  }
+  setProgress(96,'Building stats...');
+  rebuildTableData(allPitches);populatePlayerFilter();populateVisPlayerFilter();renderTable();
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('main-screen').style.display='block';
+  document.getElementById('bottomBar').style.display='flex';
+  if(_saw)_saw.style.display='block';
 }
 
 function populateGameFilter(){
