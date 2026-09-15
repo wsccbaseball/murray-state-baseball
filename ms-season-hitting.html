@@ -56,7 +56,7 @@ table.stats-tbl tr.selected td:first-child{background:#f0e8c0!important}
 .val-good{color:#2a7a3a}
 .val-warn{color:#b05000}
 .no-data{text-align:center;padding:40px;color:#9b8c74;font-family:'Barlow',sans-serif;font-size:.9rem}
-.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#002147;padding:10px 14px;display:flex;gap:8px;z-index:20}
+.bottom-bar{/* layout set with save-all-inline block */}
 .gen-btn{flex:1;padding:11px;background:#fff;border:none;font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:.08em;color:#002147;cursor:pointer;border-radius:6px}
 .gen-btn:disabled{background:rgba(255,255,255,.3);color:rgba(255,255,255,.5);cursor:not-allowed}
 .sel-hint{font-family:'Barlow',sans-serif;font-size:.72rem;color:#CFB53B;display:flex;align-items:center;white-space:nowrap}
@@ -121,10 +121,18 @@ canvas{display:block;border-radius:4px}
 .woba-avg{color:#7a5a00}
 .woba-bad{color:#b03000;font-weight:800}
 
-.save-all-tip { font-size:12px; color:#555; margin-top:4px; text-align:center; line-height:1.35; }
-.save-all-bar { max-width:520px; margin:10px auto 0; padding:0 12px 16px; }
-.save-all-bar .save-btn { width:100%; background:linear-gradient(135deg,#002147,#003d7a); color:#CFB53B; border:none; border-radius:8px; padding:12px; font-family:'Anton',sans-serif; letter-spacing:.06em; font-size:.9rem; cursor:pointer; }
-.save-all-bar .save-btn:disabled { opacity:.5; cursor:not-allowed; }
+.save-all-tip{font-size:11px;color:rgba(255,255,255,.7);margin:0;text-align:center;line-height:1.3}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#002147;padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px;z-index:30;box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+.bottom-bar-row{display:flex;gap:8px;width:100%;align-items:center}
+.bottom-bar .gen-btn{flex:1;padding:11px;background:#fff;border:none;font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:.08em;color:#002147;cursor:pointer;border-radius:6px}
+.bottom-bar .gen-btn:disabled{background:rgba(255,255,255,.3);color:rgba(255,255,255,.5);cursor:not-allowed}
+.bottom-bar .sel-hint{flex:0 1 auto;min-width:0;color:rgba(255,255,255,.85);font-size:12px}
+.save-all-inline{display:none;width:100%}
+.save-all-inline.is-open{display:block}
+.save-all-inline .save-btn{width:100%;margin:0;background:linear-gradient(135deg,#003d7a,#002147);color:#CFB53B;border:1px solid rgba(207,181,59,.45);border-radius:8px;padding:11px;font-family:'Anton',sans-serif;letter-spacing:.06em;font-size:.88rem;cursor:pointer}
+.save-all-inline .save-btn:disabled{opacity:.5;cursor:not-allowed}
+.save-all-inline #saveAllStatus,.save-all-inline [id="saveAllStatus"]{text-align:center;margin-top:4px;font-size:12px;color:#CFB53B}
+#main-screen{padding-bottom:150px}
 
 </style>
 </head>
@@ -322,14 +330,15 @@ canvas{display:block;border-radius:4px}
 </div>
 
 <div class="bottom-bar" id="bottomBar" style="display:none">
-  <div class="sel-hint" id="selHint">Tap a player to select</div>
-  <button class="gen-btn" id="genCardBtn" disabled onclick="buildCard()">Generate Season Card &rarr;</button>
-</div>
-
-<div class="save-all-bar" id="saveAllWrap" style="display:none">
-  <button class="save-btn" id="saveAllBtn" onclick="saveAllRacerSeasonHitterCards()">SAVE ALL RACER CARDS (ZIP)</button>
-  <div id="saveAllStatus" style="text-align:center;margin-top:6px;font-size:13px;color:#002147;"></div>
-  <div class="save-all-tip">Zips season cards for Murray/Racer hitters in the current filter view.</div>
+  <div class="save-all-inline" id="saveAllWrap">
+    <button class="save-btn" id="saveAllBtn" type="button" onclick="saveAllRacerSeasonHitterCards()">SAVE ALL RACER CARDS (ZIP)</button>
+    <div id="saveAllStatus"></div>
+    <div class="save-all-tip">Zips season cards for Murray/Racer hitters in the current filter view.</div>
+  </div>
+  <div class="bottom-bar-row">
+    <div class="sel-hint" id="selHint">Tap a player to select</div>
+    <button class="gen-btn" id="genCardBtn" disabled onclick="buildCard()">Generate Season Card &rarr;</button>
+  </div>
 </div>
 
 
@@ -686,14 +695,14 @@ function buildCard(){
   },30);
   document.getElementById('main-screen').style.display='none';
   document.getElementById('card-screen').style.display='block';
-  var _sawHide=document.getElementById('saveAllWrap');if(_sawHide)_sawHide.style.display='none';
+  var _sawHide=document.getElementById('saveAllWrap');if(_sawHide)_sawHide.classList.remove('is-open');
   window.scrollTo(0,0);
 }
 
 function showSelect(){
   document.getElementById('card-screen').style.display='none';
   document.getElementById('main-screen').style.display='block';
-  var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';
+  var _saw=document.getElementById('saveAllWrap');if(_saw){_saw.style.display='';_saw.classList.add('is-open');}
 }
 
 async function saveCard(){
@@ -783,7 +792,7 @@ async function loadSeasonData(){
   document.getElementById('loading-screen').style.display='flex';
   document.getElementById('main-screen').style.display='none';
   document.getElementById('bottomBar').style.display='none';
-  var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='none';
+  var _saw=document.getElementById('saveAllWrap');if(_saw){_saw.classList.remove('is-open');}
   setProgress(20,'Loading games...');
   gamesMeta=filterSeasonGames();
   populateGameFilter();
@@ -878,7 +887,7 @@ function renderTable(){
   });
 }
 function sortTable(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=false;}renderTable();}
-function showMain(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';document.getElementById('bottomBar').style.display='flex';var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';selectedPlayer=null;document.getElementById('genCardBtn').disabled=true;document.getElementById('selHint').textContent='Tap a player to select';}
+function showMain(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';document.getElementById('bottomBar').style.display='flex';var _saw=document.getElementById('saveAllWrap');if(_saw){_saw.style.display='';_saw.classList.add('is-open');}selectedPlayer=null;document.getElementById('genCardBtn').disabled=true;document.getElementById('selHint').textContent='Tap a player to select';}
 
 boot();
 
