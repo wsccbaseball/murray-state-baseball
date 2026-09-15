@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-x: hidden; }
@@ -45,6 +46,9 @@ body {
   text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;
 }
 input[type="file"] { font-size:14px; padding:8px 0; color:#333; width:100%; }
+
+.save-all-tip { font-size:12px; color:#555; margin-top:4px; text-align:center; line-height:1.35; }
+
 .file-status { font-size:12px; color:#002147; font-weight:600; min-height:16px; margin-top:4px; }
 .divider { border:none; border-top:1px solid #e8eef6; margin:14px 0; }
 .form-group { margin-bottom:14px; }
@@ -283,6 +287,20 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
   <div class="save-status" id="saveStatus"></div>
 </div>
 
+<div class="save-btn-wrap" id="saveAllWrap" style="display:none;">
+  <button class="save-btn" id="saveAllBtn" onclick="saveAllRacerCards()" disabled>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    SAVE ALL RACER CARDS (ZIP)
+  </button>
+  <div class="save-status" id="saveAllStatus"></div>
+  <div class="save-all-tip">On iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
+</div>
+
+
 <div class="img-modal" id="imgModal" onclick="closeModal(event)">
   <img id="modalImg" src="" alt="Pitching Card">
   <div class="img-modal-tip">&#x1F4F1; Long-press the image and tap<br><strong>"Save to Photos"</strong> to save</div>
@@ -406,6 +424,9 @@ document.getElementById('gameSelect').addEventListener('change', async function(
     psel.innerHTML = '<option>Select game first</option>';
     psel.disabled = true;
     statusEl.textContent = 'Box line auto-fills from the database. Upload a PDF only to override.';
+    window._msuPitchers = [];
+    var saw = document.getElementById('saveAllWrap');
+    if (saw) { saw.style.display = 'none'; document.getElementById('saveAllBtn').disabled = true; }
     return;
   }
 
@@ -422,6 +443,19 @@ document.getElementById('gameSelect').addEventListener('change', async function(
     if (oppRows.length) {
       var rawTeam = (oppRows[0].PitcherTeam || '').replace(/_\d+$/,'').replace(/_/g,' ').trim();
       if (rawTeam) oppTeamLabel = rawTeam;
+    }
+    window._msuPitchers = murPitchers;
+    var saveAllWrap = document.getElementById('saveAllWrap');
+    var saveAllBtn = document.getElementById('saveAllBtn');
+    if (saveAllWrap && saveAllBtn) {
+      if (murPitchers.length) {
+        saveAllWrap.style.display = 'block';
+        saveAllBtn.disabled = false;
+        document.getElementById('saveAllStatus').textContent = '';
+      } else {
+        saveAllWrap.style.display = 'none';
+        saveAllBtn.disabled = true;
+      }
     }
     psel.innerHTML = '<option value="">&#8212; select pitcher &#8212;</option>';
     if (murPitchers.length) {
@@ -443,6 +477,12 @@ document.getElementById('gameSelect').addEventListener('change', async function(
     psel.disabled = false;
   } catch(e) {
     psel.innerHTML = '<option>Error loading pitchers</option>';
+    window._msuPitchers = [];
+    var saveAllWrapErr = document.getElementById('saveAllWrap');
+    if (saveAllWrapErr) {
+      saveAllWrapErr.style.display = 'none';
+      document.getElementById('saveAllBtn').disabled = true;
+    }
   }
   statusEl.textContent = 'Box line auto-fills from the database. Upload a PDF only to override.';
 });

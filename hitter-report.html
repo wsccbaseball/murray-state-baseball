@@ -6,6 +6,7 @@
 <title>MSU Hitter Game Summary</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -148,6 +149,9 @@ flex-shrink: 0;
 .img-overlay img { max-width: 100%; max-height: 80vh; border-radius: 6px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
 .overlay-hint { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); text-align: center; }
 .overlay-close { margin-top: 16px; padding: 10px 32px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+.save-all-tip { font-size:12px; color:#555; margin-top:4px; text-align:center; line-height:1.35; }
+
 </style>
 </head>
 <body>
@@ -245,6 +249,15 @@ flex-shrink: 0;
   <button class="save-btn" onclick="saveImage()">&#x1F4E5; SAVE IMAGE</button>
 </div>
 
+
+<div class="save-btn-wrap" id="saveAllWrap" style="display:none;max-width:520px;margin:12px auto;padding:0 12px;">
+  <button class="save-btn" id="saveAllBtn" onclick="saveAllRacerHitterCards()" disabled style="width:100%;">
+    SAVE ALL RACER CARDS (ZIP)
+  </button>
+  <div class="save-status" id="saveAllStatus" style="text-align:center;margin-top:6px;font-size:13px;"></div>
+  <div class="save-all-tip">On iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
+</div>
+
 <div class="img-overlay" id="imgOverlay" onclick="closeOverlay()">
   <img id="overlayImg" src="" alt="Hitter Card">
   <div class="overlay-hint">Hold the image to save to your photos</div>
@@ -336,13 +349,20 @@ document.getElementById('gameSelect').addEventListener('change', async function(
   var bsel = document.getElementById('batterSelect');
   document.getElementById('generateBtn').disabled = true;
   allRows = [];
-  if (!gameId) { bsel.innerHTML = '<option>Select game first</option>'; bsel.disabled = true; return; }
+  if (!gameId) { bsel.innerHTML = '<option>Select game first</option>'; bsel.disabled = true; window._msuBatters = []; var saw=document.getElementById('saveAllWrap'); if(saw){saw.style.display='none';document.getElementById('saveAllBtn').disabled=true;} return; }
   bsel.innerHTML = '<option>Loading batters...</option>';
   bsel.disabled = true;
   try {
     var rows = await supaFetch('pitches?GameID=eq.' + encodeURIComponent(gameId));
     allRows = rows;
     var murBatters = [...new Set(rows.filter(r => r.BatterTeam && r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
+    window._msuBatters = murBatters;
+    var saveAllWrap = document.getElementById('saveAllWrap');
+    var saveAllBtn = document.getElementById('saveAllBtn');
+    if (saveAllWrap && saveAllBtn) {
+      if (murBatters.length) { saveAllWrap.style.display = 'block'; saveAllBtn.disabled = false; document.getElementById('saveAllStatus').textContent = ''; }
+      else { saveAllWrap.style.display = 'none'; saveAllBtn.disabled = true; }
+    }
     var oppBatters = [...new Set(rows.filter(r => !r.BatterTeam || !r.BatterTeam.toLowerCase().includes('mur')).map(r => r.Batter).filter(Boolean))].sort();
     bsel.innerHTML = '<option value="">— select batter —</option>';
     if (murBatters.length) {

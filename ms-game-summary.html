@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MSU Full Game Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{max-width:100vw;overflow-x:hidden}
+body{font-family:'Barlow Condensed',sans-serif;background:#f2ead8;min-height:100vh}
+#loading-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px}
+.load-title{font-family:'Abril Fatface',serif;font-size:2rem;color:#1a1a2e}
+.load-sub{font-size:.9rem;color:#6b5f47;font-family:'Barlow',sans-serif}
+.progress-bar{width:260px;height:6px;background:#ddd5bc;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:#002147;border-radius:3px;width:0%;transition:width .4s ease}
+.load-msg{font-size:.8rem;color:#9b8c74;font-family:'Barlow',sans-serif;text-align:center}
+#main-screen{display:none}
+.page-header{background:#002147;padding:12px 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:20}
+.page-header-title{font-family:'Abril Fatface',serif;font-size:1.3rem;color:#fff;line-height:1}
+.page-header-sub{font-size:.7rem;color:#a8c8f0;font-family:'Barlow',sans-serif;margin-top:1px}
+.home-btn{background:transparent;border:1px solid rgba(255,255,255,.3);padding:5px 10px;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:#a8c8f0;cursor:pointer;border-radius:4px;text-decoration:none;white-space:nowrap}
+.filter-bar{background:#fffdf7;border-bottom:2px solid #002147;padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px;min-width:80px}
+.fg label{font-family:'Anton',sans-serif;font-size:.58rem;color:#6b5f47;text-transform:uppercase;letter-spacing:.08em}
+.fg select{height:32px;background:#fff;border:1px solid #ddd5bc;border-radius:3px;padding:0 6px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:#1a1a2e;max-width:100%}
+.filter-count{font-family:'Barlow',sans-serif;font-size:.72rem;color:#6b5f47;align-self:flex-end;padding-bottom:6px;white-space:nowrap}
+.dd-wrap{position:relative;width:100%}
+.dd-trigger{background:#fff;border:1px solid #ddd5bc;border-radius:3px;padding:5px 28px 5px 8px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:#1a1a2e;cursor:pointer;height:32px;display:flex;align-items:center;justify-content:space-between;user-select:none;white-space:nowrap;overflow:hidden}
+.dd-trigger span:first-child{overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.dd-arrow{font-size:.65rem;color:#9b8c74;flex-shrink:0;margin-left:4px;transition:transform .2s}
+.dd-wrap.open .dd-arrow{transform:rotate(180deg)}
+.dd-menu{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd5bc;border-top:none;border-radius:0 0 4px 4px;z-index:50;max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.dd-wrap.open .dd-menu{display:block}
+.dd-item{display:flex;align-items:center;gap:8px;padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-size:.85rem;color:#1a1a2e;cursor:pointer;border-bottom:1px solid #f0e8d8}
+.dd-item:last-child{border-bottom:none}
+.dd-item.checked{background:#eef4fc}
+.dd-item input[type=checkbox]{width:15px;height:15px;accent-color:#002147;flex-shrink:0}
+#out-screen{padding:16px 12px 120px}
+.panel{background:#fffdf7;border:1px solid #ddd5bc;border-radius:4px;padding:16px 14px;max-width:520px;margin:0 auto}
+.panel h2{font-family:'Anton',sans-serif;font-size:.95rem;letter-spacing:.06em;text-transform:uppercase;color:#002147;margin-bottom:10px}
+.panel .line{font-family:'Barlow',sans-serif;font-size:.9rem;color:#1a1a2e;padding:5px 0;border-bottom:1px solid #f0e8d8;display:flex;justify-content:space-between;gap:12px}
+.panel .line:last-of-type{border-bottom:none}
+.panel .line b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem}
+.panel .hint{font-family:'Barlow',sans-serif;font-size:.78rem;color:#8a7a58;font-style:italic;margin-top:12px;line-height:1.4}
+.flagbox{margin-top:12px;padding:9px 10px;background:#fdf4e3;border-left:3px solid #b05000;border-radius:2px}
+.flagbox .fh{font-family:'Anton',sans-serif;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#b05000}
+.flagbox .fl{font-family:'Barlow',sans-serif;font-size:.8rem;color:#6b5f47;margin-top:3px;line-height:1.4}
+.idle{text-align:center;padding:40px 20px;color:#9b8c74;font-family:'Barlow',sans-serif;font-size:.9rem}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;background:#fffdf7;border:1px solid #ddd5bc;border-radius:4px;margin-bottom:14px}
+table.rep{width:100%;border-collapse:collapse;font-family:'Barlow Condensed',sans-serif;min-width:940px}
+table.rep thead tr{background:#002147}
+table.rep th{color:#fff;font-size:.62rem;font-weight:700;padding:7px 5px;text-align:center;border-right:1px solid rgba(255,255,255,.12);line-height:1.15}
+table.rep th:first-child{text-align:left;position:sticky;left:0;z-index:2;background:#002147;min-width:124px}
+table.rep td{padding:6px 5px;text-align:center;font-size:.82rem;color:#1a1a2e;border-bottom:1px solid #e8e0d0;border-right:1px solid #ede6d8;white-space:nowrap}
+table.rep td:first-child{text-align:left;font-weight:700;position:sticky;left:0;z-index:1;background:#fffdf7;border-right:2px solid #c5b88a}
+table.rep td.g{background:#d6efd8}
+table.rep td.y{background:#fff2cc}
+table.rep td.r{background:#f8d7da}
+table.rep td.dim{color:#9b8c74}
+.rep-band{background:#002147;color:#fff;font-family:'Anton',sans-serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:7px 12px;border-radius:3px 3px 0 0}
+.rep-title{font-family:'Abril Fatface',serif;font-size:1.15rem;color:#1a1a2e;margin:4px 0 2px}
+.rep-sub{font-family:'Barlow',sans-serif;font-size:.76rem;color:#6b5f47;margin-bottom:12px}
+.rep-legend{display:flex;gap:14px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:.76rem;color:#5a4a38;margin:2px 0 8px}
+.rep-legend span{display:flex;align-items:center;gap:5px}
+.rep-sw{width:13px;height:13px;border:1px solid #c9bfa6;border-radius:2px}
+.rep-note{font-family:'Barlow',sans-serif;font-size:.72rem;font-style:italic;color:#8a7a58;line-height:1.45;margin-bottom:10px}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:#002147;padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;z-index:20}
+.gen-btn{flex:1 1 100%;padding:12px;background:#fff;border:none;font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:.08em;color:#002147;cursor:pointer;border-radius:6px}
+.gen-btn:disabled{background:rgba(255,255,255,.3);color:rgba(255,255,255,.5);cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="load-title">&#x26BE; Full Game Summary</div>
+  <div class="load-sub">Murray State &middot; TrackMan Analytics</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="load-msg" id="loadMsg">Loading games...</div>
+</div>
+
+<div id="main-screen">
+  <div class="page-header">
+    <div><div class="page-header-title">Full Game Summary</div><div class="page-header-sub" id="hdrSeason">Murray State &middot; 2026</div></div>
+    <a href="index.html" class="home-btn">&larr; Home</a>
+  </div>
+  <div class="filter-bar">
+    <div class="fg" style="min-width:112px">
+      <label>Season</label>
+      <select id="seasonSel" onchange="onSeasonChange()"></select>
+    </div>
+    <div class="fg" style="min-width:118px">
+      <label>Game Type</label>
+      <select id="typeSel" onchange="onSeasonChange()">
+        <option value="game">Games only</option>
+        <option value="intersquad">Intersquads only</option>
+        <option value="all">All</option>
+      </select>
+    </div>
+    <div class="fg" style="flex:3;min-width:180px;position:relative">
+      <label>Game(s) <span style="font-weight:400;opacity:.6;font-size:.55rem">blank = all shown</span></label>
+      <div class="dd-wrap" id="gameDD">
+        <div class="dd-trigger" onclick="toggleDD('gameDD')"><span id="gameDDLabel">All games</span><span class="dd-arrow">&#9660;</span></div>
+        <div class="dd-menu" id="gameDDMenu"></div>
+      </div>
+    </div>
+    <div class="fg" style="min-width:120px">
+      <label>Players</label>
+      <select id="teamSel">
+        <option value="mur">Murray State Racers</option>
+        <option value="all">All players</option>
+        <option value="opp">Opponent only</option>
+      </select>
+    </div>
+    <div class="fg" style="min-width:118px">
+      <label>Pitch Types</label>
+      <select id="tagSel">
+        <option value="auto">TrackMan auto</option>
+        <option value="tagged">Live tags</option>
+      </select>
+    </div>
+    <div class="filter-count" id="filterCount"></div>
+  </div>
+  <div id="out-screen">
+    <div class="idle" id="idle">Pick a game and tap Build Report.</div>
+    <div id="report" style="display:none"></div>
+  </div>
+</div>
+
+<div class="bottom-bar" id="bottomBar" style="display:none">
+  <button class="gen-btn" id="buildBtn" onclick="buildReport()">Build Report &rarr;</button>
+  <button class="gen-btn" id="xlsxBtn" disabled onclick="saveExcel()">Save Excel</button>
+</div>
+
+<script>
+var SUPABASE_URL='https://cmljtqgnctrtfszmowtf.supabase.co';
+var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
+
+var allGamesMeta=[], gamesMeta=[], LASTROWS=null, LASTGAME=null, LASTSCOPE='mur';
+var XLBLOB=null, XLNAME='Game_Report.xlsx';
+var _qs=new URLSearchParams(location.search);
+var CURRENT_SEASON=_qs.get('season')||'2026-spring';
+var GAME_TYPE_MODE=_qs.get('type')||(_qs.get('intersquad')==='1'?'all':'game');
+var TAGSRC='auto';
+
+var PITCH_NORM={
+  'Four-Seam':'Fastball','FourSeamFastBall':'Fastball','Fastball':'Fastball',
+  'Sinker':'Sinker','TwoSeamFastBall':'Sinker',
+  'Curveball':'Curveball','CurveBall':'Curveball',
+  'Slider':'Slider','Cutter':'Cutter',
+  'Changeup':'ChangeUp','ChangeUp':'ChangeUp','Change-up':'ChangeUp',
+  'Splitter':'Splitter','Knuckleball':'Knuckleball'
+};
+var PITCH_ABBREV={'Fastball':'FB','Sinker':'SI','Curveball':'CB','Slider':'SL',
+  'Cutter':'CT','ChangeUp':'CH','Splitter':'SP','Knuckleball':'KN'};
+function abbr(p){return PITCH_ABBREV[p]||String(p).slice(0,2).toUpperCase();}
+
+async function supaFetch(path){
+  var rows=[],from=0;
+  while(true){
+    var sep=path.indexOf('?')>-1?'&':'?';
+    var r=await fetch(SUPABASE_URL+'/rest/v1/'+path+sep+'limit=1000&offset='+from,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    var d=await r.json();
+    if(!Array.isArray(d)||!d.length)break;
+    rows=rows.concat(d);if(d.length<1000)break;from+=1000;
+  }
+  return rows;
+}
+function setProgress(pct,msg){document.getElementById('progressFill').style.width=pct+'%';document.getElementById('loadMsg').textContent=msg;}
+function setMsg(t){var e=document.getElementById('filterCount');if(e)e.textContent=t;}
+
+/* ---------- column resolution (schema-tolerant) ---------- */
+var NORM=null;
+function norm(s){return String(s).toLowerCase().replace(/[^a-z0-9]/g,'');}
+function buildNorm(row){NORM={};for(var k in row)NORM[norm(k)]=k;}
+function pick(row,names){
+  for(var i=0;i<names.length;i++){
+    var k=NORM[norm(names[i])];
+    if(k!==undefined&&row[k]!==null&&row[k]!=='')return row[k];
+  }
+  return null;
+}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:null;}
+
+var C={
+  pitcher:['Pitcher','PitcherName'], throws:['PitcherThrows'], pTeam:['PitcherTeam'],
+  batter:['Batter','BatterName'], side:['BatterSide'], bTeam:['BatterTeam'],
+  call:['PitchCall'], korbb:['KorBB'], result:['PlayResult'],
+  velo:['RelSpeed'], spin:['SpinRate'], ivb:['InducedVertBreak','InducedVerticalBreak'],
+  hb:['HorzBreak','HorizontalBreak'], ext:['Extension'],
+  relh:['RelHeight'], rels:['RelSide'], vaa:['VertApprAngle'],
+  px:['PlateLocSide'], pz:['PlateLocHeight'],
+  ev:['ExitSpeed'], la:['Angle','LaunchAngle'], dist:['Distance'],
+  pofpa:['PitchofPA','PitchOfPA'], inning:['Inning']
+};
+function G(r,key){return pick(r,C[key]);}
+function tracked(r){return num(G(r,'velo'))!==null;}
+function clean(v){return(!v||v==='Undefined')?null:(PITCH_NORM[v]||v);}
+function PT(r){
+  if(!tracked(r))return 'Untracked';
+  var a=clean(pick(r,['AutoPitchType'])), t=clean(pick(r,['TaggedPitchType']));
+  return (TAGSRC==='tagged'?(t||a):(a||t))||'Untagged';
+}
+
+/* ---------- zone + classification ---------- */
+var HALF=0.833, ZBOT=1.5, ZTOP=3.5;
+function inZone(r){
+  var x=num(G(r,'px')), z=num(G(r,'pz'));
+  if(x===null||z===null)return null;
+  return (Math.abs(x)<=HALF&&z>=ZBOT&&z<=ZTOP);
+}
+function isSwing(c){return c==='StrikeSwinging'||c==='InPlay'||/^Foul/.test(c||'');}
+function isWhiff(c){return c==='StrikeSwinging';}
+function isStrike(c){return c==='StrikeCalled'||isSwing(c);}
+function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function gameLabel(g){
+  if(!g)return '';
+  if(g.display_name)return g.display_name;
+  var d=g.date?String(g.date).slice(0,10):'';
+  var teams=(g.away_team&&g.home_team)?(g.away_team+' @ '+g.home_team):g.game_id;
+  return (d+'  '+teams).trim();
+}
+
+/* ---------- aggregation ---------- */
+function pitcherRows(rows){
+  var by={};
+  rows.forEach(function(r){var n=G(r,'pitcher')||'Unknown';(by[n]=by[n]||[]).push(r);});
+  return Object.keys(by).map(function(n){
+    var rs=by[n], np=rs.length;
+    var fp=rs.filter(function(r){return num(G(r,'pofpa'))===1;});
+    var st=0,wh=0,fps=0,ozs=0,hard=0;
+    var oz=[],bbe=[],velos=[],fbv=[],relh=[],byT={};
+    rs.forEach(function(r){
+      var c=G(r,'call'), iz=inZone(r);
+      if(isStrike(c))st++;
+      if(isWhiff(c))wh++;
+      if(iz===false){oz.push(r);if(isSwing(c))ozs++;}
+      var ev=num(G(r,'ev'));
+      if(ev!==null){bbe.push(ev);if(ev>=95)hard++;}
+      var v=num(G(r,'velo'));
+      if(v!==null)velos.push(v);
+      var h=num(G(r,'relh'));
+      if(h!==null)relh.push(h);
+      var p=PT(r);
+      if(p!=='Untracked'){
+        (byT[p]=byT[p]||[]).push(r);
+        if((p==='Fastball'||p==='Sinker')&&v!==null)fbv.push(v);
+      }
+    });
+    fp.forEach(function(r){if(isStrike(G(r,'call')))fps++;});
+
+    var best='', keys=Object.keys(byT);
+    var cands=keys.filter(function(k){return byT[k].length>=3;});
+    function wr(k){return byT[k].filter(function(r){return isWhiff(G(r,'call'));}).length/byT[k].length;}
+    function sr(k){return byT[k].filter(function(r){return isStrike(G(r,'call'));}).length/byT[k].length;}
+    if(cands.length){
+      var b=cands.sort(function(a,c){return wr(c)-wr(a)||byT[c].length-byT[a].length;})[0];
+      if(wr(b)>0)best=abbr(b)+' '+Math.round(wr(b)*100)+'% miss';
+    }
+    if(!best&&keys.length){
+      var t=keys.sort(function(a,c){return byT[c].length-byT[a].length;})[0];
+      best=abbr(t)+' '+Math.round(sr(t)*100)+'% strikes';
+    }
+
+    /* One pitcher, one arm slot. A wide release spread means two pitchers'
+       data landed under one name in the tagger. */
+    var flag=null;
+    if(relh.length>3){
+      var m=avg(relh);
+      var sd=Math.sqrt(avg(relh.map(function(x){return (x-m)*(x-m);})));
+      if(sd>0.5)flag=Math.min.apply(null,relh).toFixed(2)+'-'+Math.max.apply(null,relh).toFixed(2)+' ft';
+    }
+    /* A slow fastball with run gets auto-classified as a changeup, so filtering
+       on the Fastball/Sinker label leaves this blank for exactly the pitchers
+       who need watching. Fall back to the fastest pitch type he actually threw. */
+    var fbAvg=fbv.length?avg(fbv):null;
+    if(fbAvg===null){
+      var bestGrp=null;
+      keys.forEach(function(k){
+        var vs=byT[k].map(function(r){return num(G(r,'velo'));}).filter(function(x){return x!==null;});
+        if(vs.length<3)return;
+        var a=avg(vs);
+        if(!bestGrp||a>bestGrp.a)bestGrp={a:a,k:k};
+      });
+      if(bestGrp)fbAvg=bestGrp.a;
+    }
+    return {name:n,np:np,bf:fp.length,st:[st,np],fps:[fps,fp.length],wh:[wh,np],
+            ch:[ozs,oz.length],hh:[hard,bbe.length],
+            top:velos.length?Math.max.apply(null,velos):null,
+            fb:fbAvg,best:best,flag:flag};
+  }).sort(function(a,b){return b.np-a.np;});
+}
+
+function hitterRows(rows){
+  var by={};
+  rows.forEach(function(r){var n=G(r,'batter')||'Unknown';(by[n]=by[n]||[]).push(r);});
+  return Object.keys(by).map(function(n){
+    var rs=by[n],pa=0,sw=0,wh=0,oz=0,ozs=0,iz=0,izs=0,hard=0,bbe=0,evs=[];
+    var H=0,AB=0,BB=0,HBP=0,K=0,d2=0,d3=0,HR=0;
+    rs.forEach(function(r){
+      var c=G(r,'call'), z=inZone(r);
+      if(num(G(r,'pofpa'))===1)pa++;
+      if(isSwing(c))sw++;
+      if(isWhiff(c))wh++;
+      if(z===true){iz++;if(isSwing(c))izs++;}
+      if(z===false){oz++;if(isSwing(c))ozs++;}
+      var ev=num(G(r,'ev')), la=num(G(r,'la'));
+      if(ev!==null){
+        bbe++;evs.push(ev);
+        if(ev>=95)hard++;
+      }
+      var kb=G(r,'korbb'), pr=G(r,'result');
+      if(kb==='Strikeout'){K++;AB++;}
+      else if(kb==='Walk')BB++;
+      if(c==='HitByPitch')HBP++;
+      if(pr&&pr!=='Undefined'){
+        AB++;
+        if(pr==='Single')H++;
+        else if(pr==='Double'){H++;d2++;}
+        else if(pr==='Triple'){H++;d3++;}
+        else if(pr==='HomeRun'||pr==='Home Run'){H++;HR++;}
+      }
+    });
+    var parts=[];
+    if(AB>0)parts.push(H+'-'+AB);
+    if(HR)parts.push((HR>1?HR+' ':'')+'HR');
+    if(d3)parts.push((d3>1?d3+' ':'')+'3B');
+    if(d2)parts.push((d2>1?d2+' ':'')+'2B');
+    if(BB)parts.push((BB>1?BB+' ':'')+'BB');
+    if(HBP)parts.push((HBP>1?HBP+' ':'')+'HBP');
+    if(K)parts.push((K>1?K+' ':'')+'K');
+    /* Zone minus chase: swings at strikes less swings at balls, in points.
+       Both halves are pitch-level, so it holds up on a single game. */
+    var zo=(iz&&oz)?((100*izs/iz)-(100*ozs/oz)):null;
+    return {name:n,pa:pa,sw:[sw,rs.length],wh:[wh,sw],ch:[ozs,oz],iz:[izs,iz],
+            zo:zo,zoOK:(iz>=3&&oz>=4),
+            hh:[hard,bbe],
+            mev:evs.length?Math.max.apply(null,evs):null,
+            ppa:pa?rs.length/pa:null,
+            res:parts.join(', ')};
+  }).sort(function(a,b){return b.pa-a.pa;});
+}
+
+/* ---------- shared cell descriptors ----------
+   Thresholds live here only. The on-page table and the workbook both render
+   from these, so the two can never disagree about what counts as red. */
+var XC={navy:'FF1A3A5C',hdr:'FFDDE5EE',grn:'FFD6EFD8',yel:'FFFFF2CC',red:'FFF8D7DA',
+        ink:'FF1A1A2E',gray:'FF999999',mute:'FF6B5F47'};
+var FILLARGB={g:XC.grn,y:XC.yel,r:XC.red};
+
+function dRate(pair,good,bad,invert,dim,minD,neutral){
+  var n=pair[0], d=pair[1];
+  if(!d)return{v:'\u2014',c:null,dim:true};
+  var p=100*n/d, txt=Math.round(p)+'% ('+n+'/'+d+')';
+  /* neutral = informational column. dim / thin denominator = withhold the verdict. */
+  if(neutral||dim||d<(minD||1))return{v:txt,c:null,dim:dim};
+  var g=invert?(p<=good):(p>=good), b=invert?(p>=bad):(p<=bad);
+  return{v:txt,c:g?'g':(b?'r':'y'),dim:false};
+}
+function dNum(v,good,bad,dim){
+  if(v===null||v===undefined)return{v:'\u2014',c:null,dim:true};
+  var val=Math.round(v*10)/10;
+  return{v:val,fmt:'0.0',c:dim?null:(v>=good?'g':(v<=bad?'r':'y')),dim:dim};
+}
+function dSigned(v,good,bad,dim,ok){
+  if(v===null||v===undefined)return{v:'\u2014',c:null,dim:true};
+  var val=Math.round(v);
+  return{v:val,fmt:'+0;-0;0',c:(dim||!ok)?null:(val>=good?'g':(val<=bad?'r':'y')),dim:dim};
+}
+function dText(v,dim){return{v:(v===null||v===undefined||v==='')?'\u2014':v,c:null,dim:dim,left:true};}
+function dPlain(v,dim,dec){
+  if(v===null||v===undefined||v==='')return{v:'\u2014',c:null,dim:true};
+  if(typeof v==='number'&&dec!==undefined)v=Math.round(v*Math.pow(10,dec))/Math.pow(10,dec);
+  return{v:v,c:null,dim:dim};
+}
+
+var PHEAD=['PITCHER','Pitches','Batters','Strikes','1st Pitch Strikes','Swing & Miss','Chases','Hard Hit','Top Velo','FB Velo','Best Pitch'];
+function pitchCells(d){
+  var dim=d.np<10;
+  return[dText(d.name+(d.flag?'  (!)':''),dim),
+         dPlain(d.np,dim),dPlain(d.bf,dim),
+         dRate(d.st,65,55,false,dim,1),
+         dRate(d.fps,60,50,false,dim,4),
+         dRate(d.wh,12,7,false,dim,10),
+         dRate(d.ch,30,20,false,dim,6),
+         dRate(d.hh,25,35,true,dim,4),
+         dPlain(d.top,dim,1),dPlain(d.fb,dim,1),
+         dText(d.best,dim)];
+}
+function hhead(){
+  return['HITTER','PA','Pitches / PA','Swings','Swing & Miss','Swings in Zone','Chases',
+         'Zone - Chase ('+zoBand()[2]+')','Hard Hit','Max Exit Velo','Results'];
+}
+/* One intersquad is noisy enough that +50 is the honest green line. Pooling
+   games tightens the distribution, so the band walks toward the season ZO%
+   scale (+5 / 0) as more games are selected. */
+function zoBand(){
+  var n=SEL_GAMES||1;
+  if(n>=4)return[5,0,'season'];
+  if(n>=2)return[30,10,n+' games'];
+  return[50,20,'game'];
+}
+var SEL_GAMES=1;
+function hitCells(d){
+  var dim=d.pa<2;
+  var zb=zoBand();
+  return[dText(d.name,dim),
+         dPlain(d.pa,dim),
+         dNum(d.ppa,4.0,3.0,dim),
+         dRate(d.sw,0,0,false,dim,1,true),
+         dRate(d.wh,20,30,true,dim,6),
+         dRate(d.iz,0,0,false,dim,1,true),
+         dRate(d.ch,20,30,true,dim,6),
+         dSigned(d.zo,zb[0],zb[1],dim,d.zoOK),
+         dRate(d.hh,35,20,false,dim,4),
+         dPlain(d.mev,dim,1),
+         dText(d.res,dim)];
+}
+function noteText(){
+  return'Percentages show the count behind them. Uncolored cells had too few chances to judge. '+
+        'FB Velo falls back to the fastest pitch type when no fastball is classified. '+
+        'Gray rows are small samples (under 10 pitches / 2 PA). Zone - Chase band: green +'+zoBand()[0]+
+        ', red +'+zoBand()[1]+' (scaled to '+(SEL_GAMES||1)+' game'+((SEL_GAMES||1)>1?'s':'')+'). Pitch types from '+
+        (TAGSRC==='tagged'?'live tags':'TrackMan auto-classification')+'.';
+}
+function flagNote(){
+  return'(!) Release height varies more than one arm slot allows - these pitches may be logged under the wrong pitcher.';
+}
+
+/* ---------- on-page table ---------- */
+function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showCell(c){
+  if(c.fmt==='0.0')return Number(c.v).toFixed(1);
+  if(c.fmt==='+0;-0;0')return(c.v>0?'+':'')+c.v;
+  return esc(c.v);
+}
+function renderTableHTML(head,rows,cellFn){
+  var h='<div class="table-wrap"><table class="rep"><thead><tr>';
+  head.forEach(function(t){h+='<th>'+esc(t)+'</th>';});
+  h+='</tr></thead><tbody>';
+  rows.forEach(function(d){
+    h+='<tr>';
+    cellFn(d).forEach(function(c){
+      var cls=[];
+      if(c.c)cls.push(c.c);
+      if(c.dim)cls.push('dim');
+      h+='<td'+(cls.length?' class="'+cls.join(' ')+'"':'')+'>'+showCell(c)+'</td>';
+    });
+    h+='</tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+function renderPreview(P,H,game,nPitches){
+  var anyFlag=P.some(function(d){return d.flag;});
+  var h='<div class="rep-title">'+esc(gameLabel(game))+'</div>'+
+        '<div class="rep-sub">Murray State &middot; '+esc(String(game.date||'').slice(0,10))+
+        ' &middot; '+nPitches+' pitches &middot; TrackMan</div>'+
+        '<div class="rep-legend">'+
+        '<span><i class="rep-sw" style="background:#d6efd8"></i>Good</span>'+
+        '<span><i class="rep-sw" style="background:#fff2cc"></i>OK</span>'+
+        '<span><i class="rep-sw" style="background:#f8d7da"></i>Needs work</span></div>'+
+        '<div class="rep-band">Pitching ('+P.length+')</div>'+
+        renderTableHTML(PHEAD,P,pitchCells)+
+        '<div class="rep-band">Hitting ('+H.length+')</div>'+
+        renderTableHTML(hhead(),H,hitCells)+
+        '<div class="rep-note">'+esc(noteText())+(anyFlag?' '+esc(flagNote()):'')+'</div>';
+  document.getElementById('report').innerHTML=h;
+  document.getElementById('report').style.display='block';
+  document.getElementById('idle').style.display='none';
+}
+
+/* ---------- Excel ---------- */
+function boxB(){var t={style:'thin',color:{argb:'FFC9BFA6'}};return{top:t,left:t,right:t,bottom:t};}
+function fillOf(c){return{type:'pattern',pattern:'solid',fgColor:{argb:c}};}
+function writeCell(cell,c){
+  cell.value=c.v;
+  if(c.fmt)cell.numFmt=c.fmt;
+  cell.border=boxB();
+  cell.font={name:'Arial',size:10,bold:!!c.left,color:{argb:c.dim?XC.gray:XC.ink}};
+  cell.alignment={horizontal:c.left?'left':'center',vertical:'middle'};
+  if(c.c)cell.fill=fillOf(FILLARGB[c.c]);
+}
+
+async function buildWorkbookBuffer(P,H){
+  var wb=new ExcelJS.Workbook();
+  var ws=wb.addWorksheet('Game Report');
+  var NC=11;
+  ws.columns=[{width:22},{width:8},{width:11},{width:13},{width:13},{width:13},
+              {width:13},{width:13},{width:14},{width:14},{width:16}];
+
+  ws.mergeCells(1,1,1,NC);
+  var t=ws.getCell(1,1);
+  t.value=(gameLabel(LASTGAME)||'').toUpperCase();
+  t.font={name:'Arial',bold:true,size:16,color:{argb:XC.navy}};
+  t.alignment={horizontal:'left',vertical:'middle'};
+  ws.getRow(1).height=24;
+
+  ws.mergeCells(2,1,2,NC);
+  var sub=ws.getCell(2,1);
+  sub.value='Murray State  \u00b7  '+String(LASTGAME.date||'').slice(0,10)+'  \u00b7  '+LASTROWS.length+' pitches  \u00b7  TrackMan';
+  sub.font={name:'Arial',size:9,color:{argb:XC.mute}};
+
+  var r=4;
+  function band(text){
+    ws.mergeCells(r,1,r,NC);
+    var c=ws.getCell(r,1);
+    c.value=text;c.fill=fillOf(XC.navy);
+    c.font={name:'Arial',bold:true,size:11,color:{argb:'FFFFFFFF'}};
+    c.alignment={horizontal:'left',vertical:'middle'};
+    ws.getRow(r).height=20;r++;
+  }
+  function head(list){
+    list.forEach(function(h,i){
+      var c=ws.getCell(r,i+1);
+      c.value=h;c.fill=fillOf(XC.hdr);
+      c.font={name:'Arial',bold:true,size:9,color:{argb:XC.navy}};
+      c.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+      c.border=boxB();
+    });
+    ws.getRow(r).height=28;r++;
+  }
+  function body(rows,cellFn){
+    rows.forEach(function(d){
+      cellFn(d).forEach(function(c,i){writeCell(ws.getCell(r,i+1),c);});
+      r++;
+    });
+  }
+
+  band('PITCHING'); head(PHEAD); body(P,pitchCells);
+  r++;
+  band('HITTING');  head(hhead()); body(H,hitCells);
+
+  r++;
+  [['  GOOD  ',XC.grn],['  OK  ',XC.yel],['  NEEDS WORK  ',XC.red]].forEach(function(pair,i){
+    var c=ws.getCell(r,1+i*2);
+    c.value=pair[0];c.fill=fillOf(pair[1]);
+    c.font={name:'Arial',size:9,bold:true};
+    c.alignment={horizontal:'center',vertical:'middle'};c.border=boxB();
+  });
+  r++;
+  ws.mergeCells(r,1,r,NC);
+  var note=ws.getCell(r,1);
+  note.value=noteText();
+  note.font={name:'Arial',size:8,italic:true,color:{argb:XC.mute}};
+  if(P.some(function(d){return d.flag;})){
+    r++;
+    ws.mergeCells(r,1,r,NC);
+    var fn=ws.getCell(r,1);
+    fn.value=flagNote();
+    fn.font={name:'Arial',size:8,italic:true,color:{argb:'FFB05000'}};
+  }
+
+  ws.views=[{state:'frozen',xSplit:1}];
+  ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1,horizontalCentered:true};
+  return await wb.xlsx.writeBuffer();
+}
+
+/* The workbook is built when the report is built, not on the save press:
+   iOS Safari cancels a download that starts after an await. */
+async function buildReport(){
+  var ids=getSelectedGames();
+  if(!ids.length)ids=gamesMeta.map(function(g){return g.game_id;});
+  if(!ids.length)return;
+  var picked=gamesMeta.filter(function(g){return ids.indexOf(g.game_id)>-1;});
+  if(!picked.length){setMsg('No games matched');return;}
+  TAGSRC=document.getElementById('tagSel').value;
+  var btn=document.getElementById('buildBtn'), orig='Build Report \u2192';
+  var xbtn=document.getElementById('xlsxBtn');
+  btn.disabled=true;xbtn.disabled=true;XLBLOB=null;
+  try{
+    if(typeof ExcelJS==='undefined')throw new Error('ExcelJS did not load - check connection or content blocker');
+    var rows=[];
+    for(var i=0;i<picked.length;i++){
+      btn.textContent='Loading '+(i+1)+' of '+picked.length+'...';
+      var part=await supaFetch('pitches?GameID=eq.'+encodeURIComponent(picked[i].game_id));
+      rows=rows.concat(part);
+    }
+    if(!rows.length)throw new Error('No pitches found for the selected game(s)');
+    SEL_GAMES=picked.length;
+    LASTROWS=rows;LASTGAME=pooledGame(picked);LASTSCOPE=document.getElementById('teamSel').value;
+    buildNorm(rows[0]);
+    var mine=function(t){return /mur/i.test(t||'');};
+    var sc=LASTSCOPE;
+    var pR=rows.filter(function(r){var t=G(r,'pTeam');return sc==='all'?true:(sc==='mur'?mine(t):!mine(t));});
+    var bR=rows.filter(function(r){var t=G(r,'bTeam');return sc==='all'?true:(sc==='mur'?mine(t):!mine(t));});
+    var P=pitcherRows(pR), H=hitterRows(bR);
+
+    btn.textContent='Building...';
+    var buf=await buildWorkbookBuffer(P,H);
+    XLBLOB=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    XLNAME=(gameLabel(LASTGAME)||'Game').replace(/[^A-Za-z0-9]+/g,'_').slice(0,60)+'_Report.xlsx';
+
+    renderPreview(P,H,LASTGAME,rows.length);
+
+    xbtn.disabled=false;
+    setMsg(rows.length+' pitches \u00b7 '+picked.length+' game'+(picked.length>1?'s':''));
+    window.scrollTo(0,0);
+  }catch(e){
+    setMsg(e.message);
+    document.getElementById('idle').style.display='block';
+    document.getElementById('idle').textContent=e.message;
+    document.getElementById('report').style.display='none';
+  }
+  btn.textContent=orig;btn.disabled=false;
+}
+
+/* A pooled selection still needs one label and one date for the header. */
+function pooledGame(picked){
+  if(picked.length===1)return picked[0];
+  var dates=picked.map(function(g){return String(g.date||'').slice(0,10);}).filter(Boolean).sort();
+  var lo=dates[0]||'', hi=dates[dates.length-1]||'';
+  var span=(lo===hi)?lo:(lo+' to '+hi);
+  return{game_id:picked.map(function(g){return g.game_id;}).join(','),
+         date:lo,
+         display_name:picked.length+' Games \u00b7 '+span,
+         season:picked[0].season,game_type:picked[0].game_type};
+}
+
+function downloadBlob(blob,name){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download=name;a.rel='noopener';
+  document.body.appendChild(a);          // Safari ignores a click on a detached anchor
+  a.click();
+  setTimeout(function(){
+    if(a.parentNode)a.parentNode.removeChild(a);
+    URL.revokeObjectURL(url);
+  },4000);
+}
+function saveExcel(){
+  if(!XLBLOB){setMsg('Build the report first');return;}
+  var file=null;
+  try{ file=new File([XLBLOB],XLNAME,{type:XLBLOB.type}); }catch(e){}
+  // Share files only - passing a title makes iOS save it as a second text file.
+  if(file&&navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file]}).catch(function(){downloadBlob(XLBLOB,XLNAME);});
+    return;
+  }
+  downloadBlob(XLBLOB,XLNAME);
+}
+
+/* ---------- wiring ---------- */
+function seasonLabel(s){
+  var m=String(s).match(/^(\d{4})-(\w+)$/);
+  if(!m)return s;
+  return m[1]+' '+m[2].charAt(0).toUpperCase()+m[2].slice(1);
+}
+function seasonHasRealGames(s){
+  return allGamesMeta.some(function(g){return (g.season||'')===s&&(g.game_type||'game')==='game';});
+}
+function initSeasonUI(){
+  var seasons=[];
+  allGamesMeta.forEach(function(g){var s=g.season||'unknown';if(seasons.indexOf(s)<0)seasons.push(s);});
+  seasons.sort();
+  var newest=null,newestDate='';
+  allGamesMeta.forEach(function(g){if((g.date||'')>=newestDate){newestDate=g.date||'';newest=g.season;}});
+  if(!_qs.get('season')&&newest)CURRENT_SEASON=newest;
+  if(!_qs.get('type')&&!_qs.get('intersquad')&&!seasonHasRealGames(CURRENT_SEASON))GAME_TYPE_MODE='intersquad';
+  var sel=document.getElementById('seasonSel');
+  sel.innerHTML='';
+  seasons.forEach(function(s){
+    var o=document.createElement('option');o.value=s;o.textContent=seasonLabel(s);
+    if(s===CURRENT_SEASON)o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById('typeSel').value=GAME_TYPE_MODE;
+  document.getElementById('hdrSeason').textContent='Murray State \u00b7 '+seasonLabel(CURRENT_SEASON);
+}
+function filterSeasonGames(){
+  return allGamesMeta.filter(function(g){
+    if((g.season||'')!==CURRENT_SEASON)return false;
+    var gt=(g.game_type||'game');
+    if(GAME_TYPE_MODE==='game')return gt==='game';
+    if(GAME_TYPE_MODE==='intersquad')return gt!=='game';
+    return true;
+  });
+}
+function toggleDD(id){
+  var el=document.getElementById(id);
+  var open=el.classList.contains('open');
+  var all=document.querySelectorAll('.dd-wrap.open');
+  for(var i=0;i<all.length;i++)all[i].classList.remove('open');
+  if(!open)el.classList.add('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest||!e.target.closest('.dd-wrap')){
+    var all=document.querySelectorAll('.dd-wrap.open');
+    for(var i=0;i<all.length;i++)all[i].classList.remove('open');
+  }
+});
+function getSelectedGames(){
+  var cbs=document.querySelectorAll('#gameDDMenu input[type=checkbox]:checked');
+  return Array.prototype.map.call(cbs,function(cb){return cb.value;});
+}
+function updateGameLabel(){
+  var n=getSelectedGames().length;
+  document.getElementById('gameDDLabel').textContent=
+    n===0?('All games ('+gamesMeta.length+')'):(n+' game'+(n>1?'s':'')+' selected');
+  XLBLOB=null;
+  document.getElementById('xlsxBtn').disabled=true;
+}
+function populateGameSel(){
+  gamesMeta=filterSeasonGames().slice().sort(function(a,b){return(b.date||'')<(a.date||'')?-1:1;});
+  var menu=document.getElementById('gameDDMenu');
+  menu.innerHTML='';
+  gamesMeta.forEach(function(g){
+    var item=document.createElement('div');item.className='dd-item';
+    var cb=document.createElement('input');cb.type='checkbox';cb.value=g.game_id;
+    cb.addEventListener('change',function(){
+      item.classList.toggle('checked',cb.checked);updateGameLabel();
+    });
+    item.appendChild(cb);
+    var lbl=document.createElement('span');lbl.textContent=gameLabel(g);
+    item.appendChild(lbl);
+    item.addEventListener('click',function(e){
+      if(e.target!==cb){cb.checked=!cb.checked;item.classList.toggle('checked',cb.checked);updateGameLabel();}
+    });
+    menu.appendChild(item);
+  });
+  setMsg(gamesMeta.length+' games');
+  document.getElementById('buildBtn').disabled=!gamesMeta.length;
+  updateGameLabel();
+}
+function onSeasonChange(){
+  CURRENT_SEASON=document.getElementById('seasonSel').value;
+  GAME_TYPE_MODE=document.getElementById('typeSel').value;
+  document.getElementById('hdrSeason').textContent='Murray State \u00b7 '+seasonLabel(CURRENT_SEASON);
+  XLBLOB=null;
+  document.getElementById('xlsxBtn').disabled=true;
+  populateGameSel();
+}
+
+async function boot(){
+  try{
+    setProgress(15,'Loading games...');
+    allGamesMeta=await supaFetch('games?select=game_id,display_name,date,season,game_type&order=date.asc,display_name.asc');
+    setProgress(80,'Building filters...');
+    initSeasonUI();
+    populateGameSel();
+    setProgress(100,'Ready');
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('main-screen').style.display='block';
+    document.getElementById('bottomBar').style.display='flex';
+  }catch(e){
+    document.getElementById('loadMsg').textContent='Error: '+e.message;
+  }
+}
+boot();
+</script>
+
+</body>
+</html>

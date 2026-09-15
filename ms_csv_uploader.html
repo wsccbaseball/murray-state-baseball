@@ -55,6 +55,7 @@
 <div class="header">
   <h1>&#x26BE; Murray State Baseball</h1>
   <p>TrackMan CSV Uploader</p>
+  <p style="font-size:11px;color:#666;margin-top:6px;max-width:420px;margin-left:auto;margin-right:auto;">Display names tag games for dropdowns. Trusted Edge upload (secret path) is documented in TRUSTED-UPLOAD-MSU.md — current page still uses direct REST upload.</p>
 </div>
 
 <div class="card">
@@ -79,7 +80,6 @@
     <h3>&#x1F4CB; Save Game Info</h3>
     <p>Pitches uploaded! Save game details so the report tools can find this game in the dropdown.</p>
 
-```
 <div class="form-group">
   <label>Game ID (detected from CSV)</label>
   <div class="game-id-box" id="modalGameId">—</div>
@@ -91,7 +91,8 @@
 
 <div class="form-group">
   <label>Display Name</label>
-  <input type="text" id="modalDisplayName" placeholder="e.g. Belmont Game 1">
+  <input type="text" id="modalDisplayName" placeholder="e.g. Midweek — Belmont Game 1" autocorrect="off" autocapitalize="words" spellcheck="false">
+  <div class="hint">How this game appears in report dropdowns (Racers tools).</div>
 </div>
 
 <div class="form-group">
@@ -104,7 +105,6 @@
   <button class="btn-skip" onclick="closeModal()">Skip</button>
 </div>
 <div class="modal-log" id="modalLog"></div>
-```
 
   </div>
 </div>
@@ -313,10 +313,13 @@
     document.getElementById('modalSaveBtn').disabled = false;
     document.getElementById('modalSaveBtn').textContent = 'Save Game';
 
-    // Auto-suggest display name from away team
-    document.getElementById('modalDisplayName').value = away
-      ? away.replace(/\b\w/g, function(c) { return c.toUpperCase(); })
-      : '';
+    // Auto-suggest display name from away/home (prefer opponent vs Murray)
+    var home = (detectedGame.home_team || '').replace(/_/g, ' ');
+    var opp = away;
+    if (/mur/i.test(away) && home) opp = home;
+    else if (/mur/i.test(home) && away) opp = away;
+    var nice = (opp || away || home || '').replace(/\b\w/g, function(c) { return c.toUpperCase(); }).trim();
+    document.getElementById('modalDisplayName').value = nice ? (nice + ' Game 1') : '';
 
     // Check if already exists
     document.getElementById('alreadyExistsMsg').style.display = 'none';

@@ -6,6 +6,7 @@
 <title>MS Season Pitching</title>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -104,6 +105,12 @@ canvas{display:block;border-radius:4px}
 
 #stuffTbl td,#stuffTbl th{min-width:0;width:46px;max-width:46px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;padding:6px 2px}
 #stuffTbl td:first-child,#stuffTbl th[rowspan]{width:110px;max-width:110px;min-width:110px;font-size:.82rem}
+
+.save-all-tip { font-size:12px; color:#555; margin-top:4px; text-align:center; line-height:1.35; }
+.save-all-bar { max-width:520px; margin:10px auto 0; padding:0 12px 16px; }
+.save-all-bar .save-btn { width:100%; background:linear-gradient(135deg,#002147,#003d7a); color:#CFB53B; border:none; border-radius:8px; padding:12px; font-family:'Anton',sans-serif; letter-spacing:.06em; font-size:.9rem; cursor:pointer; }
+.save-all-bar .save-btn:disabled { opacity:.5; cursor:not-allowed; }
+
 </style>
 </head>
 <body>
@@ -245,6 +252,13 @@ canvas{display:block;border-radius:4px}
   <div class="sel-hint" id="selHint">Tap a pitcher to select</div>
   <button class="gen-btn" id="genCardBtn" disabled onclick="buildCard()">Generate Season Card &rarr;</button>
 </div>
+
+<div class="save-all-bar" id="saveAllWrap" style="display:none">
+  <button class="save-btn" id="saveAllBtn" onclick="saveAllRacerSeasonPitcherCards()">SAVE ALL RACER CARDS (ZIP)</button>
+  <div id="saveAllStatus" style="text-align:center;margin-top:6px;font-size:13px;color:#002147;"></div>
+  <div class="save-all-tip">Zips season cards for Murray/Racer pitchers in the current filter view.</div>
+</div>
+
 
 <div class="img-overlay" id="imgOverlay" onclick="closeOverlay()">
   <img id="overlayImg" src="" alt="Season Card">
@@ -486,10 +500,11 @@ function buildCard(){
   },30);
   document.getElementById('main-screen').style.display='none';
   document.getElementById('card-screen').style.display='block';
+  var _sawHide=document.getElementById('saveAllWrap');if(_sawHide)_sawHide.style.display='none';
   window.scrollTo(0,0);
 }
 
-function showSelect(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';}
+function showSelect(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';}
 async function saveCard(){var card=document.getElementById('card'),btn=card.querySelector('.save-btn'),orig=btn.textContent;btn.textContent='Rendering...';btn.disabled=true;try{var canvas=await html2canvas(card,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#ffffff',scrollX:0,scrollY:-window.scrollY,ignoreElements:function(el){return el===btn;}});document.getElementById('overlayImg').src=canvas.toDataURL('image/png');document.getElementById('imgOverlay').classList.add('active');}catch(e){alert('Render failed.');}btn.textContent=orig;btn.disabled=false;}
 function closeOverlay(){document.getElementById('imgOverlay').classList.remove('active');}
 
@@ -513,7 +528,7 @@ async function boot(){
     rebuildTableData(allPitches);populatePitcherFilter();renderTable();
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('main-screen').style.display='block';
-    document.getElementById('bottomBar').style.display='flex';
+    document.getElementById('bottomBar').style.display='flex';var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';
   }catch(e){document.getElementById('loadMsg').textContent='Error: '+e.message;console.error(e);}
 }
 
@@ -626,7 +641,7 @@ function renderTable(){
 }
 }
 function sortTable(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=false;}renderTable();}
-function showMain(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';document.getElementById('bottomBar').style.display='flex';selectedPitcher=null;document.getElementById('genCardBtn').disabled=true;document.getElementById('selHint').textContent='Tap a pitcher to select';}
+function showMain(){document.getElementById('card-screen').style.display='none';document.getElementById('main-screen').style.display='block';document.getElementById('bottomBar').style.display='flex';var _saw=document.getElementById('saveAllWrap');if(_saw)_saw.style.display='block';selectedPitcher=null;document.getElementById('genCardBtn').disabled=true;document.getElementById('selHint').textContent='Tap a pitcher to select';}
 
 // ── PDF Pitching Season Stats ─────────────────────────────────
 document.addEventListener('DOMContentLoaded',function(){
@@ -950,6 +965,74 @@ function buildTrendTable(){
   if(!gameIds.length)html+='<tr><td colspan="14" class="no-data">No games found</td></tr>';
   html+='</tbody></table></div>';
   screen.innerHTML=html;
+}
+
+
+function _delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+function _canvasToBlob(canvas){
+  return new Promise(function(resolve){
+    if (canvas.toBlob) { canvas.toBlob(function(blob){ resolve(blob); }, 'image/png'); }
+    else {
+      var dataUrl = canvas.toDataURL('image/png');
+      var bin = atob(dataUrl.split(',')[1]);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], {type:'image/png'}));
+    }
+  });
+}
+function _sanitizeFilePart(s){
+  return String(s || '').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') || 'Season';
+}
+
+async function saveAllRacerSeasonPitcherCards(){
+  if (typeof JSZip === 'undefined') { alert('JSZip failed to load. Check your connection and reload.'); return; }
+  var selectedPitchers = (typeof getSelectedPitchers === 'function') ? getSelectedPitchers() : [];
+  var list = (tableData || []).filter(function(p){
+    return p.totalPitches > 0 && (!selectedPitchers.length || selectedPitchers.includes(p.name));
+  });
+  if (!list.length) { alert('No Murray State pitchers in the current view.'); return; }
+  var btn = document.getElementById('saveAllBtn');
+  var status = document.getElementById('saveAllStatus');
+  var prev = selectedPitcher;
+  btn.disabled = true;
+  var zip = new JSZip();
+  var added = 0;
+  try {
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      status.textContent = (i+1) + '/' + list.length + ' Rendering ' + (p.displayName || p.name) + '...';
+      selectedPitcher = p.name;
+      document.getElementById('main-screen').style.display = 'none';
+      document.getElementById('card-screen').style.display = 'block';
+      buildCard();
+      await _delay(350);
+      var card = document.getElementById('card');
+      var canvas = await html2canvas(card, {scale:2, useCORS:true, allowTaint:true, backgroundColor:'#ffffff', scrollX:0, scrollY:-window.scrollY, ignoreElements:function(el){ return el.classList && el.classList.contains('save-btn'); }});
+      var blob = await _canvasToBlob(canvas);
+      if (!blob) continue;
+      var label = (p.displayName || p.name || 'Pitcher').replace(/\s+/g, '_');
+      zip.file('Racer_' + label + '_season_pitching.png', blob);
+      added++;
+    }
+    if (!added) { status.textContent = 'No cards to zip.'; }
+    else {
+      status.textContent = 'Building ZIP (' + added + ' cards)...';
+      var zipBlob = await zip.generateAsync({type:'blob'});
+      var zipName = 'MUR_Racer_season_pitcher_cards.zip';
+      var url = URL.createObjectURL(zipBlob);
+      var link = document.createElement('a');
+      link.download = zipName; link.href = url;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      status.textContent = '\u2713 ' + added + ' season pitcher cards zipped';
+    }
+  } catch(err) {
+    status.textContent = 'Error: ' + err.message;
+  }
+  selectedPitcher = prev;
+  if (typeof showSelect === 'function') showSelect();
+  btn.disabled = false;
 }
 
 boot();

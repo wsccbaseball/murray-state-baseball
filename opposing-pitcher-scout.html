@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Opposing Pitcher Scout — Murray State Baseball</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Anton&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f2ead8; color: #1a1a1a; font-family: 'Source Serif 4', Georgia, serif; min-height: 100vh; }
+.container { max-width: 900px; margin: 0 auto; padding-bottom: 60px; }
+
+.header { background: #002147; color: #f2ead8; padding: 14px 18px 12px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.header-title { font-family: ‘Abril Fatface’, serif; font-size: 22px; line-height: 1; }
+.header-sub { font-family: ‘Anton’, sans-serif; font-size: 10px; letter-spacing: 2.5px; color: #a89070; margin-top: 3px; text-transform: uppercase; }
+.header-badge { font-family: ‘Anton’, sans-serif; font-size: 10px; letter-spacing: 2px; color: #a89070; border: 1px solid #3a3a3a; padding: 3px 8px; text-transform: uppercase; }
+
+.banner { background: #002147; color: #f2ead8; font-family: ‘Anton’, sans-serif; font-size: 10px; letter-spacing: 2.5px; padding: 5px 16px; text-transform: uppercase; }
+
+.controls { background: #e8e0c8; border-bottom: 1.5px solid #1a1a1a; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.select-wrap { position: relative; }
+.select-wrap::after { content: ‘▾’; position: absolute; right: 12px; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); pointer-events: none; font-size: 14px; color: #5a4a38; }
+select { width: 100%; padding: 9px 32px 9px 12px; font-size: 14px; font-family: ‘Source Serif 4’, Georgia, serif; background: #f2ead8; border: 1.5px solid #1a1a1a; border-radius: 0; color: #1a1a1a; -webkit-appearance: none; appearance: none; cursor: pointer; }
+select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pitcher-header { padding: 12px 16px 10px; border-bottom: 1px solid #c8b89a; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.pitcher-name { font-family: ‘Abril Fatface’, serif; font-size: 20px; line-height: 1.1; }
+.pitcher-team { font-family: ‘Anton’, sans-serif; font-size: 10px; letter-spacing: 2px; color: #7a6a58; margin-top: 2px; text-transform: uppercase; }
+.pitcher-meta { font-family: ‘Anton’, sans-serif; font-size: 10px; letter-spacing: 1.5px; color: #7a6a58; text-align: right; text-transform: uppercase; }
+
+.tab-bar { display: flex; border-bottom: 2px solid #1a1a1a; background: #ede5d0; }
+.tab { padding: 9px 18px; font-family: ‘Anton’, sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; color: #9a8a78; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+.tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.arsenal-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { font-family: ‘Anton’, sans-serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 8px; text-align: center; background: #e0d8c4; border-bottom: 2px solid #1a1a1a; color: #1a1a1a; white-space: nowrap; }
+thead th:first-child { text-align: left; padding-left: 14px; }
+tbody td { padding: 8px; text-align: center; border-bottom: 1px solid #d8cdb8; vertical-align: middle; }
+tbody td:first-child { text-align: left; padding-left: 14px; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #ede5d0; }
+
+.pt-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.pt-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.pt-abbr { font-family: ‘Anton’, sans-serif; font-size: 10px; }
+.pt-name { font-size: 11px; color: #5a4a38; }
+.usage-bar { height: 4px; background: #d8cdb8; border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.usage-fill { height: 100%; border-radius: 2px; }
+
+.count-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #c8b89a; }
+.count-cell { background: #f2ead8; padding: 10px 12px; }
+.count-label { font-family: ‘Anton’, sans-serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #7a6a58; margin-bottom: 5px; }
+.count-n { color: #1a1a1a; font-size: 9px; }
+.count-bar-wrap { display: flex; height: 16px; border-radius: 1px; overflow: hidden; margin-bottom: 5px; background: #d8cdb8; }
+.count-bar-seg { height: 100%; }
+.count-legend { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
+.leg-item { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #3a3a3a; }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.count-no-data { font-style: italic; font-size: 11px; color: #a09080; }
+
+.loc-wrap { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 12px; justify-content: center; background: #f2ead8; }
+.loc-item { text-align: center; }
+.loc-label { font-family: ‘Anton’, sans-serif; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #7a6a58; margin-top: 5px; }
+
+.msg { padding: 28px 20px; text-align: center; color: #9a8a78; font-style: italic; font-size: 13px; }
+.divider { height: 1px; background: #c8b89a; }
+.empty-state { padding: 50px 20px; text-align: center; }
+.empty-state-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+.empty-state-text { font-family: ‘Anton’, sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #9a8a78; }
+</style>
+
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <div class="header-title">Opposing Pitcher Scout</div>
+      <div class="header-sub">Murray State Baseball · TrackMan Analytics</div>
+    </div>
+    <div class="header-badge">Pre-Game Prep</div>
+  </div>
+
+  <div class="controls">
+    <div class="select-wrap">
+      <select id="teamSelect" onchange="onTeamChange()">
+        <option value="">— Loading opponents… —</option>
+      </select>
+    </div>
+    <div class="select-wrap">
+      <select id="pitcherSelect" onchange="onPitcherChange()" disabled>
+        <option value="">— Select Pitcher —</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">
+    <div class="empty-state-icon">⚾</div>
+    <div class="empty-state-text">Select an opponent and pitcher<br>to load scout report</div>
+  </div>
+
+  <div id="reportArea" style="display:none;">
+    <div class="pitcher-header">
+      <div>
+        <div class="pitcher-name" id="pitcherNameDisplay"></div>
+        <div class="pitcher-team" id="pitcherTeamDisplay"></div>
+      </div>
+      <div class="pitcher-meta" id="pitcherMeta"></div>
+    </div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('arsenal')">Arsenal</div>
+  <div class="tab" onclick="switchTab('counts')">By Count</div>
+  <div class="tab" onclick="switchTab('locations')">Locations</div>
+</div>
+
+<div id="tab-arsenal" class="section active">
+  <div class="arsenal-wrap">
+    <div id="arsenalArea"><div class="msg">Loading…</div></div>
+  </div>
+</div>
+<div id="tab-counts" class="section">
+  <div id="countArea"><div class="msg">Loading…</div></div>
+</div>
+<div id="tab-locations" class="section">
+  <div id="locationArea"><div class="msg">Loading…</div></div>
+</div>
+
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://cmljtqgnctrtfszmowtf.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbGp0cWduY3RydGZzem1vd3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NDcwNTcsImV4cCI6MjA5MTQyMzA1N30.hYhsW2WC6iE-0Csx8-gbd0aJzbqj4YnsEcNzqDd_5Sk';
+
+var PITCH_META = {
+  'FourSeamFastBall':{ abbr:'FF', label:'Four-Seam',   color:'#e03030' },
+  'Four-Seam':       { abbr:'FF', label:'Four-Seam',   color:'#e03030' },
+  'Fastball':        { abbr:'FF', label:'Fastball',    color:'#e03030' },
+  'TwoSeamFastBall': { abbr:'SI', label:'Sinker',      color:'#ff7f0e' },
+  'Sinker':          { abbr:'SI', label:'Sinker',      color:'#ff7f0e' },
+  'Cutter':          { abbr:'CT', label:'Cutter',      color:'#e377c2' },
+  'Slider':          { abbr:'SL', label:'Slider',      color:'#2ca02c' },
+  'Curveball':       { abbr:'CB', label:'Curveball',   color:'#1f77b4' },
+  'ChangeUp':        { abbr:'CH', label:'Changeup',    color:'#9467bd' },
+  'Changeup':        { abbr:'CH', label:'Changeup',    color:'#9467bd' },
+  'Splitter':        { abbr:'SP', label:'Splitter',    color:'#8c564b' },
+  'Knuckleball':     { abbr:'KN', label:'Knuckleball', color:'#7f7f7f' },
+  'Other':           { abbr:'OT', label:'Other',       color:'#bcbd22' },
+  'Undefined':       { abbr:'??', label:'Unknown',     color:'#bbbbbb' },
+};
+
+function getMeta(t) { return PITCH_META[t] || { abbr:(t||'??').substring(0,2).toUpperCase(), label:t||'Unknown', color:'#aaaaaa' }; }
+function resolvedType(p) {
+  if (p.TaggedPitchType && p.TaggedPitchType !== 'Undefined' && p.TaggedPitchType.trim() !== '') return p.TaggedPitchType;
+  return p.AutoPitchType || 'Undefined';
+}
+function avg(arr) { var v=arr.filter(function(x){return x!=null&&!isNaN(x);}); if(!v.length)return null; return v.reduce(function(a,b){return a+b;},0)/v.length; }
+function fmt(val,dec) { if(val==null||isNaN(val))return '—'; return val.toFixed(dec!=null?dec:1); }
+
+function sbFetch(table, params) {
+  return fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params, {
+    headers: { 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Accept':'application/json' }
+  }).then(function(res) {
+    if (!res.ok) return res.text().then(function(t){ throw new Error('Supabase '+res.status+': '+t); });
+    return res.json();
+  });
+}
+
+// ── Load teams by sampling pitches table at multiple offsets ──
+// Each request fetches 500 rows at a different point in the table,
+// all in parallel. Covers ~63k rows with 9 samples = full coverage.
+function loadTeams() {
+  var OFFSETS = [0, 500, 1000, 1500, 2000, 2500, 3000];
+
+  var promises = OFFSETS.map(function(offset) {
+    return fetch(
+      SUPABASE_URL+'/rest/v1/pitches?select=PitcherTeam&PitcherTeam=not.eq.MUR_RAC&PitcherTeam=not.is.null&limit=500&offset='+offset,
+      { headers: { 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Accept':'application/json' } }
+    ).then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
+  });
+
+  Promise.all(promises).then(function(pages) {
+    var seen = {};
+    pages.forEach(function(rows) {
+      rows.forEach(function(r) { if (r.PitcherTeam && r.PitcherTeam.trim()) seen[r.PitcherTeam] = true; });
+    });
+    var teams = Object.keys(seen).sort();
+    var sel = document.getElementById('teamSelect');
+    sel.innerHTML = '<option value="">— Select Opponent —</option>';
+    if (!teams.length) {
+      sel.innerHTML = '<option value="">No opponents found</option>';
+      return;
+    }
+    teams.forEach(function(t) {
+      var o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      sel.appendChild(o);
+    });
+  }).catch(function(e) {
+    console.error('loadTeams:', e);
+    document.getElementById('teamSelect').innerHTML = '<option value="">Error loading teams</option>';
+  });
+}
+
+function onTeamChange() {
+  var team = document.getElementById('teamSelect').value;
+  var ps = document.getElementById('pitcherSelect');
+  ps.innerHTML = '<option value="">— Select Pitcher —</option>';
+  ps.disabled = true;
+  document.getElementById('reportArea').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'block';
+  if (!team) return;
+
+  sbFetch('pitches',
+    'select=Pitcher&PitcherTeam=eq.'+encodeURIComponent(team)+'&Pitcher=not.is.null&limit=5000'
+  ).then(function(data) {
+    var seen = {}, pitchers = [];
+    data.forEach(function(r) { if (r.Pitcher && !seen[r.Pitcher]) { seen[r.Pitcher]=true; pitchers.push(r.Pitcher); } });
+    pitchers.sort().forEach(function(p) {
+      var o = document.createElement('option');
+      o.value = p; o.textContent = p;
+      ps.appendChild(o);
+    });
+    ps.disabled = false;
+  }).catch(function(e) { console.error('onTeamChange:', e); });
+}
+
+var currentPitches = [];
+
+function onPitcherChange() {
+  var pitcher = document.getElementById('pitcherSelect').value;
+  var team    = document.getElementById('teamSelect').value;
+  if (!pitcher) return;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('reportArea').style.display = 'block';
+  document.getElementById('pitcherNameDisplay').textContent = pitcher;
+  document.getElementById('pitcherTeamDisplay').textContent = team;
+  document.getElementById('pitcherMeta').textContent = '';
+
+  ['arsenalArea','countArea','locationArea'].forEach(function(id){
+    document.getElementById(id).innerHTML = '<div class="msg">Loading…</div>';
+  });
+  switchTab('arsenal');
+
+  sbFetch('pitches',
+    'select=*&Pitcher=eq.'+encodeURIComponent(pitcher)+
+    '&PitcherTeam=eq.'+encodeURIComponent(team)+
+    '&limit=1000'
+  ).then(function(pitches) {
+    currentPitches = pitches;
+    var seenG = {}, gameIds = [];
+    pitches.forEach(function(p){ var gid = p.GameID || p.game_id; if (gid && !seenG[gid]) { seenG[gid]=true; gameIds.push(gid); } });
+    document.getElementById('pitcherMeta').textContent =
+      gameIds.length+' Game'+(gameIds.length!==1?'s':'')+' · '+pitches.length+' Pitches';
+    renderArsenal(pitches);
+    renderCounts(pitches);
+    renderLocations(pitches);
+  }).catch(function(e) {
+    console.error('onPitcherChange:', e);
+    document.getElementById('arsenalArea').innerHTML = '<div class="msg">Error: '+e.message+'</div>';
+  });
+}
+
+// ── Arsenal ──────────────────────────────────────────────────
+function renderArsenal(pitches){
+  var byType={},total=pitches.length;
+  pitches.forEach(function(p){var pt=resolvedType(p);if(!byType[pt])byType[pt]=[];byType[pt].push(p);});
+  var sorted=Object.entries(byType).sort(function(a,b){return b[1].length-a[1].length;});
+  if(!sorted.length){document.getElementById('arsenalArea').innerHTML='<div class="msg">No pitch data.</div>';return;}
+  var rows=sorted.map(function(e){
+    var pt=e[0],ps=e[1],meta=getMeta(pt),pct=ps.length/total*100;
+    var velos=ps.map(function(p){return p.RelSpeed;}).filter(function(v){return v>0;});
+    var spins=ps.map(function(p){return p.SpinRate;}).filter(function(v){return v>0;});
+    var ivbs=ps.map(function(p){return p.InducedVertBreak;}).filter(function(v){return v!=null&&!isNaN(v);});
+    var hbs=ps.map(function(p){return p.HorzBreak;}).filter(function(v){return v!=null&&!isNaN(v);});
+    return '<tr><td><div class="pt-pill"><div class="pt-swatch" style="background:'+meta.color+'"></div><span class="pt-abbr">'+meta.abbr+'</span><span class="pt-name">'+meta.label+'</span></div></td>'+
+      '<td>'+ps.length+'</td><td><div style="font-weight:600">'+pct.toFixed(1)+'%</div>'+
+      '<div class="usage-bar"><div class="usage-fill" style="width:'+pct.toFixed(1)+'%;background:'+meta.color+'"></div></div></td>'+
+      '<td>'+fmt(avg(velos))+'</td><td>'+(velos.length?Math.max.apply(null,velos).toFixed(1):'—')+'</td>'+
+      '<td>'+fmt(avg(spins),0)+'</td><td>'+fmt(avg(ivbs))+'</td><td>'+fmt(avg(hbs))+'</td></tr>';
+  }).join('');
+  document.getElementById('arsenalArea').innerHTML=
+    '<table><thead><tr><th style="text-align:left">Pitch</th><th>#</th><th>Usage</th><th>Avg V</th><th>Max V</th><th>Spin</th><th>iVB</th><th>HB</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+// ── Count Tendencies ─────────────────────────────────────────
+var COUNT_GROUPS=[
+  {label:'First Pitch',      filter:function(p){return p.Balls===0&&p.Strikes===0;}},
+  {label:"Hitter's Counts",  filter:function(p){var b=p.Balls,s=p.Strikes;return(b===1&&s===0)||(b===2&&s===0)||(b===3&&s===0)||(b===2&&s===1)||(b===3&&s===1);}},
+  {label:'Even Counts',      filter:function(p){return(p.Balls===1&&p.Strikes===1)||(p.Balls===2&&p.Strikes===2);}},
+  {label:"Pitcher's Counts", filter:function(p){var b=p.Balls,s=p.Strikes;return(b===0&&s===1)||(b===0&&s===2)||(b===1&&s===2);}},
+  {label:'Two Strikes',      filter:function(p){return p.Strikes===2;}},
+  {label:'Full Count',       filter:function(p){return p.Balls===3&&p.Strikes===2;}},
+];
+
+function renderCounts(pitches){
+  var cells=COUNT_GROUPS.map(function(g){
+    var sub=pitches.filter(g.filter);
+    if(!sub.length)return '<div class="count-cell"><div class="count-label">'+g.label+'</div><div class="count-no-data">No data</div></div>';
+    var n=sub.length,byType={};
+    sub.forEach(function(p){var pt=resolvedType(p);byType[pt]=(byType[pt]||0)+1;});
+    var sorted=Object.entries(byType).sort(function(a,b){return b[1]-a[1];});
+    var bars=sorted.map(function(e){return '<div class="count-bar-seg" style="width:'+(e[1]/n*100).toFixed(1)+'%;background:'+getMeta(e[0]).color+'"></div>';}).join('');
+    var legend=sorted.slice(0,5).map(function(e){var m=getMeta(e[0]);return '<div class="leg-item"><div class="leg-dot" style="background:'+m.color+'"></div><span>'+m.abbr+' '+(e[1]/n*100).toFixed(0)+'%</span></div>';}).join('');
+    return '<div class="count-cell"><div class="count-label">'+g.label+' <span class="count-n">n='+n+'</span></div><div class="count-bar-wrap">'+bars+'</div><div class="count-legend">'+legend+'</div></div>';
+  }).join('');
+  document.getElementById('countArea').innerHTML='<div class="count-grid">'+cells+'</div>';
+}
+
+// ── Location Maps ────────────────────────────────────────────
+function renderLocations(pitches){
+  var wrap=document.getElementById('locationArea');
+  wrap.innerHTML='';
+  var byType={};
+  pitches.forEach(function(p){var pt=resolvedType(p);if(!byType[pt])byType[pt]=[];byType[pt].push(p);});
+  var sortedTypes=Object.entries(byType).sort(function(a,b){return b[1].length-a[1].length;});
+  var maps=[{label:'All Pitches',pitches:pitches,color:null}].concat(
+    sortedTypes.map(function(e){return{label:getMeta(e[0]).abbr+' — '+getMeta(e[0]).label,pitches:e[1],color:getMeta(e[0]).color};})
+  );
+  var locWrap=document.createElement('div'); locWrap.className='loc-wrap';
+  maps.forEach(function(m){
+    var item=document.createElement('div'); item.className='loc-item';
+    var canvas=document.createElement('canvas'); canvas.width=155; canvas.height=185;
+    canvas.style.cssText='width:155px;height:185px;border:1px solid #c8b89a;';
+    drawZoneMap(canvas,m.pitches,m.color);
+    var lbl=document.createElement('div'); lbl.className='loc-label';
+    lbl.textContent=m.label+' ('+m.pitches.length+')';
+    item.appendChild(canvas); item.appendChild(lbl); locWrap.appendChild(item);
+  });
+  wrap.appendChild(locWrap);
+}
+
+function drawZoneMap(canvas,pitches,singleColor){
+  var ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  var SIDE_MIN=-2.5,SIDE_MAX=2.5,HT_MIN=0.5,HT_MAX=4.5;
+  function toX(s){return(((-s)-SIDE_MIN)/(SIDE_MAX-SIDE_MIN))*W;}
+  function toY(h){return H-((h-HT_MIN)/(HT_MAX-HT_MIN))*H;}
+  ctx.fillStyle='#f9f5ec'; ctx.fillRect(0,0,W,H);
+  var SZ_L=-0.708,SZ_R=0.708,SZ_B=1.5,SZ_T=3.5;
+  ctx.strokeStyle='#c0b0a0'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
+  ctx.strokeRect(toX(SZ_R+0.145),toY(SZ_T+0.145),toX(SZ_L-0.145)-toX(SZ_R+0.145),toY(SZ_B-0.145)-toY(SZ_T+0.145));
+  ctx.setLineDash([]); ctx.strokeStyle='#c0b0a0'; ctx.lineWidth=0.5;
+  var cW=(SZ_R-SZ_L)/3,rH=(SZ_T-SZ_B)/3;
+  for(var i=1;i<3;i++){
+    ctx.beginPath();ctx.moveTo(toX(SZ_L+cW*i),toY(SZ_T));ctx.lineTo(toX(SZ_L+cW*i),toY(SZ_B));ctx.stroke();
+    ctx.beginPath();ctx.moveTo(toX(SZ_L),toY(SZ_B+rH*i));ctx.lineTo(toX(SZ_R),toY(SZ_B+rH*i));ctx.stroke();
+  }
+  ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=1.5;
+  ctx.strokeRect(toX(SZ_R),toY(SZ_T),toX(SZ_L)-toX(SZ_R),toY(SZ_B)-toY(SZ_T));
+  var pW=toX(SZ_L)-toX(SZ_R),pCX=toX(0),pY=toY(0.25);
+  ctx.fillStyle='#bbbbbb'; ctx.strokeStyle='#888'; ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(pCX-pW/2,pY-4);ctx.lineTo(pCX+pW/2,pY-4);ctx.lineTo(pCX+pW/2,pY);ctx.lineTo(pCX,pY+5);ctx.lineTo(pCX-pW/2,pY);ctx.closePath();ctx.fill();ctx.stroke();
+  pitches.forEach(function(p){
+    var side=p.PlateLocSide,ht=p.PlateLocHeight;
+    if(side==null||ht==null||isNaN(side)||isNaN(ht)||Math.abs(side)>3||ht<0||ht>6)return;
+    ctx.globalAlpha=0.5; ctx.fillStyle=singleColor||getMeta(resolvedType(p)).color;
+    ctx.beginPath();ctx.arc(toX(side),toY(ht),2.8,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelector('.tab[onclick="switchTab(\''+name+'\')"]').classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+loadTeams();
+</script>
+
+</body>
+</html>
