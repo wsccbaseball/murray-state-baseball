@@ -255,7 +255,7 @@ flex-shrink: 0;
     SAVE ALL RACER CARDS (ZIP)
   </button>
   <div class="save-status" id="saveAllStatus" style="text-align:center;margin-top:6px;font-size:13px;"></div>
-  <div class="save-all-tip">On iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
+  <div class="save-all-tip">Desktop: zip goes to Downloads. iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
 </div>
 
 <div class="img-overlay" id="imgOverlay" onclick="closeOverlay()">
@@ -786,6 +786,117 @@ function saveImage(){
   },150);
 }
 function closeOverlay(){document.getElementById('imgOverlay').classList.remove('active');}
+
+function _delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+function _canvasToBlob(canvas){
+  return new Promise(function(resolve){
+    if (canvas.toBlob) {
+      canvas.toBlob(function(blob){ resolve(blob); }, 'image/png');
+    } else {
+      var dataUrl = canvas.toDataURL('image/png');
+      var bin = atob(dataUrl.split(',')[1]);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], {type:'image/png'}));
+    }
+  });
+}
+
+function _sanitizeFilePart(s){
+  return String(s || '').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') || 'Game';
+}
+
+function _flipHitterName(b){
+  var parts = String(b || '').split(',');
+  return parts.length > 1 ? parts[1].trim() + ' ' + parts[0].trim() : String(b || 'Hitter');
+}
+
+async function saveAllRacerHitterCards(){
+  var gameSel = document.getElementById('gameSelect');
+  var gameId = gameSel.value;
+  var hitters = window._msuBatters || [];
+  if (!gameId || !hitters.length) {
+    alert('Select a game with Murray State hitters first.');
+    return;
+  }
+  if (typeof JSZip === 'undefined') {
+    alert('JSZip failed to load. Check your connection and reload.');
+    return;
+  }
+
+  var btn = document.getElementById('saveAllBtn');
+  var genBtn = document.getElementById('generateBtn');
+  var status = document.getElementById('saveAllStatus');
+  var batterSel = document.getElementById('batterSelect');
+  var prevBatter = batterSel.value;
+
+  btn.disabled = true;
+  if (genBtn) genBtn.disabled = true;
+
+  var zip = new JSZip();
+  var added = 0;
+  var n = hitters.length;
+
+  try {
+    for (var i = 0; i < n; i++) {
+      var batter = hitters[i];
+      var label = _flipHitterName(batter);
+      status.textContent = (i + 1) + '/' + n + ' Rendering ' + label + '...';
+      batterSel.value = batter;
+      await generate();
+
+      if (document.getElementById('card').style.display === 'none') {
+        continue;
+      }
+
+      // Charts / PA zones draw via setTimeout inside generate — wait for them
+      await _delay(350);
+
+      var card = document.getElementById('card');
+      var canvas = await html2canvas(card, {
+        scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff',
+        scrollX: 0, scrollY: -window.scrollY, logging: false,
+        ignoreElements: function(el){ return el.classList && el.classList.contains('save-btn'); }
+      });
+      var blob = await _canvasToBlob(canvas);
+      if (!blob) continue;
+      var fileName = 'Racer_' + _sanitizeFilePart(label) + '_hitting.png';
+      zip.file(fileName, blob);
+      added++;
+    }
+
+    if (!added) {
+      status.textContent = 'No cards to zip (no pitch data).';
+    } else {
+      status.textContent = 'Building ZIP (' + added + ' cards)...';
+      var zipBlob = await zip.generateAsync({type:'blob'});
+      var opt = gameSel.options[gameSel.selectedIndex];
+      var gameLabel = opt ? (opt.textContent || gameId) : gameId;
+      var zipName = _sanitizeFilePart(gameLabel) + '_Racer_hitter_cards.zip';
+      var url = URL.createObjectURL(zipBlob);
+      var link = document.createElement('a');
+      link.download = zipName;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      status.textContent = '\u2713 ' + added + ' cards zipped';
+      if (/iP(hone|ad|od)/i.test(navigator.userAgent)) {
+        status.textContent += ' \u2014 if zip opens, tap Share \u2192 Save to Files';
+      }
+    }
+  } catch(err) {
+    status.textContent = 'Error: ' + err.message;
+  } finally {
+    if (prevBatter) batterSel.value = prevBatter;
+    btn.disabled = false;
+    var g = gameSel.value;
+    var b = batterSel.value;
+    if (genBtn) genBtn.disabled = !(g && b);
+  }
+}
 
 loadGames();
 </script>

@@ -297,7 +297,7 @@ canvas { display:block; margin:0 auto; width:100% !important; height:auto !impor
     SAVE ALL RACER CARDS (ZIP)
   </button>
   <div class="save-status" id="saveAllStatus"></div>
-  <div class="save-all-tip">On iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
+  <div class="save-all-tip">Desktop: zip goes to Downloads. iPhone: zip lands in Files — unzip, then Share each image in Messages.</div>
 </div>
 
 
@@ -889,6 +889,112 @@ async function saveCardImage(){
 function closeModal(e){
   if(e.target===document.getElementById('imgModal'))
     document.getElementById('imgModal').classList.remove('active');
+}
+
+function _delay(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+function _canvasToBlob(canvas){
+  return new Promise(function(resolve){
+    if (canvas.toBlob) {
+      canvas.toBlob(function(blob){ resolve(blob); }, 'image/png');
+    } else {
+      var dataUrl = canvas.toDataURL('image/png');
+      var bin = atob(dataUrl.split(',')[1]);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      resolve(new Blob([arr], {type:'image/png'}));
+    }
+  });
+}
+
+function _sanitizeFilePart(s){
+  return String(s || '').replace(/[^\w\-]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') || 'Game';
+}
+
+async function saveAllRacerCards(){
+  var gameSel = document.getElementById('gameSelect');
+  var gameId = gameSel.value;
+  var pitchers = window._msuPitchers || [];
+  if (!gameId || !pitchers.length) {
+    alert('Select a game with Murray State pitchers first.');
+    return;
+  }
+  if (typeof JSZip === 'undefined') {
+    alert('JSZip failed to load. Check your connection and reload.');
+    return;
+  }
+
+  var btn = document.getElementById('saveAllBtn');
+  var saveBtn = document.getElementById('saveBtn');
+  var genBtn = document.getElementById('generateBtn');
+  var status = document.getElementById('saveAllStatus');
+  var pitcherSel = document.getElementById('pitcherSelect');
+  var prevPitcher = pitcherSel.value;
+
+  btn.disabled = true;
+  if (saveBtn) saveBtn.disabled = true;
+  if (genBtn) genBtn.disabled = true;
+
+  var zip = new JSZip();
+  var added = 0;
+  var n = pitchers.length;
+
+  try {
+    for (var i = 0; i < n; i++) {
+      var pitcher = pitchers[i];
+      var label = flipName(pitcher);
+      status.textContent = (i + 1) + '/' + n + ' Rendering ' + label + '...';
+      pitcherSel.value = pitcher;
+      await generate();
+
+      var msg = document.getElementById('statusMsg').textContent || '';
+      if (msg.indexOf('No pitch data') > -1 || document.getElementById('card').style.display === 'none') {
+        continue;
+      }
+
+      // Charts draw via setTimeout(80) inside generate — wait a bit longer
+      await _delay(250);
+
+      var card = document.getElementById('card');
+      var canvas = await html2canvas(card, {scale:2, useCORS:true, allowTaint:true, backgroundColor:'#ffffff', logging:false});
+      var blob = await _canvasToBlob(canvas);
+      if (!blob) continue;
+      var fileName = 'Racer_' + _sanitizeFilePart(label) + '_pitching.png';
+      zip.file(fileName, blob);
+      added++;
+    }
+
+    if (!added) {
+      status.textContent = 'No cards to zip (no pitch data).';
+    } else {
+      status.textContent = 'Building ZIP (' + added + ' cards)...';
+      var zipBlob = await zip.generateAsync({type:'blob'});
+      var opt = gameSel.options[gameSel.selectedIndex];
+      var gameLabel = opt ? (opt.textContent || gameId) : gameId;
+      var zipName = _sanitizeFilePart(gameLabel) + '_Racer_pitcher_cards.zip';
+      var url = URL.createObjectURL(zipBlob);
+      var link = document.createElement('a');
+      link.download = zipName;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      status.textContent = '\u2713 ' + added + ' cards zipped';
+      if (typeof isIOS === 'function' && isIOS()) {
+        status.textContent += ' \u2014 if zip opens, tap Share \u2192 Save to Files';
+      }
+    }
+  } catch(err) {
+    status.textContent = 'Error: ' + err.message;
+  } finally {
+    if (prevPitcher) pitcherSel.value = prevPitcher;
+    btn.disabled = false;
+    if (saveBtn) saveBtn.disabled = false;
+    var g = gameSel.value;
+    var p = pitcherSel.value;
+    if (genBtn) genBtn.disabled = !(g && p);
+  }
 }
 
 loadGames();
